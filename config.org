@@ -607,8 +607,6 @@ Adding some kind of timeline thing
          (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
 #+END_SRC
 
-And here's some edits
-
 *** Babel
 
 - Babel languages
