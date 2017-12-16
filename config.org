@@ -550,11 +550,10 @@ Activate org-mode
 #+END_SRC
 
 - Auto add time and closing note to done
+  - I don't seem to be using the closing note at the moment, though
 
 #+BEGIN_SRC emacs-lisp
-;; Time finished
 (setq org-log-done 'time)
-;; Closing note
 (setq org-log-done 'note)
 #+END_SRC
 
@@ -585,7 +584,6 @@ Activate org-mode
 )
 
 (add-hook 'org-mode-hook 'my/org-mode-hook)
-
 #+END_SRC
 
 Adding some kind of timeline thing
