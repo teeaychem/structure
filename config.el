@@ -289,9 +289,7 @@
                      "DONE(d)"
                      "CANCELLED(c)")))
 
-;; Time finished
 (setq org-log-done 'time)
-;; Closing note
 (setq org-log-done 'note)
 
 (setq  org-directory "/Users/sparkes/Dropbox/Docs/Org")
@@ -310,6 +308,21 @@
 )
 
 (add-hook 'org-mode-hook 'my/org-mode-hook)
+
+(add-hook 'org-load-hook
+  (lambda ()
+    (setq org-agenda-custom-commands
+   '(("L" "my view"
+      ((todo
+        "TODO"
+        ((org-agenda-overriding-header "=== TODO tasks without scheduled date ===")
+         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+         (org-agenda-prefix-format '((todo . " %1c ")))))
+       (agenda
+        ""
+        ((org-agenda-overriding-header "=== Scheduled tasks ===")
+         (org-agenda-span 22)
+         (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
