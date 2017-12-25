@@ -705,7 +705,6 @@ Adding some kind of timeline thing
                            sp-latex-point-after-backslash)))
 #+END_SRC
 
-
 ** Magit
 
 #+BEGIN_SRC emacs-lisp
@@ -783,6 +782,7 @@ Adding some kind of timeline thing
 (define-key tern-mode-keymap (kbd "M-.") nil)
 (define-key tern-mode-keymap (kbd "M-,") nil)
 #+END_SRC
+
 ** Python
 
 #+BEGIN_SRC emacs-lisp
@@ -841,10 +841,10 @@ Adding some kind of timeline thing
 ** Undo tree
 
 #+BEGIN_SRC emacs-lisp
- (use-package undo-tree
-    	:ensure t
-        :init
-        (global-undo-tree-mode))
+(use-package undo-tree
+    :ensure t
+    :init
+(global-undo-tree-mode))
 #+END_SRC
 
 ** ispell
@@ -859,13 +859,13 @@ Adding some kind of timeline thing
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 #+END_SRC
+
 ** PDF Tools
 
-- Enable
-
 #+BEGIN_SRC emacs-lisp
-(pdf-tools-install)
+; (pdf-tools-install)
 #+END_SRC
+
 ** Ido
 
 #+BEGIN_SRC emacs-lisp

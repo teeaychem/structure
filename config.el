@@ -515,9 +515,9 @@
 (global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
 
 (use-package undo-tree
-       :ensure t
-       :init
-       (global-undo-tree-mode))
+    :ensure t
+    :init
+(global-undo-tree-mode))
 
 (setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
 (setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
@@ -527,7 +527,7 @@
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 
-(pdf-tools-install)
+; (pdf-tools-install)
 
 (require 'ido)
 (ido-mode 1)
