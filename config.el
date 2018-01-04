@@ -104,7 +104,7 @@
 
 (global-auto-revert-mode t)
 
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2016/bin/x86_64-darwin")))
+(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
 ;; LaTeX Stuff
@@ -536,4 +536,15 @@
       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
                            "*scratch*" "*Help*" "*Backtrace*"))
 
+(require 'ido-completing-read+)
+(ido-ubiquitous-mode 1)
+
+(setq magit-completing-read-function 'magit-ido-completing-read)
+
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(require 'fix-word)
+
+(global-set-key (kbd "M-u") #'fix-word-upcase)
+(global-set-key (kbd "M-l") #'fix-word-downcase)
+(global-set-key (kbd "M-c") #'fix-word-capitalize)

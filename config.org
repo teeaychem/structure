@@ -244,7 +244,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 - Tells emacs where to find LaTeX.
 #+BEGIN_SRC emacs-lisp
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2016/bin/x86_64-darwin")))
+(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
 ;; LaTeX Stuff
@@ -877,8 +877,30 @@ Adding some kind of timeline thing
                            "*scratch*" "*Help*" "*Backtrace*"))
 #+END_SRC
 
+- And for https://github.com/DarwinAwardWinner/ido-completing-read-plus
+
+#+BEGIN_SRC emacs-lisp
+(require 'ido-completing-read+)
+(ido-ubiquitous-mode 1)
+#+END_SRC
+
+- And for making sure everything behaves well.
+
+#+BEGIN_SRC emacs-lisp
+(setq magit-completing-read-function 'magit-ido-completing-read)
+#+END_SRC
+
 ** Better buffer management
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+END_SRC
+** Fix-word
+
+#+BEGIN_SRC emacs-lisp
+(require 'fix-word)
+
+(global-set-key (kbd "M-u") #'fix-word-upcase)
+(global-set-key (kbd "M-l") #'fix-word-downcase)
+(global-set-key (kbd "M-c") #'fix-word-capitalize)
 #+END_SRC
