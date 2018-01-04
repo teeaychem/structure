@@ -403,6 +403,13 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
      (define-key company-active-map (kbd "C-:") 'helm-company)))
 #+END_SRC
 
+- Company quickhelp
+  - https://github.com/expez/company-quickhelp
+ 
+#+BEGIN_SRC emacs-lisp
+(company-quickhelp-mode 1)
+#+END_SRC
+
 ** Tabbar
 
 - Kill the tabbar

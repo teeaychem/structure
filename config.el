@@ -216,6 +216,8 @@
      (define-key company-mode-map (kbd "C-:") 'helm-company)
      (define-key company-active-map (kbd "C-:") 'helm-company)))
 
+(company-quickhelp-mode 1)
+
 ;; (tabbar-mode 0)
 
 (require 'tabbar)
