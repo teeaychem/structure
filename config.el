@@ -33,6 +33,9 @@
       visible-bell t)
 (show-paren-mode t)
 
+(set-locale-environment "en_GB.UTF-8")
+(setenv "LANG" "en_GB.UTF-8")
+
 (desktop-save-mode)
 ;; Some display settings
 (setq-default indicate-empty-lines t)
@@ -42,7 +45,7 @@
 (global-visual-line-mode t)
 (setq-default line-spacing 2)
 
-(global-hl-line-mode t)
+; (global-hl-line-mode t)
 
 ;; Font Settings
 (when (eq system-type 'darwin)
@@ -60,6 +63,9 @@
 (setq-default fill-column 1024)
 (set-default 'truncate-lines nil)
 
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+(global-set-key (kbd "C-x K") 'kill-buffer)
+
 (delete-selection-mode t)
 
 (add-hook 'text-mode-hook '(lambda ()
@@ -67,7 +73,12 @@
 
 (add-hook 'prog-mode-hook 'subword-mode)
 
+(require 'font-lock)
+(setq font-lock-maximum-decoration t)
 (global-font-lock-mode t)
+(global-hi-lock-mode nil)
+(setq jit-lock-contextually t)
+(setq jit-lock-stealth-verbose t)
 
 (auto-fill-mode t)
 
@@ -81,6 +92,13 @@
   whitespace-line-column 80
   whitespace-style       '(face lines-tail))
 (add-hook 'prog-mode-hook #'whitespace-mode)
+
+(global-set-key (kbd "RET") 'newline-and-indent)
+
+(setq-default indent-tabs-mode nil)
+
+(global-set-key "\M-n" 'scroll-up-line)
+(global-set-key "\M-p" 'scroll-down-line)
 
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq
@@ -104,6 +122,9 @@
 
 (global-auto-revert-mode t)
 
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
 (let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
@@ -111,7 +132,7 @@
 (require 'auctex-latexmk)
 (auctex-latexmk-setup)
 
-(setq auctex-latexmk-inherit-TeX-PDF-mode t)
+;(setq auctex-latexmk-inherit-TeX-PDF-mode t)
 ;; Only works with auctex loaded?
 (load "auctex.el" nil t t)
 ;; (require 'tex-site)
@@ -205,8 +226,7 @@
 
 (add-hook 'after-init-hook 'global-company-mode)
 (company-auctex-init)
-;; (add-hook 'TeX-mode-hook 'my-latex-mode-setup)
-;; global activation of the unicode symbol completion
+
 (add-to-list 'company-backends 'company-math-symbols-unicode)
 (add-to-list 'company-backends '(company-capf
                                  :with company-dabbrev))
@@ -238,22 +258,46 @@
 (setq deft-recursive t)
 (setq deft-use-filename-as-title t)
 (setq deft-use-filter-string-for-filename t)
-;; (global-set-key (kbd "C-x C-g") 'deft-find-file)
+(global-set-key (kbd "C-x C-g") 'deft-find-file)
 
 (require 'browse-kill-ring)
 
 ;; For a more compact mode line
 ;; (use-package smart-mode-line) ; need to fix.
 
-;; I almost always want to go to the right indentation on the next line.
-(global-set-key (kbd "RET") 'newline-and-indent)
-;; Spaces only (no tab characters at all)!
-(setq-default indent-tabs-mode nil)
-;; For easy window scrolling up and down.
-(global-set-key "\M-n" 'scroll-up-line)
-(global-set-key "\M-p" 'scroll-down-line)
-
 (require 'org)
+
+;; Aggressive indent everywhere
+(global-aggressive-indent-mode 1)
+
+(use-package wrap-region
+  :ensure t
+  :config
+  ;; (wrap-region-global-mode t)
+  (wrap-region-add-wrappers
+   '(;; ("(" ")")
+     ;; ("[" "]")
+     ;; ("{" "}")
+     ;; ("<" ">")
+     ;; ("'" "'")
+     ;; ("\"" "\"")
+     ("`" "'"       "q")
+     ("``" "''"     "Q")
+     ("*" "*"       "b"    org-mode)             ; bolden
+     ("*" "*"       "*"    org-mode)             ; bolden
+     ("/" "/"       "i"    org-mode)             ; italics
+     ("/" "/"       "/"    org-mode)             ; italics
+     ("~" "~"       "c"    org-mode)             ; code
+     ("~" "~"       "~"    org-mode)             ; code
+     ("=" "="       "v"    org-mode)             ; verbatim
+     ("=" "="       "="    org-mode)             ; verbatim
+     ("@" "@"       "@"    org-mode)             ; ref
+     ("$" "$"       "$"    org-mode)             ; TeX Math
+     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
+     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
+     ("`" "'"   "c"       lisp-mode)             ; code
+     ))
+  :diminish wrap-region-mode)
 
 ;(add-hook 'org-mode-hook
 ;          (lambda () (face-remap-add-relative 'default :family "Input Mono")))
@@ -358,48 +402,12 @@
    (sqlite)
    ))
 
-;; Aggressive indent everywhere
-(global-aggressive-indent-mode 1)
-
-(use-package wrap-region
-  :ensure t
-  :config
-  ;; (wrap-region-global-mode t)
-  (wrap-region-add-wrappers
-   '(;; ("(" ")")
-     ;; ("[" "]")
-     ;; ("{" "}")
-     ;; ("<" ">")
-     ;; ("'" "'")
-     ;; ("\"" "\"")
-     ("`" "'"       "q")
-     ("``" "''"     "Q")
-     ("*" "*"       "b"    org-mode)             ; bolden
-     ("*" "*"       "*"    org-mode)             ; bolden
-     ("/" "/"       "i"    org-mode)             ; italics
-     ("/" "/"       "/"    org-mode)             ; italics
-     ("~" "~"       "c"    org-mode)             ; code
-     ("~" "~"       "~"    org-mode)             ; code
-     ("=" "="       "v"    org-mode)             ; verbatim
-     ("=" "="       "="    org-mode)             ; verbatim
-     ("@" "@"       "@"    org-mode)             ; ref
-     ("$" "$"       "$"    org-mode)             ; TeX Math
-     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
-     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
-     ("`" "'"   "c"       lisp-mode)             ; code
-     ))
-  :diminish wrap-region-mode)
-
-;; For killing the buffer I'm looking at, capitalised then does the default
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "C-x K") 'kill-buffer)
-
 ;; https://github.com/Fuco1/smartparens
 (require 'smartparens-config)
 (require 'smartparens-latex)
 (smartparens-global-mode t)
 (sp-with-modes
-    '(tex-mode plain-tex-mode latex-mode LaTeX-mode)
+    '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
 
   (sp-local-pair "\\(" "\\)"
                  :unless '(sp-point-before-word-p
@@ -415,7 +423,6 @@
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
-;; Themes
 ;; (load-theme 'monokai t)
 ;; (load-theme 'sanityinc-tomorrow-eighties t)
 
@@ -425,12 +432,20 @@
 (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
 
 ;; Solves pointer problems?
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (with-selected-frame frame
-                  (load-theme  'leuven t))))
-  (load-theme  'leuven t))
+; (if (daemonp)
+;    (add-hook 'after-make-frame-functions
+;              (lambda (frame)
+;                (with-selected-frame frame
+;                  (load-theme  'leuven t))))
+;  (load-theme  'leuven t))
+
+(load-theme 'leuven t)
+;(load-theme 'qsimpleq t)
+
+;(load-theme 'material-light t)
+; (load-theme 'zenburn t)
+;(load-theme 'doom-one-light t)
+;(doom-themes-org-config)
 
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
@@ -473,8 +488,16 @@
 (define-key tern-mode-keymap (kbd "M-.") nil)
 (define-key tern-mode-keymap (kbd "M-,") nil)
 
-; (package-initialize)
 ; (elpy-enable)
+(require 'python-mode)
+
+(require 'py-autopep8)
+(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+
+;(defun my/python-mode-hook ()
+;  (add-to-list 'company-backends 'company-jedi))
+;
+;(add-hook 'python-mode-hook 'my/python-mode-hook)
 
 ;; Better line numbers
 (use-package nlinum
@@ -550,3 +573,6 @@
 (global-set-key (kbd "M-u") #'fix-word-upcase)
 (global-set-key (kbd "M-l") #'fix-word-downcase)
 (global-set-key (kbd "M-c") #'fix-word-capitalize)
+
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
