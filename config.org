@@ -281,8 +281,8 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 https://github.com/purcell/exec-path-from-shell
 
 #+BEGIN_SRC emacs-lisp
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+;(when (memq window-system '(mac ns x))
+;  (exec-path-from-shell-initialize))
 #+END_SRC
 
 ** LaTeX
@@ -459,12 +459,6 @@ https://github.com/purcell/exec-path-from-shell
 #+END_SRC
 
 ** Tabbar
-
-- Kill the tabbar
-
-#+BEGIN_SRC emacs-lisp
-;; (tabbar-mode 0)
-#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (require 'tabbar)
@@ -850,38 +844,9 @@ Adding some kind of timeline thing
 ** Line numbers
 
 #+BEGIN_SRC emacs-lisp
-;; Better line numbers
-(use-package nlinum
-  :config
-  (progn
-    ;; (setq nlinum-format " %d ") ; 1 space padding on each side of line number
-    ;(setq nlinum-highlight-current-line t)
-    ;; (global-nlinum-mode 1)
-
-    ;; (defun modi/turn-on-nlinum ()
-    ;;   "Turn on nlinum mode in specific modes."
-    ;;   (interactive)
-    ;;   (if modi/linum-mode-enable-global
-    ;;       (progn
-    ;;         (dolist (hook modi/linum-mode-hooks)
-    ;;           (remove-hook hook #'nlinum-mode))
-    ;;         (global-nlinum-mode 1))
-    ;;     (progn
-    ;;       (when global-linum-mode
-    ;;         (global-nlinum-mode -1))
-    ;;       (dolist (hook modi/linum-mode-hooks)
-    ;;         (add-hook hook #'nlinum-mode)))))
-
-    ;; (defun modi/turn-off-nlinum ()
-    ;;   "Unhook nlinum mode from various major modes."
-    ;;   (interactive)
-    ;;   (global-nlinum-mode -1)
-    ;;   (dolist (hook modi/linum-mode-hooks).
-    ;;     (remove-hook hook #'nlinum-mode)))
-    ))
-(add-hook 'LaTeX-mode-hook 'nlinum-mode)
-(add-hook 'latex-mode-hook 'nlinum-mode)
-(add-hook 'js-mode-hook 'nlinum-mode)
+(add-hook 'LaTeX-mode-hook 'display-line-numbers-mode)
+(add-hook 'latex-mode-hook 'display-line-numbers-mode)
+(add-hook 'js-mode-hook 'display-line-numbers-mode)
 #+END_SRC
 
 ** Multiple cursors
@@ -950,7 +915,7 @@ Adding some kind of timeline thing
 ** Better buffer management
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x C-b") 'ibuffer)
+;(global-set-key (kbd "C-x C-b") 'ibuffer)
 #+END_SRC
 ** Fix-word
 

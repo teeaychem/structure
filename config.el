@@ -1,4 +1,3 @@
-
 (setq gc-cons-threshold 1000000)
 
 ; (emacs-init-time)
@@ -122,8 +121,8 @@
 
 (global-auto-revert-mode t)
 
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+;(when (memq window-system '(mac ns x))
+;  (exec-path-from-shell-initialize))
 
 (let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
@@ -237,8 +236,6 @@
      (define-key company-active-map (kbd "C-:") 'helm-company)))
 
 (company-quickhelp-mode 1)
-
-;; (tabbar-mode 0)
 
 (require 'tabbar)
 (tabbar-mode 1)
@@ -499,42 +496,13 @@
 ;
 ;(add-hook 'python-mode-hook 'my/python-mode-hook)
 
-;; Better line numbers
-(use-package nlinum
-  :config
-  (progn
-    ;; (setq nlinum-format " %d ") ; 1 space padding on each side of line number
-    ;(setq nlinum-highlight-current-line t)
-    ;; (global-nlinum-mode 1)
-
-    ;; (defun modi/turn-on-nlinum ()
-    ;;   "Turn on nlinum mode in specific modes."
-    ;;   (interactive)
-    ;;   (if modi/linum-mode-enable-global
-    ;;       (progn
-    ;;         (dolist (hook modi/linum-mode-hooks)
-    ;;           (remove-hook hook #'nlinum-mode))
-    ;;         (global-nlinum-mode 1))
-    ;;     (progn
-    ;;       (when global-linum-mode
-    ;;         (global-nlinum-mode -1))
-    ;;       (dolist (hook modi/linum-mode-hooks)
-    ;;         (add-hook hook #'nlinum-mode)))))
-
-    ;; (defun modi/turn-off-nlinum ()
-    ;;   "Unhook nlinum mode from various major modes."
-    ;;   (interactive)
-    ;;   (global-nlinum-mode -1)
-    ;;   (dolist (hook modi/linum-mode-hooks).
-    ;;     (remove-hook hook #'nlinum-mode)))
-    ))
-(add-hook 'LaTeX-mode-hook 'nlinum-mode)
-(add-hook 'latex-mode-hook 'nlinum-mode)
-(add-hook 'js-mode-hook 'nlinum-mode)
+(add-hook 'LaTeX-mode-hook 'display-line-numbers-mode)
+(add-hook 'latex-mode-hook 'display-line-numbers-mode)
+(add-hook 'js-mode-hook 'display-line-numbers-mode)
 
 ;; For multiple cursors
 (use-package multiple-cursors
-        :ensure t)
+    	:ensure t)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
@@ -566,7 +534,7 @@
 
 (setq magit-completing-read-function 'magit-ido-completing-read)
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
+;(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (require 'fix-word)
 

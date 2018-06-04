@@ -58,11 +58,11 @@
  '(org-fontify-done-headline t)
  '(org-fontify-quote-and-verse-blocks t)
  '(org-fontify-whole-heading-line t)
- '(org-latex-preview-ltxpng-directory "~/OrgTemp/")
  '(org-list-allow-alphabetical t)
+ '(org-preview-latex-image-directory "~/OrgTemp/")
  '(package-selected-packages
    (quote
-    (highlight-indent-guides company-jedi python-mode company-quickhelp ido-completing-read+ fix-word no-littering leuven-theme fzf company-tern xref-js2 js2-refactor js2-mode elpy magit smartparens yasnippet bind-key diminish powerline rich-minority s popwin popup epl pkg-info nlinum math-symbol-lists async dash company helm-core wrap-region which-key px helm-company helm tabbar aggressive-indent smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring deft rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex)))
+    (markdown-mode ein highlight-indent-guides company-jedi python-mode company-quickhelp ido-completing-read+ fix-word no-littering leuven-theme fzf company-tern xref-js2 js2-refactor js2-mode elpy magit smartparens yasnippet bind-key diminish powerline rich-minority s popwin popup epl pkg-info math-symbol-lists async dash company helm-core wrap-region which-key px helm-company helm tabbar aggressive-indent smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring deft rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex)))
  '(preview-image-type (quote dvipng))
  '(preview-scale-function 1.0)
  '(reftex-cite-prompt-optional-args t)
