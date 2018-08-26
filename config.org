@@ -7,7 +7,22 @@
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-(setq gc-cons-threshold 1000000)
+  ;; (setq gc-cons-threshold 50000000)
+
+(setq gc-cons-threshold 100000000)
+
+(defun my-lower-gc-cons-threshold ()
+  (setq gc-cons-threshold 800000)
+  (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold)) 
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (run-with-idle-timer
+             60
+             nil
+             #'my-lower-gc-cons-threshold)
+            (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
+
 #+END_SRC
 
 
@@ -65,7 +80,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Yes and No
 
 #+BEGIN_SRC emacs-lisp
-;; Nobody likes to have to type out the full yes or no when Emacs asks. Which it does often. Make it one character.
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
@@ -75,7 +89,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   - Beeping is for robots, and I am not a robot.
   - Use a visual indicator instead of making horrible noises.
   - Oh, and always highlight parentheses.
-    - A person could go insane without that.
 
 #+BEGIN_SRC emacs-lisp
 (setq echo-keystrokes 0.1
@@ -108,6 +121,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (global-visual-line-mode t)
 (setq-default line-spacing 2)
 #+END_SRC
+
 ** interface tweaks
 
 - Highlights!
@@ -150,6 +164,13 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (global-set-key (kbd "C-x K") 'kill-buffer)
+#+END_SRC
+
+- For the mac
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
 #+END_SRC
 
 ** Editing tweaks
@@ -208,10 +229,10 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Getting a visual marker after 80 characters in a line
 
 #+BEGIN_SRC emacs-lisp
-(setq-default
-  whitespace-line-column 80
-  whitespace-style       '(face lines-tail))
-(add-hook 'prog-mode-hook #'whitespace-mode)
+  ;; (setq-default
+  ;;   whitespace-line-column 80
+  ;;   whitespace-style       '(face lines-tail))
+  ;; (add-hook 'prog-mode-hook #'whitespace-mode)
 #+END_SRC
 
 - I almost always want to go to the right indentation on the next line.
@@ -263,9 +284,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (line-number-mode 1)
 ;; Show column-number in the mode line
 (column-number-mode 1)
-
-;; For line numbers Line numbers are on in every buffer by default:
-;; (global-linum-mode 1)
 #+END_SRC
 
 - For reloading of bib files, it seems
@@ -292,7 +310,10 @@ https://github.com/purcell/exec-path-from-shell
 (let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
-;; LaTeX Stuff
+#+END_SRC
+
+- LaTeX Stuff
+#+BEGIN_SRC emacs-lisp
 (require 'auctex-latexmk)
 (auctex-latexmk-setup)
 #+END_SRC
@@ -306,7 +327,6 @@ https://github.com/purcell/exec-path-from-shell
 #+END_SRC
 
 - Use PDF mode by default
-
 #+BEGIN_SRC emacs-lisp
 (setq-default TeX-PDF-mode t)
 ;; Make emacs aware of multi-file projects
@@ -781,9 +801,14 @@ Adding some kind of timeline thing
 
 ** Javascript
 
+- From http://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html
+
 #+BEGIN_SRC emacs-lisp
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+; set tabs to 2
+(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
 
 ;; Better imenu
 (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)

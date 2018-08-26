@@ -1,4 +1,18 @@
-(setq gc-cons-threshold 1000000)
+;; (setq gc-cons-threshold 50000000)
+
+(setq gc-cons-threshold 100000000)
+
+(defun my-lower-gc-cons-threshold ()
+  (setq gc-cons-threshold 800000)
+  (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold)) 
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (run-with-idle-timer
+             60
+             nil
+             #'my-lower-gc-cons-threshold)
+            (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
 
 ; (emacs-init-time)
 
@@ -24,7 +38,6 @@
 (setq tab-width 2
       indent-tabs-mode nil)
 
-;; Nobody likes to have to type out the full yes or no when Emacs asks. Which it does often. Make it one character.
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (setq echo-keystrokes 0.1
@@ -65,6 +78,9 @@
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (global-set-key (kbd "C-x K") 'kill-buffer)
 
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
+
 (delete-selection-mode t)
 
 (add-hook 'text-mode-hook '(lambda ()
@@ -87,10 +103,10 @@
 ;(setq save-abbrevs 'silently)
 ;(setq-default abbrev-mode t)
 
-(setq-default
-  whitespace-line-column 80
-  whitespace-style       '(face lines-tail))
-(add-hook 'prog-mode-hook #'whitespace-mode)
+;; (setq-default
+;;   whitespace-line-column 80
+;;   whitespace-style       '(face lines-tail))
+;; (add-hook 'prog-mode-hook #'whitespace-mode)
 
 (global-set-key (kbd "RET") 'newline-and-indent)
 
@@ -116,9 +132,6 @@
 ;; Show column-number in the mode line
 (column-number-mode 1)
 
-;; For line numbers Line numbers are on in every buffer by default:
-;; (global-linum-mode 1)
-
 (global-auto-revert-mode t)
 
 ;(when (memq window-system '(mac ns x))
@@ -127,7 +140,7 @@
 (let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
-;; LaTeX Stuff
+
 (require 'auctex-latexmk)
 (auctex-latexmk-setup)
 
@@ -450,6 +463,9 @@
 
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+; set tabs to 2
+(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
 
 ;; Better imenu
 (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
