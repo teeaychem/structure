@@ -1,18 +1,29 @@
 ;; (setq gc-cons-threshold 50000000)
 
-(setq gc-cons-threshold 100000000)
+  ;; (setq gc-cons-threshold 100000000)
 
-(defun my-lower-gc-cons-threshold ()
-  (setq gc-cons-threshold 800000)
-  (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold)) 
+  ;; (defun my-lower-gc-cons-threshold ()
+  ;;   (setq gc-cons-threshold (* 64 1024 1024))
+  ;;   (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold))
 
-(add-hook 'after-init-hook
-          (lambda ()
-            (run-with-idle-timer
-             60
-             nil
-             #'my-lower-gc-cons-threshold)
-            (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
+  ;;   (add-hook 'after-init-hook
+  ;;     (lambda ()
+  ;;     (run-with-idle-timer
+  ;;       60
+  ;;       nil
+  ;;       #'my-lower-gc-cons-threshold)
+  ;;       (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
+
+(defun ambrevar/reset-gc-cons-threshold ()
+  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
+(setq gc-cons-threshold (* 64 1024 1024))
+(add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
+
+    (setq default-file-name-handler-alist file-name-handler-alist)
+    (setq file-name-handler-alist nil)
+    (defun ambrevar/reset-file-name-handler-alist ()
+    (setq file-name-handler-alist default-file-name-handler-alist))
+    (add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
 
 ; (emacs-init-time)
 
@@ -63,11 +74,11 @@
 (when (eq system-type 'darwin)
   ;; default Latin font (e.g. Input Mono)
   ;; Input is used to help with lag? It only has 4 different faces.
-  (set-face-attribute 'default nil :family  "mononoki";"Luxi Mono";"Hack";"IBM Plex Mono";"Input Mono"
-                      :height 130)
+  (set-face-attribute 'default nil :family "Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
+                      :height 140)
   )
 
-;; (setq inhibit-compacting-font-caches 1)
+(setq inhibit-compacting-font-caches t)
 
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
@@ -134,10 +145,12 @@
 
 (global-auto-revert-mode t)
 
+(setq use-package-always-ensure t)
+
 ;(when (memq window-system '(mac ns x))
 ;  (exec-path-from-shell-initialize))
 
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
+(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2019/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
 
@@ -178,21 +191,21 @@
 ;; Exclude bold/italic from keywords
 ;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
 ;; TeX-electric-math
-;; (add-hook 'plain-TeX-mode-hook
-;;           (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-;;                           (cons "$" "$"))))
-;; (add-hook 'LaTeX-mode-hook
-;;           (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-;;                           (cons "\\(" "\\)"))))
-;; LaTeX-electric-left-right-brace
-;; (setq LaTeX-electric-left-right-brace t)
+(add-hook 'plain-TeX-mode-hook
+          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+                          (cons "$" "$"))))
+;
+;(add-hook 'LaTeX-mode-hook
+;          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+;                          (cons "\\(" "\\)"))))
+;(setq LaTeX-electric-left-right-brace t)
 (setq TeX-electric-sub-and-superscript t)
 
 (setq TeX-source-correlate-method 'synctex)
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
 
 (setq TeX-view-program-list
-      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
+      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
 (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
 
 (setq org-latex-listings 'minted)
@@ -268,7 +281,7 @@
 (setq deft-recursive t)
 (setq deft-use-filename-as-title t)
 (setq deft-use-filter-string-for-filename t)
-(global-set-key (kbd "C-x C-g") 'deft-find-file)
+(global-set-key (kbd "C-x C-\\") 'deft-find-file)
 
 (require 'browse-kill-ring)
 
@@ -277,37 +290,36 @@
 
 (require 'org)
 
-;; Aggressive indent everywhere
 (global-aggressive-indent-mode 1)
 
-(use-package wrap-region
-  :ensure t
-  :config
+;(use-package wrap-region
+;  :ensure t
+;  :config
   ;; (wrap-region-global-mode t)
-  (wrap-region-add-wrappers
-   '(;; ("(" ")")
-     ;; ("[" "]")
-     ;; ("{" "}")
-     ;; ("<" ">")
-     ;; ("'" "'")
-     ;; ("\"" "\"")
-     ("`" "'"       "q")
-     ("``" "''"     "Q")
-     ("*" "*"       "b"    org-mode)             ; bolden
-     ("*" "*"       "*"    org-mode)             ; bolden
-     ("/" "/"       "i"    org-mode)             ; italics
-     ("/" "/"       "/"    org-mode)             ; italics
-     ("~" "~"       "c"    org-mode)             ; code
-     ("~" "~"       "~"    org-mode)             ; code
-     ("=" "="       "v"    org-mode)             ; verbatim
-     ("=" "="       "="    org-mode)             ; verbatim
-     ("@" "@"       "@"    org-mode)             ; ref
-     ("$" "$"       "$"    org-mode)             ; TeX Math
-     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
-     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
-     ("`" "'"   "c"       lisp-mode)             ; code
-     ))
-  :diminish wrap-region-mode)
+;  (wrap-region-add-wrappers
+;   '(("(" ")")
+;     ("[" "]")
+;     ("{" "}")
+;     ;; ("<" ">")
+;     ;; ("'" "'")
+;     ;; ("\"" "\"")
+;     ("`" "'"       "q")
+;     ("``" "''"     "Q")
+;     ("*" "*"       "b"    org-mode)             ; bolden
+;     ("*" "*"       "*"    org-mode)             ; bolden
+;     ("/" "/"       "i"    org-mode)             ; italics
+;     ("/" "/"       "/"    org-mode)             ; italics
+;     ("~" "~"       "c"    org-mode)             ; code
+;     ("~" "~"       "~"    org-mode)             ; code
+;     ("=" "="       "v"    org-mode)             ; verbatim
+;     ("=" "="       "="    org-mode)             ; verbatim
+;     ("@" "@"       "@"    org-mode)             ; ref
+;     ("$" "$"       "$"    org-mode)             ; TeX Math
+;     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
+;     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
+;     ("`" "'"   "c"       lisp-mode)             ; code
+;     ))
+;  :diminish wrap-region-mode)
 
 ;(add-hook 'org-mode-hook
 ;          (lambda () (face-remap-add-relative 'default :family "Input Mono")))
@@ -337,13 +349,16 @@
 (setq org-agenda-files (file-expand-wildcards "/Users/sparkes/Dropbox/Docs/Org/*.org"))
 
 (setq-default org-todo-keywords '((sequence
-                     "TODO(t)"
-                     "FIXME(f)"
-                     "IN-PROGRESS(p)"
-                     "NEXT(n)"
-                     "WAITING(w)"
-                     "DONE(d)"
-                     "CANCELLED(c)")))
+                      "TODO(t)"
+                      "FIXME(f)"
+                      "IN-PROGRESS(p)"
+                      "NEXT(n)"
+                      "WAITING(w)"
+                      "|"
+                      "DONE(d)"
+                      "COMPLETED(c)"
+                      "CANCELLED(x)")))
+(setq org-log-done t)
 
 (setq org-log-done 'time)
 (setq org-log-done 'note)
@@ -353,7 +368,7 @@
 
 (setq org-src-fontify-natively t)
 
-(defun my/org-mode-hook ()
+;; (defun my/org-mode-hook ()
 ;  "Stop the org-level headers from increasing in height relative to the other text."
 ;  (dolist (face '(org-level-1
 ;                  org-level-2
@@ -361,9 +376,9 @@
 ;                  org-level-4
 ;                  org-level-5))
 ;    (set-face-attribute face nil :weight 'semi-bold :height 1.0))
-)
-
-(add-hook 'org-mode-hook 'my/org-mode-hook)
+;; )
+;; (
+;; add-hook 'org-mode-hook 'my/org-mode-hook)
 
 (add-hook 'org-load-hook
   (lambda ()
@@ -416,20 +431,27 @@
 (require 'smartparens-config)
 (require 'smartparens-latex)
 (smartparens-global-mode t)
+
+; needed to ensure text isn't deleted
+; (https://github.com/Fuco1/smartparens/issues/834)
+(define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
+
 (sp-with-modes
-    '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+'(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+   (sp-local-pair "\\(" "\\)"
+   ;:actions '(:rem autoskip)
+   ;:skip-match 'sp-latex-skip-match-apostrophe
+                  :unless '(;sp-point-before-word-p
+                            ;sp-point-before-same-p
+                            sp-latex-point-after-backslash)
+                   :trigger-wrap "$"
+                   :trigger "$")
 
-  (sp-local-pair "\\(" "\\)"
-                 :unless '(sp-point-before-word-p
-                           sp-point-before-same-p
-                           sp-latex-point-after-backslash)
-                 :trigger-wrap "$"
-                 :trigger "$")
-
-  (sp-local-pair "\\[" "\\]"
-                 :unless '(sp-point-before-word-p
-                           sp-point-before-same-p
-                           sp-latex-point-after-backslash)))
+   ;(sp-local-pair "\\[" "\\]"
+    ;              :unless '(sp-point-before-word-p
+     ;                       sp-point-before-same-p
+      ;                      sp-latex-point-after-backslash))
+      )
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
@@ -449,13 +471,12 @@
 ;                  (load-theme  'leuven t))))
 ;  (load-theme  'leuven t))
 
-(load-theme 'leuven t)
+;; (load-theme 'leuven t)
 ;(load-theme 'qsimpleq t)
 
 ;(load-theme 'material-light t)
-; (load-theme 'zenburn t)
-;(load-theme 'doom-one-light t)
-;(doom-themes-org-config)
+(load-theme 'zenburn t)
+;; (doom-themes-org-config)
 
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
@@ -518,10 +539,13 @@
 
 ;; For multiple cursors
 (use-package multiple-cursors
-    	:ensure t)
+        :ensure t)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
+ ;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
+ ;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
+ ;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
 
 (use-package undo-tree
     :ensure t
@@ -536,27 +560,62 @@
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 
-; (pdf-tools-install)
-
-(require 'ido)
-(ido-mode 1)
-(setq ido-everywhere t
-      ido-enable-flex-matching t
-      ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
-                           "*scratch*" "*Help*" "*Backtrace*"))
-
-(require 'ido-completing-read+)
-(ido-ubiquitous-mode 1)
-
-(setq magit-completing-read-function 'magit-ido-completing-read)
-
-;(global-set-key (kbd "C-x C-b") 'ibuffer)
-
-(require 'fix-word)
-
-(global-set-key (kbd "M-u") #'fix-word-upcase)
-(global-set-key (kbd "M-l") #'fix-word-downcase)
-(global-set-key (kbd "M-c") #'fix-word-capitalize)
-
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
+
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(global-set-key (kbd "C-c B") 'switch-to-previous-buffer)
+
+;; Smoother and nicer scrolling
+  ;; (setq scroll-margin 10
+  ;;    scroll-step 1
+  ;;    next-line-add-newlines nil
+  ;;    scroll-conservatively 10000
+  ;;    scroll-preserve-screen-position 1)
+
+  (setq mouse-wheel-follow-mouse 't)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+  ;; Move file to trash instead of removing.
+  (setq-default delete-by-moving-to-trash t)
+
+  (setq
+   ;; inhibit-startup-message t         ; Don't show the startup message...
+   ;; inhibit-startup-screen t          ; ... or screen
+   cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+
+   echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+   ;; initial-scratch-message nil       ; Empty scratch buffer
+   ;; initial-major-mode 'org-mode      ; Org mode by default
+   help-window-select t              ; Select help window so it's easy to quit it with 'q'
+  )
+
+;; This is rather radical, but saves from a lot of pain in the ass.
+;; When split is automatic, always split windows vertically
+(setq split-height-threshold 0)
+(setq split-width-threshold nil)
+
+(setq inferior-lisp-program (executable-find "sbcl"))
+
+(defun sort-lines-by-length (reverse beg end)
+  "Sort lines by length."
+  (interactive "P\nr")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (let ;; To make `end-of-line' and etc. to ignore fields.
+          ((inhibit-field-text-motion t))
+        (sort-subr reverse 'forward-line 'end-of-line nil nil
+                   (lambda (l1 l2)
+                     (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
+                                        (list l1 l2)))))))))
+
+(beacon-mode 1)
+(setq beacon-push-mark 35)
+(setq beacon-color "#666600")

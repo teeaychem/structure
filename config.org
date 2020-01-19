@@ -7,21 +7,32 @@
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-  ;; (setq gc-cons-threshold 50000000)
+      ;; (setq gc-cons-threshold 50000000)
 
-(setq gc-cons-threshold 100000000)
+    ;; (setq gc-cons-threshold 100000000)
 
-(defun my-lower-gc-cons-threshold ()
-  (setq gc-cons-threshold 800000)
-  (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold)) 
+    ;; (defun my-lower-gc-cons-threshold ()
+    ;;   (setq gc-cons-threshold (* 64 1024 1024))
+    ;;   (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold))
 
-(add-hook 'after-init-hook
-          (lambda ()
-            (run-with-idle-timer
-             60
-             nil
-             #'my-lower-gc-cons-threshold)
-            (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
+    ;;   (add-hook 'after-init-hook
+    ;;     (lambda ()
+    ;;     (run-with-idle-timer
+    ;;       60
+    ;;       nil
+    ;;       #'my-lower-gc-cons-threshold)
+    ;;       (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
+
+  (defun ambrevar/reset-gc-cons-threshold ()
+    (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
+  (setq gc-cons-threshold (* 64 1024 1024))
+  (add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
+
+      (setq default-file-name-handler-alist file-name-handler-alist)
+      (setq file-name-handler-alist nil)
+      (defun ambrevar/reset-file-name-handler-alist ()
+      (setq file-name-handler-alist default-file-name-handler-alist))
+      (add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
 
 #+END_SRC
 
@@ -122,10 +133,9 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (setq-default line-spacing 2)
 #+END_SRC
 
-** interface tweaks
+** Interface tweaks
 
-- Highlights!
-  - The current cursor line
+- Highlight the current cursor line
 
 #+BEGIN_SRC emacs-lisp
 ; (global-hl-line-mode t)
@@ -134,16 +144,18 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Font settings
 
 #+BEGIN_SRC emacs-lisp
-;; Font Settings
-(when (eq system-type 'darwin)
-  ;; default Latin font (e.g. Input Mono)
-  ;; Input is used to help with lag? It only has 4 different faces.
-  (set-face-attribute 'default nil :family  "mononoki";"Luxi Mono";"Hack";"IBM Plex Mono";"Input Mono"
-                      :height 130)
-  )
+  ;; Font Settings
+  (when (eq system-type 'darwin)
+    ;; default Latin font (e.g. Input Mono)
+    ;; Input is used to help with lag? It only has 4 different faces.
+    (set-face-attribute 'default nil :family "Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
+                        :height 140)
+    )
 
-;; (setq inhibit-compacting-font-caches 1)
+  (setq inhibit-compacting-font-caches t)
 #+END_SRC
+
+#+RESULTS:
 
 - Disable the toolbar and the scroll bar
 
@@ -235,18 +247,18 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   ;; (add-hook 'prog-mode-hook #'whitespace-mode)
 #+END_SRC
 
-- I almost always want to go to the right indentation on the next line.
+- Go to indentation on new line
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
-- Spaces only (no tab characters at all)!
+- Spaces only (no tab characters at all)
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 
-- For easy window scrolling up and down.
+- For easy window scrolling up and down
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key "\M-n" 'scroll-up-line)
@@ -256,7 +268,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 ** Background tweaks
 
 - Change backup location and make some backup settings
-  - Largely from: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
+  - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+BEGIN_SRC emacs-lisp
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
@@ -286,13 +298,19 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (column-number-mode 1)
 #+END_SRC
 
-- For reloading of bib files, it seems
+- For reloading bib files
 
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode t)
 #+END_SRC
 
 * Packages, etc.
+
+** use-package
+
+#+BEGIN_SRC emacs-lisp
+(setq use-package-always-ensure t)
+#+END_SRC
 
 ** exec-path-from-shell
 
@@ -307,7 +325,7 @@ https://github.com/purcell/exec-path-from-shell
 
 - Tells emacs where to find LaTeX.
 #+BEGIN_SRC emacs-lisp
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2017/bin/x86_64-darwin")))
+(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2019/bin/x86_64-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
 #+END_SRC
@@ -359,21 +377,21 @@ https://github.com/purcell/exec-path-from-shell
 - ReFtex from https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
 
 #+BEGIN_SRC emacs-lisp
-(setq reftex-plug-into-AUCTeX t)
-;; Only change sectioning colour
-(setq font-latex-fontify-sectioning 'color)
-;; Exclude bold/italic from keywords
-;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
-;; TeX-electric-math
-;; (add-hook 'plain-TeX-mode-hook
-;;           (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-;;                           (cons "$" "$"))))
-;; (add-hook 'LaTeX-mode-hook
-;;           (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-;;                           (cons "\\(" "\\)"))))
-;; LaTeX-electric-left-right-brace
-;; (setq LaTeX-electric-left-right-brace t)
-(setq TeX-electric-sub-and-superscript t)
+  (setq reftex-plug-into-AUCTeX t)
+  ;; Only change sectioning colour
+  (setq font-latex-fontify-sectioning 'color)
+  ;; Exclude bold/italic from keywords
+  ;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
+  ;; TeX-electric-math
+  (add-hook 'plain-TeX-mode-hook
+            (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+                            (cons "$" "$"))))
+  ;
+  ;(add-hook 'LaTeX-mode-hook
+  ;          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+  ;                          (cons "\\(" "\\)"))))
+  ;(setq LaTeX-electric-left-right-brace t)
+  (setq TeX-electric-sub-and-superscript t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -388,7 +406,7 @@ https://github.com/purcell/exec-path-from-shell
 
 #+BEGIN_SRC emacs-lisp
 (setq TeX-view-program-list
-      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
+      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
 (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
 #+END_SRC
 
@@ -449,7 +467,6 @@ https://github.com/purcell/exec-path-from-shell
 ** Company
 
 #+BEGIN_SRC emacs-lisp
-
 (add-hook 'after-init-hook 'global-company-mode)
 (company-auctex-init)
 #+END_SRC
@@ -514,7 +531,7 @@ https://github.com/purcell/exec-path-from-shell
 (setq deft-recursive t)
 (setq deft-use-filename-as-title t)
 (setq deft-use-filter-string-for-filename t)
-(global-set-key (kbd "C-x C-g") 'deft-find-file)
+(global-set-key (kbd "C-x C-\\") 'deft-find-file)
 #+END_SRC
 
 ** Browse kill ring
@@ -536,40 +553,40 @@ Activate org-mode
 (require 'org)
 #+END_SRC
 
+- Aggressive indent everywhere
 #+BEGIN_SRC emacs-lisp
-;; Aggressive indent everywhere
 (global-aggressive-indent-mode 1)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package wrap-region
-  :ensure t
-  :config
+;(use-package wrap-region
+;  :ensure t
+;  :config
   ;; (wrap-region-global-mode t)
-  (wrap-region-add-wrappers
-   '(;; ("(" ")")
-     ;; ("[" "]")
-     ;; ("{" "}")
-     ;; ("<" ">")
-     ;; ("'" "'")
-     ;; ("\"" "\"")
-     ("`" "'"       "q")
-     ("``" "''"     "Q")
-     ("*" "*"       "b"    org-mode)             ; bolden
-     ("*" "*"       "*"    org-mode)             ; bolden
-     ("/" "/"       "i"    org-mode)             ; italics
-     ("/" "/"       "/"    org-mode)             ; italics
-     ("~" "~"       "c"    org-mode)             ; code
-     ("~" "~"       "~"    org-mode)             ; code
-     ("=" "="       "v"    org-mode)             ; verbatim
-     ("=" "="       "="    org-mode)             ; verbatim
-     ("@" "@"       "@"    org-mode)             ; ref
-     ("$" "$"       "$"    org-mode)             ; TeX Math
-     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
-     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
-     ("`" "'"   "c"       lisp-mode)             ; code
-     ))
-  :diminish wrap-region-mode)
+;  (wrap-region-add-wrappers
+;   '(("(" ")")
+;     ("[" "]")
+;     ("{" "}")
+;     ;; ("<" ">")
+;     ;; ("'" "'")
+;     ;; ("\"" "\"")
+;     ("`" "'"       "q")
+;     ("``" "''"     "Q")
+;     ("*" "*"       "b"    org-mode)             ; bolden
+;     ("*" "*"       "*"    org-mode)             ; bolden
+;     ("/" "/"       "i"    org-mode)             ; italics
+;     ("/" "/"       "/"    org-mode)             ; italics
+;     ("~" "~"       "c"    org-mode)             ; code
+;     ("~" "~"       "~"    org-mode)             ; code
+;     ("=" "="       "v"    org-mode)             ; verbatim
+;     ("=" "="       "="    org-mode)             ; verbatim
+;     ("@" "@"       "@"    org-mode)             ; ref
+;     ("$" "$"       "$"    org-mode)             ; TeX Math
+;     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
+;     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
+;     ("`" "'"   "c"       lisp-mode)             ; code
+;     ))
+;  :diminish wrap-region-mode)
 #+END_SRC
 
 *** Background Org Stuff
@@ -582,7 +599,6 @@ Activate org-mode
 #+END_SRC
 
 - LaTeX size in org
-
 #+BEGIN_SRC emacs-lisp
 (setq org-format-latex-options
       '(:foreground default
@@ -595,13 +611,11 @@ Activate org-mode
 #+END_SRC
 
 - Prevent demoting heading also shifting text inside sections
-
 #+BEGIN_SRC emacs-lisp
 (setq org-adapt-indentation nil)
 #+END_SRC
 
 - Adding fontlock for @nums@ page references
-
 #+BEGIN_SRC emacs-lisp
 (font-lock-add-keywords
  'org-mode
@@ -612,7 +626,6 @@ Activate org-mode
   - The following lines are always needed.
 
 - Some org-mode keybindings
-
 #+BEGIN_SRC emacs-lisp
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
@@ -627,7 +640,6 @@ Activate org-mode
 - Including all org files from a directory into the agenda
   - Note, multiple directories can be added, like:
     - ; (setq org-agenda-files (quote ("~/agenda/work" "~/agenda/todo")))
-
 #+BEGIN_SRC emacs-lisp
 (setq org-agenda-files (file-expand-wildcards "/Users/sparkes/Dropbox/Docs/Org/*.org"))
 #+END_SRC
@@ -635,26 +647,26 @@ Activate org-mode
 *** Agenda
 
 #+BEGIN_SRC emacs-lisp
-   (setq-default org-todo-keywords '((sequence
-                        "TODO(t)"
-                        "FIXME(f)"
-                        "IN-PROGRESS(p)"
-                        "NEXT(n)"
-                        "WAITING(w)"
-                        "DONE(d)"
-                        "CANCELLED(c)")))
+(setq-default org-todo-keywords '((sequence
+                      "TODO(t)"
+                      "FIXME(f)"
+                      "IN-PROGRESS(p)"
+                      "NEXT(n)"
+                      "WAITING(w)"
+                      "|"
+                      "DONE(d)"
+                      "COMPLETED(c)"
+                      "CANCELLED(x)")))
+(setq org-log-done t)
 #+END_SRC
 
 - Auto add time and closing note to done
-  - I don't seem to be using the closing note at the moment, though
-
 #+BEGIN_SRC emacs-lisp
 (setq org-log-done 'time)
 (setq org-log-done 'note)
 #+END_SRC
 
 - Org capture
-
 #+BEGIN_SRC emacs-lisp
 (setq  org-directory "/Users/sparkes/Dropbox/Docs/Org")
 (setq org-default-notes-file (concat org-directory "/OrgCapture.org"))
@@ -667,23 +679,21 @@ Activate org-mode
 #+END_SRC
 
 - Header size
-
 #+BEGIN_SRC emacs-lisp
-(defun my/org-mode-hook ()
-;  "Stop the org-level headers from increasing in height relative to the other text."
-;  (dolist (face '(org-level-1
-;                  org-level-2
-;                  org-level-3
-;                  org-level-4
-;                  org-level-5))
-;    (set-face-attribute face nil :weight 'semi-bold :height 1.0))
-)
-
-(add-hook 'org-mode-hook 'my/org-mode-hook)
+  ;; (defun my/org-mode-hook ()
+  ;  "Stop the org-level headers from increasing in height relative to the other text."
+  ;  (dolist (face '(org-level-1
+  ;                  org-level-2
+  ;                  org-level-3
+  ;                  org-level-4
+  ;                  org-level-5))
+  ;    (set-face-attribute face nil :weight 'semi-bold :height 1.0))
+  ;; )
+  ;; (
+  ;; add-hook 'org-mode-hook 'my/org-mode-hook)
 #+END_SRC
 
 Adding some kind of timeline thing
-
 #+BEGIN_SRC emacs-lisp
 (add-hook 'org-load-hook
   (lambda ()
@@ -738,27 +748,34 @@ Adding some kind of timeline thing
            ))
 #+END_SRC
 
-
+** Smartparens
 
 #+BEGIN_SRC emacs-lisp
-;; https://github.com/Fuco1/smartparens
-(require 'smartparens-config)
-(require 'smartparens-latex)
-(smartparens-global-mode t)
-(sp-with-modes
-    '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+  ;; https://github.com/Fuco1/smartparens
+ (require 'smartparens-config)
+ (require 'smartparens-latex)
+ (smartparens-global-mode t)
 
-  (sp-local-pair "\\(" "\\)"
-                 :unless '(sp-point-before-word-p
-                           sp-point-before-same-p
-                           sp-latex-point-after-backslash)
-                 :trigger-wrap "$"
-                 :trigger "$")
+ ; needed to ensure text isn't deleted
+ ; (https://github.com/Fuco1/smartparens/issues/834)
+ (define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
 
-  (sp-local-pair "\\[" "\\]"
-                 :unless '(sp-point-before-word-p
-                           sp-point-before-same-p
-                           sp-latex-point-after-backslash)))
+ (sp-with-modes
+ '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+    (sp-local-pair "\\(" "\\)"
+    ;:actions '(:rem autoskip)
+    ;:skip-match 'sp-latex-skip-match-apostrophe
+                   :unless '(;sp-point-before-word-p
+                             ;sp-point-before-same-p
+                             sp-latex-point-after-backslash)
+                    :trigger-wrap "$"
+                    :trigger "$")
+
+    ;(sp-local-pair "\\[" "\\]"
+     ;              :unless '(sp-point-before-word-p
+      ;                       sp-point-before-same-p
+       ;                      sp-latex-point-after-backslash))
+       )
 #+END_SRC
 
 ** Magit
@@ -770,33 +787,32 @@ Adding some kind of timeline thing
 ** Themes
 
 #+BEGIN_SRC emacs-lisp
-;; (load-theme 'monokai t)
-;; (load-theme 'sanityinc-tomorrow-eighties t)
+  ;; (load-theme 'monokai t)
+  ;; (load-theme 'sanityinc-tomorrow-eighties t)
 
-;; to get rid of buffer-face on shift click
-(define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
-;; to set right click to a menu bar instead of yanking
-(global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
+  ;; to get rid of buffer-face on shift click
+  (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
+  ;; to set right click to a menu bar instead of yanking
+  (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
 
-;; Solves pointer problems?
-; (if (daemonp)
-;    (add-hook 'after-make-frame-functions
-;              (lambda (frame)
-;                (with-selected-frame frame
-;                  (load-theme  'leuven t))))
-;  (load-theme  'leuven t))
+  ;; Solves pointer problems?
+  ; (if (daemonp)
+  ;    (add-hook 'after-make-frame-functions
+  ;              (lambda (frame)
+  ;                (with-selected-frame frame
+  ;                  (load-theme  'leuven t))))
+  ;  (load-theme  'leuven t))
 
-(load-theme 'leuven t)
-;(load-theme 'qsimpleq t)
+  ;; (load-theme 'leuven t)
+  ;(load-theme 'qsimpleq t)
 
-;(load-theme 'material-light t)
-; (load-theme 'zenburn t)
-;(load-theme 'doom-one-light t)
-;(doom-themes-org-config)
+  ;(load-theme 'material-light t)
+  (load-theme 'zenburn t)
+  ;; (doom-themes-org-config)
 
-;; For loading themes
-;; (defadvice load-theme (before theme-dont-propagate activate)
-;;   (mapc #'disable-theme custom-enabled-themes))
+  ;; For loading themes
+  ;; (defadvice load-theme (before theme-dont-propagate activate)
+  ;;   (mapc #'disable-theme custom-enabled-themes))
 #+END_SRC
 
 ** Javascript
@@ -877,12 +893,15 @@ Adding some kind of timeline thing
 ** Multiple cursors
 
 #+BEGIN_SRC emacs-lisp
-;; For multiple cursors
-(use-package multiple-cursors
-    	:ensure t)
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
+  ;; For multiple cursors
+  (use-package multiple-cursors
+          :ensure t)
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
+   ;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
+   ;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
+   ;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
 #+END_SRC
 
 ** Undo tree
@@ -907,41 +926,30 @@ Adding some kind of timeline thing
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 #+END_SRC
 
-** PDF Tools
-
-#+BEGIN_SRC emacs-lisp
-; (pdf-tools-install)
-#+END_SRC
-
 ** Ido
 
 #+BEGIN_SRC emacs-lisp
-(require 'ido)
-(ido-mode 1)
-(setq ido-everywhere t
-      ido-enable-flex-matching t
-      ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
-                           "*scratch*" "*Help*" "*Backtrace*"))
-#+END_SRC
+# (require 'ido)
+# (ido-mode 1)
+# (setq ido-everywhere t
+#       ido-enable-flex-matching t
+#       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
+#                            "*scratch*" "*Help*" "*Backtrace*"))
+# #+END_SRC
 
-- And for https://github.com/DarwinAwardWinner/ido-completing-read-plus
+# - And for https://github.com/DarwinAwardWinner/ido-completing-read-plus
 
-#+BEGIN_SRC emacs-lisp
-(require 'ido-completing-read+)
-(ido-ubiquitous-mode 1)
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (require 'ido-completing-read+)
+# (ido-ubiquitous-mode 1)
+# #+END_SRC
 
-- And for making sure everything behaves well.
+# - And for making sure everything behaves well.
 
-#+BEGIN_SRC emacs-lisp
-(setq magit-completing-read-function 'magit-ido-completing-read)
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (setq magit-completing-read-function 'magit-ido-completing-read)
+# #+END_SRC
 
-** Better buffer management
-
-#+BEGIN_SRC emacs-lisp
-;(global-set-key (kbd "C-x C-b") 'ibuffer)
-#+END_SRC
 ** Fix-word
 
 #+BEGIN_SRC emacs-lisp
@@ -961,4 +969,85 @@ Adding some kind of timeline thing
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
+#+END_SRC
+
+** Buffer management
+
+From http://emacsredux.com/blog/2013/04/28/switch-to-previous-buffer/
+
+#+BEGIN_SRC emacs-lisp
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c B") 'switch-to-previous-buffer)
+#+END_SRC
+
+* Testing
+
+#+BEGIN_SRC emacs-lisp
+
+    ;; Smoother and nicer scrolling
+    ;; (setq scroll-margin 10
+    ;;    scroll-step 1
+    ;;    next-line-add-newlines nil
+    ;;    scroll-conservatively 10000
+    ;;    scroll-preserve-screen-position 1)
+
+    (setq mouse-wheel-follow-mouse 't)
+    (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+    ;; Move file to trash instead of removing.
+    (setq-default delete-by-moving-to-trash t)
+
+    (setq
+     ;; inhibit-startup-message t         ; Don't show the startup message...
+     ;; inhibit-startup-screen t          ; ... or screen
+     cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+
+     echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+     ;; initial-scratch-message nil       ; Empty scratch buffer
+     ;; initial-major-mode 'org-mode      ; Org mode by default
+     help-window-select t              ; Select help window so it's easy to quit it with 'q'
+    )
+
+  ;; This is rather radical, but saves from a lot of pain in the ass.
+  ;; When split is automatic, always split windows vertically
+  (setq split-height-threshold 0)
+  (setq split-width-threshold nil)
+
+#+END_SRC
+* LISP
+** SLIME
+
+#+BEGIN_SRC emacs-lisp
+(setq inferior-lisp-program (executable-find "sbcl"))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(defun sort-lines-by-length (reverse beg end)
+  "Sort lines by length."
+  (interactive "P\nr")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region beg end)
+      (goto-char (point-min))
+      (let ;; To make `end-of-line' and etc. to ignore fields.
+          ((inhibit-field-text-motion t))
+        (sort-subr reverse 'forward-line 'end-of-line nil nil
+                   (lambda (l1 l2)
+                     (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
+                                        (list l1 l2)))))))))
+#+END_SRC
+** Beacon
+
+#+BEGIN_SRC emacs-lisp
+(beacon-mode 1)
+(setq beacon-push-mark 35)
+(setq beacon-color "#666600")
 #+END_SRC

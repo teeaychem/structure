@@ -1,14 +1,9 @@
 ;; magic. . .
 
-;; Increase gc to 500MB for easy startup
-(setq gc-cons-threshold (* 500 1024 1024))
-
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
-; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
-;; (setq package-archive-enable-alist '(("melpa" deft magit)))
 (package-initialize)
 
 ;; Bootstrap `use-package'
@@ -36,6 +31,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(LaTeX-math-abbrev-prefix "§")
+ '(TeX-electric-escape nil)
  '(TeX-source-correlate-method (quote ((dvi . source-specials) (pdf . synctex))))
  '(TeX-source-correlate-mode t)
  '(ansi-color-faces-vector
@@ -62,7 +58,7 @@
  '(org-preview-latex-image-directory "~/OrgTemp/")
  '(package-selected-packages
    (quote
-    (markdown-mode ein highlight-indent-guides company-jedi python-mode company-quickhelp ido-completing-read+ fix-word no-littering leuven-theme fzf company-tern xref-js2 js2-refactor js2-mode elpy magit smartparens yasnippet bind-key diminish powerline rich-minority s popwin popup epl pkg-info math-symbol-lists async dash company helm-core wrap-region which-key px helm-company helm tabbar aggressive-indent smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring deft rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex)))
+    (beacon smartparens slime ghub zenburn-theme diff-hl synosaurus markdown-mode ein highlight-indent-guides company-jedi python-mode company-quickhelp ido-completing-read+ fix-word no-littering leuven-theme fzf company-tern xref-js2 js2-refactor js2-mode elpy magit yasnippet bind-key diminish powerline rich-minority s popwin popup epl pkg-info math-symbol-lists async dash company helm-core wrap-region which-key px helm-company helm tabbar aggressive-indent smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring deft rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex)))
  '(preview-image-type (quote dvipng))
  '(preview-scale-function 1.0)
  '(reftex-cite-prompt-optional-args t)
@@ -101,10 +97,6 @@
  '(font-latex-superscript-face ((t nil)))
  '(hl-line ((t (:background "#F6FECD" :underline nil)))))
 
-
-;; gc - decrease threshold to 5 MB
-(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
-
 (load "server")
 (unless (server-running-p) (server-start)) ; start emacs in server mode so that skim can talk to it
 
@@ -124,8 +116,5 @@
 (setq ns-function-modifier 'hyper)
 ;; Also, don't pass uses of command to the system
 (setq mac-pass-command-to-system nil)
-
-
-
 
 ;; init.el ends here
