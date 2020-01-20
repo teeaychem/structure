@@ -285,9 +285,6 @@
 
 (require 'browse-kill-ring)
 
-;; For a more compact mode line
-;; (use-package smart-mode-line) ; need to fix.
-
 (require 'org)
 
 (global-aggressive-indent-mode 1)
@@ -455,9 +452,6 @@
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
-;; (load-theme 'monokai t)
-;; (load-theme 'sanityinc-tomorrow-eighties t)
-
 ;; to get rid of buffer-face on shift click
 (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
 ;; to set right click to a menu bar instead of yanking
@@ -482,41 +476,44 @@
 ;; (defadvice load-theme (before theme-dont-propagate activate)
 ;;   (mapc #'disable-theme custom-enabled-themes))
 
-(require 'js2-mode)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+;; (require 'js2-mode)
+;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 ; set tabs to 2
-(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
+;; (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
 
 ;; Better imenu
-(add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
 
-(require 'js2-refactor)
-(require 'xref-js2)
+;; (require 'js2-refactor)
+;; (
+;; require 'xref-js2)
 
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+;; (add-hook 'js2-mode-hook #'js2-refactor-mode)
+;; (
+;;  js2r-add-keybindings-with-prefix "C-c C-r")
+;; (
+;; define-key js2-mode-map (kbd "C-k") #'js2r-kill)
 
 ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
 ;; unbind it.
-(define-key js-mode-map (kbd "M-.") nil)
+;; (define-key js-mode-map (kbd "M-.") nil)
 
-(add-hook 'js2-mode-hook (lambda ()
-                           (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+;; (add-hook 'js2-mode-hook (lambda ()
+;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
 
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+;; (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
 
-;; setting the amount of syntax highligting
-(setq js2-highlight-level 3)
+;; ;; setting the amount of syntax highligting
+;; (setq js2-highlight-level 3)
 
 ;; (require 'company-mode)
 (require 'company-tern)
 
 (add-to-list 'company-backends 'company-tern)
-(add-hook 'js2-mode-hook (lambda ()
-                           (tern-mode)
-                           (company-mode)))
+;; (add-hook 'js2-mode-hook (lambda ()
+;;                            (tern-mode)
+;;                            (company-mode)))
 
 ;; Disable completion keybindings, as we use xref-js2 instead
 (define-key tern-mode-keymap (kbd "M-.") nil)
@@ -525,8 +522,8 @@
 ; (elpy-enable)
 (require 'python-mode)
 
-(require 'py-autopep8)
-(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+;; (require 'py-autopep8)
+;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
 
 ;(defun my/python-mode-hook ()
 ;  (add-to-list 'company-backends 'company-jedi))
@@ -559,6 +556,24 @@
 ; (add-hook 'org-mode-hook 'flyspell-mode)
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
+
+;; (require 'ido)
+;; (ido-mode 1)
+;; (setq ido-everywhere t
+;;       ido-enable-flex-matching t
+;;       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
+;;                            "*scratch*" "*Help*" "*Backtrace*"))
+
+;; (require 'ido-completing-read+)
+;; (ido-ubiquitous-mode 1)
+
+;; (setq magit-completing-read-function 'magit-ido-completing-read)
+
+(require 'fix-word)
+
+(global-set-key (kbd "M-u") #'fix-word-upcase)
+(global-set-key (kbd "M-l") #'fix-word-downcase)
+(global-set-key (kbd "M-c") #'fix-word-capitalize)
 
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)

@@ -304,6 +304,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (global-auto-revert-mode t)
 #+END_SRC
 
+
 * Packages, etc.
 
 ** use-package
@@ -538,11 +539,6 @@ https://github.com/purcell/exec-path-from-shell
 
 #+BEGIN_SRC emacs-lisp
 (require 'browse-kill-ring)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-;; For a more compact mode line
-;; (use-package smart-mode-line) ; need to fix.
 #+END_SRC
 
 ** Org mode
@@ -787,9 +783,6 @@ Adding some kind of timeline thing
 ** Themes
 
 #+BEGIN_SRC emacs-lisp
-  ;; (load-theme 'monokai t)
-  ;; (load-theme 'sanityinc-tomorrow-eighties t)
-
   ;; to get rid of buffer-face on shift click
   (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
   ;; to set right click to a menu bar instead of yanking
@@ -815,50 +808,53 @@ Adding some kind of timeline thing
   ;;   (mapc #'disable-theme custom-enabled-themes))
 #+END_SRC
 
-** Javascript
+** Javascript (unused)
 
 - From http://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html
 
 #+BEGIN_SRC emacs-lisp
-(require 'js2-mode)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  ;; (require 'js2-mode)
+  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
-; set tabs to 2
-(add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
+  ; set tabs to 2
+  ;; (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
 
-;; Better imenu
-(add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+  ;; Better imenu
+  ;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
 
-(require 'js2-refactor)
-(require 'xref-js2)
+  ;; (require 'js2-refactor)
+  ;; (
+  ;; require 'xref-js2)
 
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+  ;; (add-hook 'js2-mode-hook #'js2-refactor-mode)
+  ;; (
+  ;;  js2r-add-keybindings-with-prefix "C-c C-r")
+  ;; (
+  ;; define-key js2-mode-map (kbd "C-k") #'js2r-kill)
 
-;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-;; unbind it.
-(define-key js-mode-map (kbd "M-.") nil)
+  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+  ;; unbind it.
+  ;; (define-key js-mode-map (kbd "M-.") nil)
 
-(add-hook 'js2-mode-hook (lambda ()
-                           (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+  ;; (add-hook 'js2-mode-hook (lambda ()
+  ;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
 
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+  ;; (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
 
-;; setting the amount of syntax highligting
-(setq js2-highlight-level 3)
+  ;; ;; setting the amount of syntax highligting
+  ;; (setq js2-highlight-level 3)
 #+END_SRC
 
 ** Tern
 
 #+BEGIN_SRC emacs-lisp
-;; (require 'company-mode)
-(require 'company-tern)
+  ;; (require 'company-mode)
+  (require 'company-tern)
 
-(add-to-list 'company-backends 'company-tern)
-(add-hook 'js2-mode-hook (lambda ()
-                           (tern-mode)
-                           (company-mode)))
+  (add-to-list 'company-backends 'company-tern)
+  ;; (add-hook 'js2-mode-hook (lambda ()
+  ;;                            (tern-mode)
+  ;;                            (company-mode)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -870,16 +866,16 @@ Adding some kind of timeline thing
 ** Python
 
 #+BEGIN_SRC emacs-lisp
-; (elpy-enable)
-(require 'python-mode)
+  ; (elpy-enable)
+  (require 'python-mode)
 
-(require 'py-autopep8)
-(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+  ;; (require 'py-autopep8)
+  ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
 
-;(defun my/python-mode-hook ()
-;  (add-to-list 'company-backends 'company-jedi))
-;
-;(add-hook 'python-mode-hook 'my/python-mode-hook)
+  ;(defun my/python-mode-hook ()
+  ;  (add-to-list 'company-backends 'company-jedi))
+  ;
+  ;(add-hook 'python-mode-hook 'my/python-mode-hook)
 #+END_SRC
 
 ** Line numbers
@@ -926,29 +922,29 @@ Adding some kind of timeline thing
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 #+END_SRC
 
-** Ido
+** Ido (unused)
 
 #+BEGIN_SRC emacs-lisp
-# (require 'ido)
-# (ido-mode 1)
-# (setq ido-everywhere t
-#       ido-enable-flex-matching t
-#       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
-#                            "*scratch*" "*Help*" "*Backtrace*"))
-# #+END_SRC
+  ;; (require 'ido)
+  ;; (ido-mode 1)
+  ;; (setq ido-everywhere t
+  ;;       ido-enable-flex-matching t
+  ;;       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
+  ;;                            "*scratch*" "*Help*" "*Backtrace*"))
+#+END_SRC
 
-# - And for https://github.com/DarwinAwardWinner/ido-completing-read-plus
+- And for https://github.com/DarwinAwardWinner/ido-completing-read-plus
 
-# #+BEGIN_SRC emacs-lisp
-# (require 'ido-completing-read+)
-# (ido-ubiquitous-mode 1)
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp
+;; (require 'ido-completing-read+)
+;; (ido-ubiquitous-mode 1)
+#+END_SRC
 
-# - And for making sure everything behaves well.
+- For making sure everything behaves well.
 
-# #+BEGIN_SRC emacs-lisp
-# (setq magit-completing-read-function 'magit-ido-completing-read)
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp
+;; (setq magit-completing-read-function 'magit-ido-completing-read)
+#+END_SRC
 
 ** Fix-word
 
@@ -987,6 +983,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (global-set-key (kbd "C-c B") 'switch-to-previous-buffer)
 #+END_SRC
 
+
 * Testing
 
 #+BEGIN_SRC emacs-lisp
@@ -1021,6 +1018,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq split-width-threshold nil)
 
 #+END_SRC
+
 * LISP
 ** SLIME
 
