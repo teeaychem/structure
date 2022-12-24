@@ -1,8 +1,8 @@
+@default_files = ('master.tex');
+
 $pdf_mode = 4;
 # 4 for lualatex
 # 5 for xelatex
-
-
 
 $lualatex = 'lualatex -interaction=nonstopmode -shell-escape -synctex=1 -file-line-error %O %S';
 $lualatex .= ' && cp %D %B.pdf' ;
@@ -20,18 +20,21 @@ $pdflatex = 'pdflatex -interaction=nonstopmode -shell-escape -synctex=1 -file-li
 $pdflatex .= ' && cp %D %B.pdf';
 $pdflatex .= ' && cp %D %Z%B.synctex.gz .';
 
-$out_dir = '/Users/sparkes/Documents/TexTemp';
+$out_dir = '/Users/bsparkes/Documents/TexTemp';
 
 $preview_mode = 0;
 $postscript_mode = 0;
 $dvi_mode = 0;
 
-$pdf_previewer = 'open -a skim --background';
+$pdf_previewer = 'open -a skim';
 
 #$pdf_update_method = 4;
 #$pdf_update_command = 'open -a skim' # "sleep 0.5;" #;-a Skim";
 
-$aux_dir = '/Users/sparkes/Documents/TexTemp';
+$aux_dir = '/Users/bsparkes/Documents/TexTemp';
 
 # For Skim preferences
 # /Applications/Emacs.app/Contents/MacOS/bin/emacsclient
+
+# $wbibtex_use = 2
+#

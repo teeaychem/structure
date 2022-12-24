@@ -1,29 +1,13 @@
-;; (setq gc-cons-threshold 50000000)
-
-  ;; (setq gc-cons-threshold 100000000)
-
-  ;; (defun my-lower-gc-cons-threshold ()
-  ;;   (setq gc-cons-threshold (* 64 1024 1024))
-  ;;   (remove-hook 'focus-out-hook #'my-lower-gc-cons-threshold))
-
-  ;;   (add-hook 'after-init-hook
-  ;;     (lambda ()
-  ;;     (run-with-idle-timer
-  ;;       60
-  ;;       nil
-  ;;       #'my-lower-gc-cons-threshold)
-  ;;       (add-hook 'focus-out-hook #'my-lower-gc-cons-threshold)))
-
 (defun ambrevar/reset-gc-cons-threshold ()
   (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
 (setq gc-cons-threshold (* 64 1024 1024))
 (add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
 
-    (setq default-file-name-handler-alist file-name-handler-alist)
-    (setq file-name-handler-alist nil)
-    (defun ambrevar/reset-file-name-handler-alist ()
-    (setq file-name-handler-alist default-file-name-handler-alist))
-    (add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
+(setq default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(defun ambrevar/reset-file-name-handler-alist ()
+  (setq file-name-handler-alist default-file-name-handler-alist))
+(add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
 
 ; (emacs-init-time)
 
@@ -72,12 +56,13 @@
 
 ;; Font Settings
 (when (eq system-type 'darwin)
-  ;; default Latin font (e.g. Input Mono)
-  ;; Input is used to help with lag? It only has 4 different faces.
-  (set-face-attribute 'default nil :family "Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
-                      :height 140)
-  )
-
+;; default Latin font (e.g. Input Mono)
+;; Input is used to help with lag? It only has 4 different faces.
+(set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
+:height 150
+)
+)
+(setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
 
 (tool-bar-mode -1)
@@ -94,7 +79,7 @@
 
 (delete-selection-mode t)
 
-(add-hook 'text-mode-hook '(lambda ()
+(add-hook 'text-mode-hook #'(lambda ()
                              (auto-fill-mode t)))
 
 (add-hook 'prog-mode-hook 'subword-mode)
@@ -145,30 +130,29 @@
 
 (global-auto-revert-mode t)
 
+(define-key key-translation-map (kbd "¥") (kbd "\\")) ; ¥ to \
+
 (setq use-package-always-ensure t)
 
 ;(when (memq window-system '(mac ns x))
 ;  (exec-path-from-shell-initialize))
 
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2019/bin/x86_64-darwin")))
+;(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022/bin/universal-darwin")))
+(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022basic/bin/universal-darwin")))
   (setenv "PATH" (concat my-path ":" (getenv "PATH")))
   (add-to-list 'exec-path my-path))
 
 (require 'auctex-latexmk)
 (auctex-latexmk-setup)
 
-;(setq auctex-latexmk-inherit-TeX-PDF-mode t)
-;; Only works with auctex loaded?
-(load "auctex.el" nil t t)
-;; (require 'tex-site)
-
 (setq-default TeX-PDF-mode t)
 ;; Make emacs aware of multi-file projects
-(setq-default TeX-master t)
+(setq-default TeX-master "master") ; All master files called "master".
+(setq-default TeX-master nil)
+
 (setq TeX-auto-save t)
 (setq TeX-parse-self t)
 (setq TeX-save-query nil)
-(defvar latex-enable-folding t)
 (add-hook 'LaTeX-mode-hook 'visual-line-mode)
 (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
@@ -176,10 +160,10 @@
 
 (defun latex-word-count ()
   (interactive)
-  (shell-command (concat "texcount "
+  (shell-command (concat "texcount"
                          ;; "uncomment then options go here, such as "
-                         "-unicode "
-                         "-inc "
+                         " -unicode"
+                         " -inc "
                          (shell-quote-argument buffer-file-name)))
   ;;Now the buffer file name is sent correctly to the shell,
   ;;regardless of platform
@@ -204,9 +188,9 @@
 (setq TeX-source-correlate-method 'synctex)
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
 
+(setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
 (setq TeX-view-program-list
       '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
-(setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
 
 (setq org-latex-listings 'minted)
 
@@ -215,23 +199,20 @@
                 ("fontsize" "\\scriptsize")
                 ("linenos" "")))
 
-;; (require 'helm-config)
 (use-package helm
-  :diminish helm-mode
-  :init
-  (progn
-    (require 'helm-config)
-    (setq helm-candidate-number-limit 100)
-    ;; From https://gist.github.com/antifuchs/9238468
-    (setq helm-idle-delay 0.01 ; update fast sources immediately (doesn't).
-          helm-input-idle-delay 0.01    ; this actually updates things
-                                        ; reeeelatively quickly.
-          ;; helm-yas-display-key-on-candidate t
-          ;; helm-quick-update t
-          ;; helm-M-x-requires-pattern nil
-          helm-ff-skip-boring-files t
-          )
-    (helm-mode))
+  ;; :init
+  :config
+  (setq
+   helm-quick-update t ; do not display invisible candidates
+   helm-idle-delay 0.01 ; be idle for this many seconds, before updating in delayed sources.
+   helm-input-idle-delay 0.01 ; be idle for this many seconds, before updating candidate buffer
+   helm-split-window-default-side 'other ;; open helm buffer in another window
+   helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
+   helm-candidate-number-limit 100 ; limit the number of displayed canidates
+   helm-move-to-line-cycle-in-source nil ; move to end or beginning of source when reaching top or bottom of source.
+   ;; helm-command
+   helm-M-x-requires-pattern 0     ; show all candidates when set to 0
+   )
   :bind (("C-c h" . helm-mini)
          ("C-h a" . helm-apropos)
          ("C-x C-b" . helm-buffers-list)
@@ -240,8 +221,6 @@
          ("M-x" . helm-M-x)
          ("C-x c o" . helm-occur)
          ("C-x c s" . helm-swoop)
-         ("C-x c y" . helm-yas-complete)
-         ("C-x c Y" . helm-yas-create-snippet-on-region)
          ("C-x c b" . my/helm-do-grep-book-notes)
          ("C-x c SPC" . helm-all-mark-rings)
          ;; ("C-c h" .  helm-command-prefix)
@@ -261,11 +240,11 @@
      (define-key company-mode-map (kbd "C-:") 'helm-company)
      (define-key company-active-map (kbd "C-:") 'helm-company)))
 
-(company-quickhelp-mode 1)
+(setq-default company-dabbrev-downcase nil)
 
-(require 'tabbar)
-(tabbar-mode 1)
-(setq tabbar-use-images nil)
+;  (require 'tabbar)
+;  (tabbar-mode 1)
+;  (setq tabbar-use-images nil)
 
 (which-key-mode)
 (which-key-setup-minibuffer)
@@ -287,39 +266,8 @@
 
 (require 'org)
 
-(global-aggressive-indent-mode 1)
-
-;(use-package wrap-region
-;  :ensure t
-;  :config
-  ;; (wrap-region-global-mode t)
-;  (wrap-region-add-wrappers
-;   '(("(" ")")
-;     ("[" "]")
-;     ("{" "}")
-;     ;; ("<" ">")
-;     ;; ("'" "'")
-;     ;; ("\"" "\"")
-;     ("`" "'"       "q")
-;     ("``" "''"     "Q")
-;     ("*" "*"       "b"    org-mode)             ; bolden
-;     ("*" "*"       "*"    org-mode)             ; bolden
-;     ("/" "/"       "i"    org-mode)             ; italics
-;     ("/" "/"       "/"    org-mode)             ; italics
-;     ("~" "~"       "c"    org-mode)             ; code
-;     ("~" "~"       "~"    org-mode)             ; code
-;     ("=" "="       "v"    org-mode)             ; verbatim
-;     ("=" "="       "="    org-mode)             ; verbatim
-;     ("@" "@"       "@"    org-mode)             ; ref
-;     ("$" "$"       "$"    org-mode)             ; TeX Math
-;     ("\\(" "\\)"   "m"    org-mode)             ; LaTeX Math
-;     ("\\[" "\\]"   "d"    org-mode)             ; LaTeX Diplay-math
-;     ("`" "'"   "c"       lisp-mode)             ; code
-;     ))
-;  :diminish wrap-region-mode)
-
-;(add-hook 'org-mode-hook
-;          (lambda () (face-remap-add-relative 'default :family "Input Mono")))
+;; (add-hook 'org-mode-hook
+;;  (lambda () (face-remap-add-relative 'default :family "Input Mono")))
 
 (setq org-format-latex-options
       '(:foreground default
@@ -332,30 +280,30 @@
 
 (setq org-adapt-indentation nil)
 
-(font-lock-add-keywords
- 'org-mode
- '(("\\(@[0-9]*[-]*[0-9]*@\\)" 1 font-lock-comment-face t)))
+;; (font-lock-add-keywords
+;;  'org-mode
+;;  '(("\\(@[0-9]*[-]*[0-9]*@\\)" 1 font-lock-comment-face t)))
 
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-cb" 'org-iswitchb)
+;; (global-set-key "\C-cl" 'org-store-link)
+;; (global-set-key "\C-ca" 'org-agenda)
+;; (global-set-key "\C-cc" 'org-capture)
+;; (global-set-key "\C-cb" 'org-iswitchb)
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 (setq org-agenda-files (file-expand-wildcards "/Users/sparkes/Dropbox/Docs/Org/*.org"))
 
-(setq-default org-todo-keywords '((sequence
-                      "TODO(t)"
-                      "FIXME(f)"
-                      "IN-PROGRESS(p)"
-                      "NEXT(n)"
-                      "WAITING(w)"
-                      "|"
-                      "DONE(d)"
-                      "COMPLETED(c)"
-                      "CANCELLED(x)")))
-(setq org-log-done t)
+;; (setq-default org-todo-keywords '((sequence
+;;                       "TODO(t)"
+;;                       "FIXME(f)"
+;;                       "IN-PROGRESS(p)"
+;;                       "NEXT(n)"
+;;                       "WAITING(w)"
+;;                       "|"
+;;                       "DONE(d)"
+;;                       "COMPLETED(c)"
+;;                       "CANCELLED(x)")))
+;; (setq org-log-done t)
 
 (setq org-log-done 'time)
 (setq org-log-done 'note)
@@ -363,7 +311,7 @@
 (setq  org-directory "/Users/sparkes/Dropbox/Docs/Org")
 (setq org-default-notes-file (concat org-directory "/OrgCapture.org"))
 
-(setq org-src-fontify-natively t)
+;; (setq org-src-fontify-natively t)
 
 ;; (defun my/org-mode-hook ()
 ;  "Stop the org-level headers from increasing in height relative to the other text."
@@ -377,20 +325,20 @@
 ;; (
 ;; add-hook 'org-mode-hook 'my/org-mode-hook)
 
-(add-hook 'org-load-hook
-  (lambda ()
-    (setq org-agenda-custom-commands
-   '(("L" "my view"
-      ((todo
-        "TODO"
-        ((org-agenda-overriding-header "=== TODO tasks without scheduled date ===")
-         (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
-         (org-agenda-prefix-format '((todo . " %1c ")))))
-       (agenda
-        ""
-        ((org-agenda-overriding-header "=== Scheduled tasks ===")
-         (org-agenda-span 22)
-         (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
+;; (add-hook 'org-load-hook
+;;   (lambda ()
+;;     (setq org-agenda-custom-commands
+;;    '(("L" "my view"
+;;       ((todo
+;;         "TODO"
+;;         ((org-agenda-overriding-header "=== TODO tasks without scheduled date ===")
+;;          (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+;;          (org-agenda-prefix-format '((todo . " %1c ")))))
+;;        (agenda
+;;         ""
+;;         ((org-agenda-overriding-header "=== Scheduled tasks ===")
+;;          (org-agenda-span 22)
+;;          (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -429,26 +377,25 @@
 (require 'smartparens-latex)
 (smartparens-global-mode t)
 
-; needed to ensure text isn't deleted
-; (https://github.com/Fuco1/smartparens/issues/834)
+;; needed to ensure text isn't deleted
+;; (https://github.com/Fuco1/smartparens/issues/834)
 (define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
 
 (sp-with-modes
-'(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
-   (sp-local-pair "\\(" "\\)"
-   ;:actions '(:rem autoskip)
-   ;:skip-match 'sp-latex-skip-match-apostrophe
-                  :unless '(;sp-point-before-word-p
-                            ;sp-point-before-same-p
-                            sp-latex-point-after-backslash)
-                   :trigger-wrap "$"
-                   :trigger "$")
-
-   ;(sp-local-pair "\\[" "\\]"
-    ;              :unless '(sp-point-before-word-p
-     ;                       sp-point-before-same-p
-      ;                      sp-latex-point-after-backslash))
-      )
+    '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+  (sp-local-pair "\\(" "\\)"
+                 ;; :actions '(:rem autoskip)
+                 ;; :skip-match 'sp-latex-skip-match-apostrophe
+                 :unless '(;sp-point-before-word-p
+                           ;; sp-point-before-same-p
+                           sp-latex-point-after-backslash)
+                 :trigger-wrap "$"
+                 :trigger "$")
+  ;; (sp-local-pair "\\[" "\\]"
+  ;;             :unless '(sp-point-before-word-p
+  ;;                       sp-point-before-same-p
+  ;;                      sp-latex-point-after-backslash))
+  )
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
@@ -463,14 +410,8 @@
 ;              (lambda (frame)
 ;                (with-selected-frame frame
 ;                  (load-theme  'leuven t))))
-;  (load-theme  'leuven t))
 
-;; (load-theme 'leuven t)
-;(load-theme 'qsimpleq t)
-
-;(load-theme 'material-light t)
-(load-theme 'zenburn t)
-;; (doom-themes-org-config)
+(load-theme 'dracula t)
 
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
@@ -507,20 +448,8 @@
 ;; ;; setting the amount of syntax highligting
 ;; (setq js2-highlight-level 3)
 
-;; (require 'company-mode)
-(require 'company-tern)
-
-(add-to-list 'company-backends 'company-tern)
-;; (add-hook 'js2-mode-hook (lambda ()
-;;                            (tern-mode)
-;;                            (company-mode)))
-
-;; Disable completion keybindings, as we use xref-js2 instead
-(define-key tern-mode-keymap (kbd "M-.") nil)
-(define-key tern-mode-keymap (kbd "M-,") nil)
-
 ; (elpy-enable)
-(require 'python-mode)
+;; (require 'python-mode)
 
 ;; (require 'py-autopep8)
 ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
@@ -536,41 +465,29 @@
 
 ;; For multiple cursors
 (use-package multiple-cursors
-        :ensure t)
+  :ensure t)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
- ;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
- ;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
- ;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
+;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
+;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
+;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
 
 (use-package undo-tree
-    :ensure t
-    :init
-(global-undo-tree-mode))
+  :ensure t
+  :init
+  (global-undo-tree-mode))
 
 (setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
 (setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
-; (add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
 ; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
 ; (add-hook 'org-mode-hook 'flyspell-mode)
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
 (add-hook 'org-mode-hook 'LaTeX-math-mode)
 
-;; (require 'ido)
-;; (ido-mode 1)
-;; (setq ido-everywhere t
-;;       ido-enable-flex-matching t
-;;       ido-ignore-buffers '("\\` " "*Messages*" "*Completions*" "*Buffer List*"
-;;                            "*scratch*" "*Help*" "*Backtrace*"))
-
-;; (require 'ido-completing-read+)
-;; (ido-ubiquitous-mode 1)
-
-;; (setq magit-completing-read-function 'magit-ido-completing-read)
-
 (require 'fix-word)
-
 (global-set-key (kbd "M-u") #'fix-word-upcase)
 (global-set-key (kbd "M-l") #'fix-word-downcase)
 (global-set-key (kbd "M-c") #'fix-word-capitalize)
@@ -578,58 +495,53 @@
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 (setq highlight-indent-guides-method 'character)
 
-(defun switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
-(global-set-key (kbd "C-c B") 'switch-to-previous-buffer)
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(setq web-mode-markup-indent-offset 2)
 
 ;; Smoother and nicer scrolling
-  ;; (setq scroll-margin 10
-  ;;    scroll-step 1
-  ;;    next-line-add-newlines nil
-  ;;    scroll-conservatively 10000
-  ;;    scroll-preserve-screen-position 1)
+;; (setq scroll-margin 10
+;;    scroll-step 1
+;;    next-line-add-newlines nil
+;;    scroll-conservatively 10000
+;;    scroll-preserve-screen-position 1)
 
-  (setq mouse-wheel-follow-mouse 't)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-follow-mouse 't)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
 
-  ;; Move file to trash instead of removing.
-  (setq-default delete-by-moving-to-trash t)
+;; Move file to trash instead of removing.
+(setq-default delete-by-moving-to-trash t)
 
-  (setq
-   ;; inhibit-startup-message t         ; Don't show the startup message...
-   ;; inhibit-startup-screen t          ; ... or screen
-   cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+(setq
+ ;; inhibit-startup-message t         ; Don't show the startup message...
+ ;; inhibit-startup-screen t          ; ... or screen
+ cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
 
-   echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
-   ;; initial-scratch-message nil       ; Empty scratch buffer
-   ;; initial-major-mode 'org-mode      ; Org mode by default
-   help-window-select t              ; Select help window so it's easy to quit it with 'q'
-  )
+ echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+ ;; initial-scratch-message nil       ; Empty scratch buffer
+ ;; initial-major-mode 'org-mode      ; Org mode by default
+ help-window-select t              ; Select help window so it's easy to quit it with 'q'
+ )
 
 ;; This is rather radical, but saves from a lot of pain in the ass.
 ;; When split is automatic, always split windows vertically
 (setq split-height-threshold 0)
 (setq split-width-threshold nil)
 
-(setq inferior-lisp-program (executable-find "sbcl"))
+;; (setq inferior-lisp-program (executable-find "sbcl"))
 
-(defun sort-lines-by-length (reverse beg end)
-  "Sort lines by length."
-  (interactive "P\nr")
-  (save-excursion
-    (save-restriction
-      (narrow-to-region beg end)
-      (goto-char (point-min))
-      (let ;; To make `end-of-line' and etc. to ignore fields.
-          ((inhibit-field-text-motion t))
-        (sort-subr reverse 'forward-line 'end-of-line nil nil
-                   (lambda (l1 l2)
-                     (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
-                                        (list l1 l2)))))))))
+;; (defun sort-lines-by-length (reverse beg end)
+;;   "Sort lines by length."
+;;   (interactive "P\nr")
+;;   (save-excursion
+;;     (save-restriction
+;;       (narrow-to-region beg end)
+;;       (goto-char (point-min))
+;;       (let ;; To make `end-of-line' and etc. to ignore fields.
+;;           ((inhibit-field-text-motion t))
+;;         (sort-subr reverse 'forward-line 'end-of-line nil nil
+;;                    (lambda (l1 l2)
+;;                      (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
+;;                                         (list l1 l2)))))))))
 
 (beacon-mode 1)
 (setq beacon-push-mark 35)
