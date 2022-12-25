@@ -242,10 +242,6 @@
 
 (setq-default company-dabbrev-downcase nil)
 
-;  (require 'tabbar)
-;  (tabbar-mode 1)
-;  (setq tabbar-use-images nil)
-
 (which-key-mode)
 (which-key-setup-minibuffer)
 ;; (setq which-key-popup-type 'minibuffer)
@@ -416,37 +412,6 @@
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
 ;;   (mapc #'disable-theme custom-enabled-themes))
-
-;; (require 'js2-mode)
-;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-
-; set tabs to 2
-;; (add-hook 'js2-mode-hook (lambda () (setq js2-basic-offset 2)))
-
-;; Better imenu
-;; (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
-
-;; (require 'js2-refactor)
-;; (
-;; require 'xref-js2)
-
-;; (add-hook 'js2-mode-hook #'js2-refactor-mode)
-;; (
-;;  js2r-add-keybindings-with-prefix "C-c C-r")
-;; (
-;; define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-
-;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-;; unbind it.
-;; (define-key js-mode-map (kbd "M-.") nil)
-
-;; (add-hook 'js2-mode-hook (lambda ()
-;;                            (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
-
-;; (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-
-;; ;; setting the amount of syntax highligting
-;; (setq js2-highlight-level 3)
 
 ; (elpy-enable)
 ;; (require 'python-mode)

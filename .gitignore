@@ -2,5 +2,6 @@
 /.emacs.desktop
 /var
 /auto-save-list
+/elpa
 savehist
 savehist
