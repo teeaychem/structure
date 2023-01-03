@@ -200,6 +200,7 @@
                 ("linenos" "")))
 
 (use-package helm
+  :ensure t
   ;; :init
   :config
   (setq
@@ -212,6 +213,7 @@
    helm-move-to-line-cycle-in-source nil ; move to end or beginning of source when reaching top or bottom of source.
    ;; helm-command
    helm-M-x-requires-pattern 0     ; show all candidates when set to 0
+   helm-M-x-fuzzy-match t ; optional fuzzy matching for helm-M-x
    )
   :bind (("C-c h" . helm-mini)
          ("C-h a" . helm-apropos)
@@ -226,7 +228,6 @@
          ;; ("C-c h" .  helm-command-prefix)
          ("C-x C-f" . helm-find-files)
          ))
-(setq helm-M-x-fuzzy-match t) ;; optional fuzzy matching for helm-M-x
 
 (add-hook 'after-init-hook 'global-company-mode)
 (company-auctex-init)
@@ -430,11 +431,14 @@
 
 ;; For multiple cursors
 (use-package multiple-cursors
-  :ensure t)
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "M-<M-down-mouse-1>") 'mc/add-cursor-on-click)
-;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
+  :ensure t
+  :bind (("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C->" . mc/mark-all-like-this)
+         ("C-c C-SPC" . mc/edit-lines)
+         ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)
+         ))
+;; ;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
 ;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
 ;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
 
