@@ -3,5 +3,7 @@
 /var
 /auto-save-list
 /elpa
+/etc
+bookmarks
 savehist
-savehist
+*.DS_Store
