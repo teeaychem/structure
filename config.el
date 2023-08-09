@@ -30,15 +30,15 @@
 (tooltip-mode -1)
 (setq tooltip-use-echo-area t)
 
-(setq tab-width 2
-      indent-tabs-mode nil)
+(setq indent-tabs-mode t
+      tab-width 2
+      )
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (setq echo-keystrokes 0.1
       use-dialog-box nil
       visible-bell t)
-(show-paren-mode t)
 
 (set-locale-environment "en_GB.UTF-8")
 (setenv "LANG" "en_GB.UTF-8")
@@ -52,16 +52,13 @@
 (global-visual-line-mode t)
 (setq-default line-spacing 2)
 
-; (global-hl-line-mode t)
-
 ;; Font Settings
 (when (eq system-type 'darwin)
 ;; default Latin font (e.g. Input Mono)
 ;; Input is used to help with lag? It only has 4 different faces.
-(set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
+(set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
 :height 150
-)
-)
+))
 (setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
 
@@ -74,13 +71,7 @@
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (global-set-key (kbd "C-x K") 'kill-buffer)
 
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
-
 (delete-selection-mode t)
-
-(add-hook 'text-mode-hook #'(lambda ()
-                             (auto-fill-mode t)))
 
 (add-hook 'prog-mode-hook 'subword-mode)
 
@@ -93,23 +84,9 @@
 
 (auto-fill-mode t)
 
-(setq-default indicate-empty-lines t)
 (setq-default show-trailing-whitespace t)
 
-;(setq save-abbrevs 'silently)
-;(setq-default abbrev-mode t)
-
-;; (setq-default
-;;   whitespace-line-column 80
-;;   whitespace-style       '(face lines-tail))
-;; (add-hook 'prog-mode-hook #'whitespace-mode)
-
 (global-set-key (kbd "RET") 'newline-and-indent)
-
-(setq-default indent-tabs-mode nil)
-
-(global-set-key "\M-n" 'scroll-up-line)
-(global-set-key "\M-p" 'scroll-down-line)
 
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq
@@ -123,14 +100,32 @@
 (setq auto-save-interval 200)
 
 (setq sentence-end-double-space nil)
-;; Show line-number in the mode line
+
 (line-number-mode 1)
-;; Show column-number in the mode line
+
 (column-number-mode 1)
 
 (global-auto-revert-mode t)
 
-(define-key key-translation-map (kbd "¥") (kbd "\\")) ; ¥ to \
+(setq mouse-wheel-follow-mouse 't)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+;; Move file to trash instead of removing.
+(setq-default delete-by-moving-to-trash t)
+
+(setq
+ ;; inhibit-startup-message t         ; Don't show the startup message...
+ ;; inhibit-startup-screen t          ; ... or screen
+ cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+ echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+ ;; initial-scratch-message nil       ; Empty scratch buffer
+ help-window-select t              ; Select help window so it's easy to quit it with 'q'
+ )
+
+;; This is rather radical, but saves from a lot of pain in the ass.
+;; When split is automatic, always split windows vertically
+(setq split-height-threshold 0)
+(setq split-width-threshold nil)
 
 (setq use-package-always-ensure t)
 
@@ -138,9 +133,9 @@
 ;  (exec-path-from-shell-initialize))
 
 ;(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022/bin/universal-darwin")))
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022basic/bin/universal-darwin")))
-  (setenv "PATH" (concat my-path ":" (getenv "PATH")))
-  (add-to-list 'exec-path my-path))
+(let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
+  (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
+  (add-to-list 'exec-path TeX-path))
 
 (require 'auctex-latexmk)
 (auctex-latexmk-setup)
@@ -158,17 +153,6 @@
 (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
 ;; (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
 
-(defun latex-word-count ()
-  (interactive)
-  (shell-command (concat "texcount"
-                         ;; "uncomment then options go here, such as "
-                         " -unicode"
-                         " -inc "
-                         (shell-quote-argument buffer-file-name)))
-  ;;Now the buffer file name is sent correctly to the shell,
-  ;;regardless of platform
-  )
-
 (setq reftex-plug-into-AUCTeX t)
 ;; Only change sectioning colour
 (setq font-latex-fontify-sectioning 'color)
@@ -176,8 +160,8 @@
 ;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
 ;; TeX-electric-math
 (add-hook 'plain-TeX-mode-hook
-          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-                          (cons "$" "$"))))
+	  (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+			  (cons "$" "$"))))
 ;
 ;(add-hook 'LaTeX-mode-hook
 ;          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
@@ -263,9 +247,13 @@
 
 (require 'org)
 
+(setq org-support-shift-select t)
+(setq org-replace-disputed-keys t)
+
 ;; (add-hook 'org-mode-hook
 ;;  (lambda () (face-remap-add-relative 'default :family "Input Mono")))
 
+(add-hook 'org-mode-hook 'LaTeX-math-mode)
 (setq org-format-latex-options
       '(:foreground default
                     :background default
@@ -288,7 +276,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
-(setq org-agenda-files (file-expand-wildcards "/Users/sparkes/Dropbox/Docs/Org/*.org"))
+(setq org-agenda-files (file-expand-wildcards "~/Dropbox/Docs/Org/*.org"))
 
 ;; (setq-default org-todo-keywords '((sequence
 ;;                       "TODO(t)"
@@ -305,7 +293,7 @@
 (setq org-log-done 'time)
 (setq org-log-done 'note)
 
-(setq  org-directory "/Users/sparkes/Dropbox/Docs/Org")
+(setq  org-directory "~/Dropbox/Docs/Org")
 (setq org-default-notes-file (concat org-directory "/OrgCapture.org"))
 
 ;; (setq org-src-fontify-natively t)
@@ -322,77 +310,37 @@
 ;; (
 ;; add-hook 'org-mode-hook 'my/org-mode-hook)
 
-;; (add-hook 'org-load-hook
-;;   (lambda ()
-;;     (setq org-agenda-custom-commands
-;;    '(("L" "my view"
-;;       ((todo
-;;         "TODO"
-;;         ((org-agenda-overriding-header "=== TODO tasks without scheduled date ===")
-;;          (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
-;;          (org-agenda-prefix-format '((todo . " %1c ")))))
-;;        (agenda
-;;         ""
-;;         ((org-agenda-overriding-header "=== Scheduled tasks ===")
-;;          (org-agenda-span 22)
-;;          (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
-
 (org-babel-do-load-languages
  'org-babel-load-languages
  '(
-   (awk)
-   (C)
-   (calc)
-   (clojure)
    (dot . t)
    (emacs-lisp . t)
-   (gnuplot)
-   (haskell)
-   (io)
-   (java)
    (js . t)
    (latex . t)
    (lisp . t)
-   (matlab)
    (org . t)
-   (perl)
-   (picolisp)
-   (plantuml)
    (python . t)
    (R . t)
-   (ref)
    (ruby . t)
    (scheme)
-   (sh)
-   (shell)
-   (shen)
-   (sqlite)
    ))
 
 ;; https://github.com/Fuco1/smartparens
 (require 'smartparens-config)
 (require 'smartparens-latex)
 (smartparens-global-mode t)
+(show-smartparens-global-mode t)
 
 ;; needed to ensure text isn't deleted
 ;; (https://github.com/Fuco1/smartparens/issues/834)
 (define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
 
 (sp-with-modes
-    '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+    '(tex-mode plain-tex-mode latex-mode LaTeX-mode)
   (sp-local-pair "\\(" "\\)"
-                 ;; :actions '(:rem autoskip)
-                 ;; :skip-match 'sp-latex-skip-match-apostrophe
-                 :unless '(;sp-point-before-word-p
-                           ;; sp-point-before-same-p
-                           sp-latex-point-after-backslash)
-                 :trigger-wrap "$"
-                 :trigger "$")
-  ;; (sp-local-pair "\\[" "\\]"
-  ;;             :unless '(sp-point-before-word-p
-  ;;                       sp-point-before-same-p
-  ;;                      sp-latex-point-after-backslash))
-  )
+		 :unless '(sp-latex-point-after-backslash)
+		 :trigger-wrap "$"
+		 :trigger "$"))
 
 (global-set-key (kbd "C-x g") 'magit-status)
 
@@ -413,17 +361,6 @@
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
 ;;   (mapc #'disable-theme custom-enabled-themes))
-
-; (elpy-enable)
-;; (require 'python-mode)
-
-;; (require 'py-autopep8)
-;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-
-;(defun my/python-mode-hook ()
-;  (add-to-list 'company-backends 'company-jedi))
-;
-;(add-hook 'python-mode-hook 'my/python-mode-hook)
 
 (add-hook 'LaTeX-mode-hook 'display-line-numbers-mode)
 (add-hook 'latex-mode-hook 'display-line-numbers-mode)
@@ -454,7 +391,6 @@
 ; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
 ; (add-hook 'org-mode-hook 'flyspell-mode)
 ; (add-hook 'org-mode-hook 'flyspell-buffer)
-(add-hook 'org-mode-hook 'LaTeX-math-mode)
 
 (require 'fix-word)
 (global-set-key (kbd "M-u") #'fix-word-upcase)
@@ -466,35 +402,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (setq web-mode-markup-indent-offset 2)
-
-;; Smoother and nicer scrolling
-;; (setq scroll-margin 10
-;;    scroll-step 1
-;;    next-line-add-newlines nil
-;;    scroll-conservatively 10000
-;;    scroll-preserve-screen-position 1)
-
-(setq mouse-wheel-follow-mouse 't)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-
-;; Move file to trash instead of removing.
-(setq-default delete-by-moving-to-trash t)
-
-(setq
- ;; inhibit-startup-message t         ; Don't show the startup message...
- ;; inhibit-startup-screen t          ; ... or screen
- cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
-
- echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
- ;; initial-scratch-message nil       ; Empty scratch buffer
- ;; initial-major-mode 'org-mode      ; Org mode by default
- help-window-select t              ; Select help window so it's easy to quit it with 'q'
- )
-
-;; This is rather radical, but saves from a lot of pain in the ass.
-;; When split is automatic, always split windows vertically
-(setq split-height-threshold 0)
-(setq split-width-threshold nil)
 
 ;; (setq inferior-lisp-program (executable-find "sbcl"))
 
@@ -512,6 +419,19 @@
 ;;                      (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
 ;;                                         (list l1 l2)))))))))
 
-(beacon-mode 1)
-(setq beacon-push-mark 35)
-(setq beacon-color "#666600")
+(add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
+(add-to-list 'org-src-lang-modes '("racket" . racket))
+  (org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((racket . t)))
+
+; (elpy-enable)
+;; (require 'python-mode)
+
+;; (require 'py-autopep8)
+;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+
+;(defun my/python-mode-hook ()
+;  (add-to-list 'company-backends 'company-jedi))
+;
+;(add-hook 'python-mode-hook 'my/python-mode-hook)

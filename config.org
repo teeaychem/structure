@@ -65,8 +65,9 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Indentation
 
 #+BEGIN_SRC emacs-lisp
-  (setq tab-width 2
-        indent-tabs-mode nil)
+  (setq indent-tabs-mode t
+	tab-width 2
+	)
 #+END_SRC
 
 - Yes and No
@@ -84,9 +85,8 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
   (setq echo-keystrokes 0.1
-        use-dialog-box nil
-        visible-bell t)
-  (show-paren-mode t)
+	use-dialog-box nil
+	visible-bell t)
 #+END_SRC
 
 - Setting locale
@@ -104,23 +104,17 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Some startup settings
 
 #+BEGIN_SRC emacs-lisp
-(desktop-save-mode)
-;; Some display settings
-(setq-default indicate-empty-lines t)
-(when (not indicate-empty-lines)
-  (toggle-indicate-empty-lines))
-(save-place-mode t)
-(global-visual-line-mode t)
-(setq-default line-spacing 2)
+  (desktop-save-mode)
+  ;; Some display settings
+  (setq-default indicate-empty-lines t)
+  (when (not indicate-empty-lines)
+    (toggle-indicate-empty-lines))
+  (save-place-mode t)
+  (global-visual-line-mode t)
+  (setq-default line-spacing 2)
 #+END_SRC
 
 ** Interface tweaks
-
-- Highlight the current cursor line
-
-#+BEGIN_SRC emacs-lisp
-; (global-hl-line-mode t)
-#+END_SRC
 
 - Font settings
 
@@ -129,10 +123,9 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (when (eq system-type 'darwin)
   ;; default Latin font (e.g. Input Mono)
   ;; Input is used to help with lag? It only has 4 different faces.
-  (set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"PragmataProLiga";"Source Code Pro";"Fira Mono" ;"Anonymous Pro";"Fantasque Sans Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
+  (set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
   :height 150
-  )
-  )
+  ))
   (setq-default mac-allow-anti-aliasing nil)
   (setq inhibit-compacting-font-caches t)
 #+END_SRC
@@ -142,30 +135,25 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Disable the toolbar and the scroll bar
 
 #+BEGIN_SRC emacs-lisp
-(tool-bar-mode -1)
-(toggle-scroll-bar -1)
+  (tool-bar-mode -1)
+  (toggle-scroll-bar -1)
 #+END_SRC
 
 - Set line wrapping
 
 #+BEGIN_SRC emacs-lisp
-(setq-default fill-column 1024)
-(set-default 'truncate-lines nil)
+  (setq-default fill-column 1024)
+  (set-default 'truncate-lines nil)
 #+END_SRC
 
 - For killing the buffer I'm looking at, capitalised then does the default
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "C-x K") 'kill-buffer)
+  (global-set-key (kbd "C-x k") 'kill-this-buffer)
+  (global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
 
 - For the mac
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
-#+END_SRC
 
 ** Editing tweaks
 
@@ -176,75 +164,39 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (delete-selection-mode t)
 #+END_SRC
 
-- Turn on word wrap
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'text-mode-hook #'(lambda ()
-                             (auto-fill-mode t)))
-#+END_SRC
-
 - Enable subword for all programing modes
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook 'subword-mode)
+  (add-hook 'prog-mode-hook 'subword-mode)
 #+END_SRC
 
 - Enable pretty syntax highlighting everywhere
 
 #+BEGIN_SRC emacs-lisp
-(require 'font-lock)
-(setq font-lock-maximum-decoration t)
-(global-font-lock-mode t)
-(global-hi-lock-mode nil)
-(setq jit-lock-contextually t)
-(setq jit-lock-stealth-verbose t)
+  (require 'font-lock)
+  (setq font-lock-maximum-decoration t)
+  (global-font-lock-mode t)
+  (global-hi-lock-mode nil)
+  (setq jit-lock-contextually t)
+  (setq jit-lock-stealth-verbose t)
 #+END_SRC
 
 - Wrap lines automatically
 
 #+BEGIN_SRC emacs-lisp
-(auto-fill-mode t)
+  (auto-fill-mode t)
 #+END_SRC
 
 - Indicate empty line
 
 #+BEGIN_SRC emacs-lisp
-(setq-default indicate-empty-lines t)
-(setq-default show-trailing-whitespace t)
-#+END_SRC
-
-- Expand some words and auto-correct
-
-#+BEGIN_SRC emacs-lisp
-;(setq save-abbrevs 'silently)
-;(setq-default abbrev-mode t)
-#+END_SRC
-
-- Getting a visual marker after 80 characters in a line
-
-#+BEGIN_SRC emacs-lisp
-  ;; (setq-default
-  ;;   whitespace-line-column 80
-  ;;   whitespace-style       '(face lines-tail))
-  ;; (add-hook 'prog-mode-hook #'whitespace-mode)
+  (setq-default show-trailing-whitespace t)
 #+END_SRC
 
 - Go to indentation on new line
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "RET") 'newline-and-indent)
-#+END_SRC
-
-- Spaces only (no tab characters at all)
-#+BEGIN_SRC emacs-lisp
-(setq-default indent-tabs-mode nil)
-#+END_SRC
-
-- For easy window scrolling up and down
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key "\M-n" 'scroll-up-line)
-(global-set-key "\M-p" 'scroll-down-line)
+  (global-set-key (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
 ** Background tweaks
@@ -253,17 +205,17 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-(setq
- backup-by-copying t       ; don't clobber symlinks
- kept-new-versions 10      ; keep 10 latest versions
- kept-old-versions 0       ; don't bother with old versions
- delete-old-versions t     ; don't ask about deleting old S versions
- version-control t         ; number backups
- vc-make-backup-files nil) ; backup version controlled files
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (setq
+   backup-by-copying t       ; don't clobber symlinks
+   kept-new-versions 10      ; keep 10 latest versions
+   kept-old-versions 0       ; don't bother with old versions
+   delete-old-versions t     ; don't ask about deleting old S versions
+   version-control t         ; number backups
+   vc-make-backup-files nil) ; backup version controlled files
 #+END_SRC
 
-- Auto-save often
+Auto-save often
   - every 20 characters typed is the minimum
 
 #+BEGIN_SRC emacs-lisp
@@ -273,11 +225,18 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - For recognising that sentences end with a single space
 
 #+BEGIN_SRC emacs-lisp
-(setq sentence-end-double-space nil)
-;; Show line-number in the mode line
-(line-number-mode 1)
-;; Show column-number in the mode line
-(column-number-mode 1)
+  (setq sentence-end-double-space nil)
+#+END_SRC
+
+Show line-number in the mode line
+
+#+BEGIN_SRC emacs-lisp
+  (line-number-mode 1)
+#+END_SRC
+
+Show column-number in the mode line
+#+BEGIN_SRC emacs-lisp
+  (column-number-mode 1)
 #+END_SRC
 
 - For reloading bib files
@@ -286,11 +245,28 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (global-auto-revert-mode t)
 #+END_SRC
 
-** Keyboard
-
 #+BEGIN_SRC emacs-lisp
-(define-key key-translation-map (kbd "¥") (kbd "\\")) ; ¥ to \
+  (setq mouse-wheel-follow-mouse 't)
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+  ;; Move file to trash instead of removing.
+  (setq-default delete-by-moving-to-trash t)
+
+  (setq
+   ;; inhibit-startup-message t         ; Don't show the startup message...
+   ;; inhibit-startup-screen t          ; ... or screen
+   cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+   echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+   ;; initial-scratch-message nil       ; Empty scratch buffer
+   help-window-select t              ; Select help window so it's easy to quit it with 'q'
+   )
+
+  ;; This is rather radical, but saves from a lot of pain in the ass.
+  ;; When split is automatic, always split windows vertically
+  (setq split-height-threshold 0)
+  (setq split-width-threshold nil)
 #+END_SRC
+
 
 * Packages, etc.
 
@@ -314,9 +290,9 @@ https://github.com/purcell/exec-path-from-shell
 - Tells emacs where to find LaTeX.
 #+BEGIN_SRC emacs-lisp
 ;(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022/bin/universal-darwin")))
-(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022basic/bin/universal-darwin")))
-  (setenv "PATH" (concat my-path ":" (getenv "PATH")))
-  (add-to-list 'exec-path my-path))
+(let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
+  (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
+  (add-to-list 'exec-path TeX-path))
 #+END_SRC
 
 - LaTeX Stuff
@@ -341,21 +317,6 @@ https://github.com/purcell/exec-path-from-shell
   ;; (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
 #+END_SRC
 
-- Word count
-
-#+BEGIN_SRC emacs-lisp
-  (defun latex-word-count ()
-    (interactive)
-    (shell-command (concat "texcount"
-                           ;; "uncomment then options go here, such as "
-                           " -unicode"
-                           " -inc "
-                           (shell-quote-argument buffer-file-name)))
-    ;;Now the buffer file name is sent correctly to the shell,
-    ;;regardless of platform
-    )
-#+END_SRC
-
 - ReFtex from https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
 
 #+BEGIN_SRC emacs-lisp
@@ -366,8 +327,8 @@ https://github.com/purcell/exec-path-from-shell
   ;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
   ;; TeX-electric-math
   (add-hook 'plain-TeX-mode-hook
-            (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-                            (cons "$" "$"))))
+	    (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+			    (cons "$" "$"))))
   ;
   ;(add-hook 'LaTeX-mode-hook
   ;          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
@@ -384,7 +345,7 @@ https://github.com/purcell/exec-path-from-shell
 - use Skim as default pdf viewer
   - Skim's displayline is used for forward search (from .tex to .pdf)
   - option -r relaods the file; option -b highlights the current line; option -g opens Skim in the background
-    - For this to work, it seems one needs no spaces in the file name
+  - For this to work, it seems one needs no spaces in the file name
 
 #+BEGIN_SRC emacs-lisp
   (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
@@ -518,6 +479,13 @@ Activate org-mode
   (require 'org)
 #+END_SRC
 
+And, leave shift keys alone!
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-support-shift-select t)
+  (setq org-replace-disputed-keys t)
+#+END_SRC
+
 *** Background Org Stuff
 
 - Setting a custom org font
@@ -527,8 +495,9 @@ Activate org-mode
   ;;  (lambda () (face-remap-add-relative 'default :family "Input Mono")))
 #+END_SRC
 
-- LaTeX size in org
+- LaTeX in org
 #+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook 'LaTeX-math-mode)
   (setq org-format-latex-options
         '(:foreground default
                       :background default
@@ -563,14 +532,14 @@ Activate org-mode
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 #+END_SRC
 
 - Including all org files from a directory into the agenda
   - Note, multiple directories can be added, like:
-    - ; (setq org-agenda-files (quote ("~/agenda/work" "~/agenda/todo")))
+    - (setq org-agenda-files (quote ("~/agenda/work" "~/agenda/todo")))
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (file-expand-wildcards "/Users/sparkes/Dropbox/Docs/Org/*.org"))
+  (setq org-agenda-files (file-expand-wildcards "~/Dropbox/Docs/Org/*.org"))
 #+END_SRC
 
 *** Agenda
@@ -597,7 +566,7 @@ Activate org-mode
 
 - Org capture
 #+BEGIN_SRC emacs-lisp
-  (setq  org-directory "/Users/sparkes/Dropbox/Docs/Org")
+  (setq  org-directory "~/Dropbox/Docs/Org")
   (setq org-default-notes-file (concat org-directory "/OrgCapture.org"))
 #+END_SRC
 
@@ -622,59 +591,24 @@ Activate org-mode
   ;; add-hook 'org-mode-hook 'my/org-mode-hook)
 #+END_SRC
 
-Adding some kind of timeline thing
-#+BEGIN_SRC emacs-lisp
-  ;; (add-hook 'org-load-hook
-  ;;   (lambda ()
-  ;;     (setq org-agenda-custom-commands
-  ;;    '(("L" "my view"
-  ;;       ((todo
-  ;;         "TODO"
-  ;;         ((org-agenda-overriding-header "=== TODO tasks without scheduled date ===")
-  ;;          (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
-  ;;          (org-agenda-prefix-format '((todo . " %1c ")))))
-  ;;        (agenda
-  ;;         ""
-  ;;         ((org-agenda-overriding-header "=== Scheduled tasks ===")
-  ;;          (org-agenda-span 22)
-  ;;          (org-agenda-prefix-format '((agenda . " %1c %?-12t% s")))))))))))
-#+END_SRC
-
 *** Babel
 
 - Babel languages
 #+BEGIN_SRC emacs-lisp
-        (org-babel-do-load-languages
-         'org-babel-load-languages
-         '(
-           (awk)
-           (C)
-           (calc)
-           (clojure)
-           (dot . t)
-           (emacs-lisp . t)
-           (gnuplot)
-           (haskell)
-           (io)
-           (java)
-           (js . t)
-           (latex . t)
-           (lisp . t)
-           (matlab)
-           (org . t)
-           (perl)
-           (picolisp)
-           (plantuml)
-           (python . t)
-           (R . t)
-           (ref)
-           (ruby . t)
-           (scheme)
-           (sh)
-           (shell)
-           (shen)
-           (sqlite)
-           ))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (dot . t)
+     (emacs-lisp . t)
+     (js . t)
+     (latex . t)
+     (lisp . t)
+     (org . t)
+     (python . t)
+     (R . t)
+     (ruby . t)
+     (scheme)
+     ))
 #+END_SRC
 
 ** Smartparens
@@ -684,32 +618,18 @@ Adding some kind of timeline thing
   (require 'smartparens-config)
   (require 'smartparens-latex)
   (smartparens-global-mode t)
+  (show-smartparens-global-mode t)
 
   ;; needed to ensure text isn't deleted
   ;; (https://github.com/Fuco1/smartparens/issues/834)
   (define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
 
   (sp-with-modes
-      '(tex-mode plain-tex-mode latex-mode LaTeX-mode org-mode)
+      '(tex-mode plain-tex-mode latex-mode LaTeX-mode)
     (sp-local-pair "\\(" "\\)"
-                   ;; :actions '(:rem autoskip)
-                   ;; :skip-match 'sp-latex-skip-match-apostrophe
-                   :unless '(;sp-point-before-word-p
-                             ;; sp-point-before-same-p
-                             sp-latex-point-after-backslash)
-                   :trigger-wrap "$"
-                   :trigger "$")
-    ;; (sp-local-pair "\\[" "\\]"
-    ;;             :unless '(sp-point-before-word-p
-    ;;                       sp-point-before-same-p
-    ;;                      sp-latex-point-after-backslash))
-    )
-#+END_SRC
-
-** Magit
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x g") 'magit-status)
+		   :unless '(sp-latex-point-after-backslash)
+		   :trigger-wrap "$"
+		   :trigger "$"))
 #+END_SRC
 
 ** Themes
@@ -732,21 +652,6 @@ Adding some kind of timeline thing
   ;; For loading themes
   ;; (defadvice load-theme (before theme-dont-propagate activate)
   ;;   (mapc #'disable-theme custom-enabled-themes))
-#+END_SRC
-
-** Python (disabled)
-
-#+BEGIN_SRC emacs-lisp
-  ; (elpy-enable)
-  ;; (require 'python-mode)
-
-  ;; (require 'py-autopep8)
-  ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-
-  ;(defun my/python-mode-hook ()
-  ;  (add-to-list 'company-backends 'company-jedi))
-  ;
-  ;(add-hook 'python-mode-hook 'my/python-mode-hook)
 #+END_SRC
 
 ** Line numbers
@@ -794,7 +699,6 @@ Adding some kind of timeline thing
   ; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
   ; (add-hook 'org-mode-hook 'flyspell-mode)
   ; (add-hook 'org-mode-hook 'flyspell-buffer)
-  (add-hook 'org-mode-hook 'LaTeX-math-mode)
 #+END_SRC
 
 ** Fix-word
@@ -816,46 +720,11 @@ Adding some kind of timeline thing
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character)
 #+END_SRC
-
 ** Web mode
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 (setq web-mode-markup-indent-offset 2)
-#+END_SRC
-
-* Testing
-
-#+BEGIN_SRC emacs-lisp
-
-  ;; Smoother and nicer scrolling
-  ;; (setq scroll-margin 10
-  ;;    scroll-step 1
-  ;;    next-line-add-newlines nil
-  ;;    scroll-conservatively 10000
-  ;;    scroll-preserve-screen-position 1)
-
-  (setq mouse-wheel-follow-mouse 't)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-
-  ;; Move file to trash instead of removing.
-  (setq-default delete-by-moving-to-trash t)
-
-  (setq
-   ;; inhibit-startup-message t         ; Don't show the startup message...
-   ;; inhibit-startup-screen t          ; ... or screen
-   cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
-
-   echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
-   ;; initial-scratch-message nil       ; Empty scratch buffer
-   ;; initial-major-mode 'org-mode      ; Org mode by default
-   help-window-select t              ; Select help window so it's easy to quit it with 'q'
-   )
-
-  ;; This is rather radical, but saves from a lot of pain in the ass.
-  ;; When split is automatic, always split windows vertically
-  (setq split-height-threshold 0)
-  (setq split-width-threshold nil)
 #+END_SRC
 
 * LISP
@@ -880,10 +749,30 @@ Adding some kind of timeline thing
   ;;                      (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
   ;;                                         (list l1 l2)))))))))
 #+END_SRC
-** Beacon
+
+** Racket
 
 #+BEGIN_SRC emacs-lisp
-  (beacon-mode 1)
-  (setq beacon-push-mark 35)
-  (setq beacon-color "#666600")
+  (add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
+  (add-to-list 'org-src-lang-modes '("racket" . racket))
+    (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((racket . t)))
 #+END_SRC
+
+* Python (disabled)
+
+#+BEGIN_SRC emacs-lisp
+  ; (elpy-enable)
+  ;; (require 'python-mode)
+
+  ;; (require 'py-autopep8)
+  ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+
+  ;(defun my/python-mode-hook ()
+  ;  (add-to-list 'company-backends 'company-jedi))
+  ;
+  ;(add-hook 'python-mode-hook 'my/python-mode-hook)
+#+END_SRC
+
+* Testing
