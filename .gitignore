@@ -1,4 +1,5 @@
 *.DS_Store
+*.~undo-tree~
 bookmarks
 savehist
 recentf
