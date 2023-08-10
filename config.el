@@ -342,8 +342,6 @@
 		 :trigger-wrap "$"
 		 :trigger "$"))
 
-(global-set-key (kbd "C-x g") 'magit-status)
-
 ;; to get rid of buffer-face on shift click
 (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
 ;; to set right click to a menu bar instead of yanking
