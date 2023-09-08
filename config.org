@@ -96,7 +96,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (setenv "LANG" "en_GB.UTF-8")
 #+END_SRC
 
-
 * General config
 
 ** Some startup settings
@@ -267,7 +266,6 @@ Show column-number in the mode line
   (setq split-width-threshold nil)
 #+END_SRC
 
-
 * Packages, etc.
 ** use-package
 
@@ -387,18 +385,18 @@ https://github.com/purcell/exec-path-from-shell
      helm-M-x-fuzzy-match t ; optional fuzzy matching for helm-M-x
      )
     :bind (("C-c h" . helm-mini)
-           ("C-h a" . helm-apropos)
-           ("C-x C-b" . helm-buffers-list)
-           ("C-x b" . helm-buffers-list)
-           ("M-y" . helm-show-kill-ring)
-           ("M-x" . helm-M-x)
-           ("C-x c o" . helm-occur)
-           ("C-x c s" . helm-swoop)
-           ("C-x c b" . my/helm-do-grep-book-notes)
-           ("C-x c SPC" . helm-all-mark-rings)
-           ;; ("C-c h" .  helm-command-prefix)
-           ("C-x C-f" . helm-find-files)
-           ))
+	   ("C-h a" . helm-apropos)
+	   ("C-x C-b" . helm-buffers-list)
+	   ("C-x b" . helm-buffers-list)
+	   ("M-y" . helm-show-kill-ring)
+	   ("M-x" . helm-M-x)
+	   ("C-x c o" . helm-occur)
+	   ("C-x c s" . helm-swoop)
+	   ("C-x c b" . my/helm-do-grep-book-notes)
+	   ("C-x c SPC" . helm-all-mark-rings)
+	   ;; ("C-c h" .  helm-command-prefix)
+	   ("C-x C-f" . helm-find-files)
+	   ))
 #+END_SRC
 
 ** Company
@@ -450,18 +448,6 @@ To prevent lowercasing:
 
 #+BEGIN_SRC emacs-lisp
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
-#+END_SRC
-
-** Deft
-
-#+BEGIN_SRC emacs-lisp
-  (require 'deft)
-  (setq deft-extensions '("txt" "tex" "org"))
-  (setq deft-directory "~/Dropbox/Docs/")
-  (setq deft-recursive t)
-  (setq deft-use-filename-as-title t)
-  (setq deft-use-filter-string-for-filename t)
-  (global-set-key (kbd "C-x C-\\") 'deft-find-file)
 #+END_SRC
 
 ** Browse kill ring
