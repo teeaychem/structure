@@ -703,10 +703,10 @@ And, leave shift keys alone!
 ** Fix-word
 
 #+BEGIN_SRC emacs-lisp
-  (require 'fix-word)
-  (global-set-key (kbd "M-u") #'fix-word-upcase)
-  (global-set-key (kbd "M-l") #'fix-word-downcase)
-  (global-set-key (kbd "M-c") #'fix-word-capitalize)
+  (use-package fix-word
+    :bind (("M-u" . #'fix-word-upcase)
+	   ("M-l" . #'fix-word-downcase)
+	   ("M-c" . #'fix-word-capitalize)))
 #+END_SRC
 
 ** Highlight Indentation
@@ -730,7 +730,8 @@ And, leave shift keys alone!
 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :pin nongnu)
+    :pin nongnu ; installation issues with melpa
+    )
 #+END_SRC
 
 * LISP
