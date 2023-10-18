@@ -2,57 +2,58 @@
 #+STARTUP: overview
 #+STARTUP: content
 
-* Startup
+* startup
 
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-; (emacs-init-time)
+(setq debug-on-error t)
+;; (emacs-init-time)
 #+END_SRC
+
 
 - https://github.com/meatcar/emacs.d
 
 #+BEGIN_SRC emacs-lisp
-  (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
+;; Resizing the Emacs frame can be a terribly expensive part of changing the
+;; font. By inhibiting this, we easily halve startup times with fonts that are
+;; larger than the system default.
+(setq frame-inhibit-implied-resize t)
+#+END_SRC
 
-  ;; Resizing the Emacs frame can be a terribly expensive part of changing the
-  ;; font. By inhibiting this, we easily halve startup times with fonts that are
-  ;; larger than the system default.
-  (setq frame-inhibit-implied-resize t)
+
+
+#+BEGIN_SRC emacs-lisp
+;; max memory available for gc on startup
+(defvar me/gc-cons-threshold 16777216)
+(setq gc-cons-threshold most-positive-fixnum gc-cons-percentage 0.6)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold me/gc-cons-threshold
+                  gc-cons-percentage 0.1)))
+
+;; max memory available for gc when opening minibuffer
+(defun me/defer-garbage-collection-h ()
+  (setq gc-cons-threshold most-positive-fixnum))
+
+(defun me/restore-garbage-collection-h ()
+  ;; Defer it so that commands launched immediately after will enjoy the benefits.
+  (run-at-time
+   1 nil (lambda () (setq gc-cons-threshold me/gc-cons-threshold))))
+
+(add-hook 'minibuffer-setup-hook #'me/defer-garbage-collection-h)
+(add-hook 'minibuffer-exit-hook #'me/restore-garbage-collection-h)
+(setq garbage-collection-messages t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  ;; max memory available for gc on startup
-  (defvar me/gc-cons-threshold 16777216)
-  (setq gc-cons-threshold most-positive-fixnum
-	gc-cons-percentage 0.6)
-  (add-hook 'emacs-startup-hook
-	    (lambda ()
-	      (setq gc-cons-threshold me/gc-cons-threshold
-		    gc-cons-percentage 0.1)))
-
-  ;; max memory available for gc when opening minibuffer
-  (defun me/defer-garbage-collection-h ()
-    (setq gc-cons-threshold most-positive-fixnum))
-
-  (defun me/restore-garbage-collection-h ()
-    ;; Defer it so that commands launched immediately after will enjoy the
-    ;; benefits.
-    (run-at-time
-     1 nil (lambda () (setq gc-cons-threshold me/gc-cons-threshold))))
-
-  (add-hook 'minibuffer-setup-hook #'me/defer-garbage-collection-h)
-  (add-hook 'minibuffer-exit-hook #'me/restore-garbage-collection-h)
-  (setq garbage-collection-messages t)
+(when (boundp 'read-process-output-max)
+  ;; 1MB in bytes, default 4096 bytes
+  (setq read-process-output-max 1048576))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (when (boundp 'read-process-output-max)
-    ;; 1MB in bytes, default 4096 bytes
-    (setq read-process-output-max 1048576))
-#+END_SRC
-
-* Minimal config
+* minimal config
 
 - Basic info
   - Change user name and email
@@ -60,96 +61,76 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "Benji Sparkes")
 (setq user-mail-address "bsparkes@stanford.edu")
+(add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
 #+END_SRC
 
-- To save buffer on losing focus
+
+For saving history
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'focus-out-hook 'save-buffer)
-#+END_SRC
-
-- For saving history
-
-#+BEGIN_SRC emacs-lisp
-  (setq savehist-file "~/.emacs.d/savehist")
-  (setq savehist-additional-variables
-	'(buffer-name-history
-	  compile-command
-	  extended-command-history
-	  file-name-history
-	  kill-ring
-	  regexp-search-ring
-	  search-ring))
-  (savehist-mode 1)
+(setq savehist-file "~/.emacs.d/savehist")
+(setq savehist-additional-variables
+      '(buffer-name-history
+        compile-command
+        extended-command-history
+        file-name-history
+        kill-ring
+        regexp-search-ring
+        search-ring))
+(savehist-mode 1)
 #+END_SRC
 
 - By default Emacs will display its tooltips in a separate frame.
   - If you want to force Emacs to use the echo area exclusively, you can do that with this handy code snippet:
 
 #+BEGIN_SRC emacs-lisp
-  (tooltip-mode -1)
-  (setq tooltip-use-echo-area t)
+(tooltip-mode -1)
+(setq tooltip-use-echo-area t)
 #+END_SRC
 
-- Indentation
-
 #+BEGIN_SRC emacs-lisp
-  (setq indent-tabs-mode t tab-width 2)
-#+END_SRC
-
-- Yes and No
-
-#+BEGIN_SRC emacs-lisp
-  (defalias 'yes-or-no-p 'y-or-n-p)
-#+END_SRC
-
-- Misc
-  - Turn down the time to echo keystrokes so I don't have to wait around for things to happen.
-  - Dialog boxes are also a bit annoying, so just have Emacs use the echo area for everything.
-
-#+BEGIN_SRC emacs-lisp
-  (setq echo-keystrokes 0.1
-	use-dialog-box nil
-	visible-bell t)
+(setq indent-tabs-mode t tab-width 2)
+(defalias 'yes-or-no-p 'y-or-n-p)
+(setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting  for things to happen.
+(setq use-dialog-box nil) ;; have Emacs use the echo area for everything
+(setq visible-bell t)
 #+END_SRC
 
 - Setting locale
 
 #+BEGIN_SRC emacs-lisp
-  (set-locale-environment "en_GB.UTF-8")
-  (setenv "LANG" "en_GB.UTF-8")
+(set-locale-environment "en_GB.UTF-8")
+(setenv "LANG" "en_GB.UTF-8")
 #+END_SRC
 
+* general config
 
-* General config
-
-** Some startup settings
+** some startup settings
 
 - Some startup settings
 
 #+BEGIN_SRC emacs-lisp
-  (desktop-save-mode)
-  ;; Some display settings
-  (setq-default indicate-empty-lines t)
-  (when (not indicate-empty-lines)
-    (toggle-indicate-empty-lines))
-  (save-place-mode t)
-  (global-visual-line-mode t)
-  (setq-default line-spacing 2)
+(desktop-save-mode)
+;; Some display settings
+(setq-default indicate-empty-lines t)
+(when (not indicate-empty-lines) (toggle-indicate-empty-lines))
+(save-place-mode t)
+(global-visual-line-mode t)
+(setq-default line-spacing 2)
 #+END_SRC
 
-** Interface tweaks
+** interface tweaks
 
 #+BEGIN_SRC emacs-lisp
-  (setq truncate-string-ellipsis "…"
-	scroll-preserve-screen-position t)
+(setq truncate-string-ellipsis "…"
+      scroll-preserve-screen-position t)
 #+END_SRC
 
 - Font settings
 
 #+BEGIN_SRC emacs-lisp
-  ;; Font Settings
-  (when (eq system-type 'darwin)
+;; Font Settings
+(when (eq system-type 'darwin)
   ;; default Latin font (e.g. Input Mono)
   ;; Input is used to help with lag? It only has 4 different faces.
   (set-face-attribute 'default nil
@@ -157,144 +138,123 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 		      :family "JuliaMono"
 		      :height 150
 		      ))
-  (setq-default mac-allow-anti-aliasing t)
-  (setq inhibit-compacting-font-caches t)
+(setq-default mac-allow-anti-aliasing t)
+(setq inhibit-compacting-font-caches t)
 #+END_SRC
 
 - Disable the toolbar and the scroll bar
 
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode -1)
-  (toggle-scroll-bar -1)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
 #+END_SRC
 
 - Set line wrapping
 
 #+BEGIN_SRC emacs-lisp
-  (setq-default fill-column 1024)
-  (set-default 'truncate-lines nil)
+(setq-default fill-column 1024)
+(set-default 'truncate-lines nil)
 #+END_SRC
 
 - For killing the buffer I'm looking at, capitalised then does the default
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x k") 'kill-this-buffer)
-  (global-set-key (kbd "C-x K") 'kill-buffer)
+(global-set-key (kbd "C-x k") 'kill-this-buffer)
+(global-set-key (kbd "C-x K") 'kill-buffer)
 #+END_SRC
 
 - For the mac
 
-** Editing tweaks
+** editing tweaks
 
 - Editing
   - Delete selected text while typing
 
 #+BEGIN_SRC emacs-lisp
-  (delete-selection-mode t)
+(delete-selection-mode t)
 #+END_SRC
 
 - Enable subword for all programing modes
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'subword-mode)
+(add-hook 'prog-mode-hook 'subword-mode)
 #+END_SRC
 
 - Enable pretty syntax highlighting everywhere
 
 #+BEGIN_SRC emacs-lisp
-  (require 'font-lock)
-  (setq font-lock-maximum-decoration t)
-  (global-font-lock-mode t)
-  (global-hi-lock-mode nil)
-  (setq jit-lock-contextually t)
-  (setq jit-lock-stealth-verbose t)
+(require 'font-lock)
+(setq font-lock-maximum-decoration t)
+(global-font-lock-mode t)
+(global-hi-lock-mode nil)
+(setq jit-lock-contextually t)
+(setq jit-lock-stealth-verbose t)
 #+END_SRC
 
 - Wrap lines automatically
 
 #+BEGIN_SRC emacs-lisp
-  (auto-fill-mode t)
-#+END_SRC
-
-- Indicate empty line
-
-#+BEGIN_SRC emacs-lisp
-  (setq-default show-trailing-whitespace t)
+(auto-fill-mode t)
 #+END_SRC
 
 - Go to indentation on new line
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
-** Background tweaks
+** background tweaks
 
 - Change backup location and make some backup settings
   - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+BEGIN_SRC emacs-lisp
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-  (setq
-   backup-by-copying t       ; don't clobber symlinks
-   kept-new-versions 10      ; keep 10 latest versions
-   kept-old-versions 0       ; don't bother with old versions
-   delete-old-versions t     ; don't ask about deleting old S versions
-   version-control t         ; number backups
-   vc-make-backup-files nil) ; backup version controlled files
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(setq
+ backup-by-copying t       ; don't clobber symlinks
+ kept-new-versions 10      ; keep 10 latest versions
+ kept-old-versions 0       ; don't bother with old versions
+ delete-old-versions t     ; don't ask about deleting old S versions
+ version-control t         ; number backups
+ vc-make-backup-files nil) ; backup version controlled files
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+					; (setq uniquify-buffer-name-style 'forward) ; Unique buffer names
+(setq sentence-end-double-space nil)
+(setq-default delete-by-moving-to-trash t) ; trash instead of removing
+					; (setq create-lockfiles nil) ;; no need to create lockfiles
+					; (setq backup-by-copying t)
 #+END_SRC
 
 Auto-save often
-  - every 20 characters typed is the minimum
-
+- every 20 characters typed is the minimum
 #+BEGIN_SRC emacs-lisp
 (setq auto-save-interval 200)
-#+END_SRC
-
-- For recognising that sentences end with a single space
-
-#+BEGIN_SRC emacs-lisp
-  (setq sentence-end-double-space nil)
-#+END_SRC
-
-Show line-number and column-number in the mode line
-
-#+BEGIN_SRC emacs-lisp
-  (line-number-mode 1)
-  (column-number-mode 1)
-#+END_SRC
-
-- For reloading bib files
-
-#+BEGIN_SRC emacs-lisp
-  (global-auto-revert-mode t)
+(line-number-mode 1) ; show line-number in the mode line
+(column-number-mode 1) ; show column-number in the mode line
+(global-auto-revert-mode t) ; for reloading bib files, etc.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (setq mouse-wheel-follow-mouse 't)
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-
-  ;; Move file to trash instead of removing.
-  (setq-default delete-by-moving-to-trash t)
-
-  (setq
-   ;; inhibit-startup-message t         ; Don't show the startup message...
-   ;; inhibit-startup-screen t          ; ... or screen
-   cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
-   echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
-   ;; initial-scratch-message nil       ; Empty scratch buffer
-   help-window-select t              ; Select help window so it's easy to quit it with 'q'
-   )
-
-  ;; This is rather radical, but saves from a lot of pain in the ass.
-  ;; When split is automatic, always split windows vertically
-  (setq split-height-threshold 0)
-  (setq split-width-threshold nil)
+(setq mouse-wheel-follow-mouse 't)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq
+ ;; inhibit-startup-message t         ; Don't show the startup message...
+ ;; inhibit-startup-screen t          ; ... or screen
+ cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
+ echo-keystrokes 0.1               ; Show keystrokes right away, don't show the message in the scratch buffer
+ ;; initial-scratch-message nil       ; Empty scratch buffer
+ help-window-select t              ; Select help window so it's easy to quit it with 'q'
+ )
+;; This is rather radical, but saves from a lot of pain in the ass.
+;; When split is automatic, always split windows vertically
+(setq split-height-threshold 0)
+(setq split-width-threshold nil)
 #+END_SRC
 
-
-* Packages, etc.
-
+* packages, etc.
 
 ** use-package
 
@@ -307,99 +267,56 @@ Show line-number and column-number in the mode line
 https://github.com/purcell/exec-path-from-shell
 
 #+BEGIN_SRC emacs-lisp
-;(when (memq window-system '(mac ns x))
-;  (exec-path-from-shell-initialize))
+					;(when (memq window-system '(mac ns x))
+					;  (exec-path-from-shell-initialize))
 #+END_SRC
-
-
-* LaTeX
-
-- Tells emacs where to find LaTeX.
-#+BEGIN_SRC emacs-lisp
-;(let ((my-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2022/bin/universal-darwin")))
-(let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
-  (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
-  (add-to-list 'exec-path TeX-path))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package tex
-    :defer t
-    :ensure auctex
-    :init
-    (setq-default TeX-PDF-mode t)
-    (setq-default TeX-master "master") ; All master files called "master".
-    (setq TeX-auto-save t
-	  TeX-save-query nil)
-    (setq TeX-parse-self t)
-    (setq reftex-plug-into-AUCTeX t)
-    (setq TeX-electric-math '("$" . "$")
-	  TeX-electric-sub-and-superscript t)
-    (setq font-latex-fontify-sectioning 'color)
-    (setq TeX-view-program-selection '((output-pdf "PDF Viewer"))
-	  TeX-view-program-list
-	  '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
-    (setq TeX-source-correlate-method 'synctex)
-    :hook
-    (LaTeX-mode . turn-on-reftex)
-    (LaTeX-mode . visual-line-mode)
-    (LaTeX-mode . LaTeX-math-mode)
-    (LaTeX-mode . TeX-source-correlate-mode)
-    (LaTeX-mode . display-line-numbers-mode)
-    :config)
-#+END_SRC
-
-- use Skim as default pdf viewer
-  - Skim's displayline is used for forward search (from .tex to .pdf)
-  - option -r relaods the file; option -b highlights the current line; option -g opens Skim in the background
-  - For this to work, it seems one needs no spaces in the file name
-
-- ReFtex from
-  https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
-
-- LaTeX Stuff
-#+BEGIN_SRC emacs-lisp
-(require 'auctex-latexmk)
-(auctex-latexmk-setup)
-#+END_SRC
-
-
 
 * general
 
+** whitespace
+
+# #+BEGIN_SRC emacs-lisp
+#   (use-package whitespace
+#     :demand
+#     :init
+#     ;; delete trailing whitespace before saving a file
+#     (add-hook 'before-save-hook 'delete-trailing-whitespace)
+#     :config
+#     (set-face-attribute 'trailing-whitespace nil :background "indian red")
+#     (setq-default show-trailing-whitespace t))
+# #+END_SRC
 
 ** Helm
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :ensure t
-    ;; :init
-    :config
-    (setq
-     helm-quick-update t ; do not display invisible candidates
-     helm-idle-delay 0.01 ; be idle for this many seconds, before updating in delayed sources.
-     helm-input-idle-delay 0.01 ; be idle for this many seconds, before updating candidate buffer
-     helm-split-window-default-side 'other ;; open helm buffer in another window
-     helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
-     helm-candidate-number-limit 100 ; limit the number of displayed canidates
-     helm-move-to-line-cycle-in-source nil ; move to end or beginning of source when reaching top or bottom of source.
-     ;; helm-command
-     helm-M-x-requires-pattern 0     ; show all candidates when set to 0
-     helm-M-x-fuzzy-match t ; optional fuzzy matching for helm-M-x
-     )
-    :bind (("C-c h" . helm-mini)
-	   ("C-h a" . helm-apropos)
-	   ("C-x C-b" . helm-buffers-list)
-	   ("C-x b" . helm-buffers-list)
-	   ("M-y" . helm-show-kill-ring)
-	   ("M-x" . helm-M-x)
-	   ("C-x c o" . helm-occur)
-	   ("C-x c s" . helm-swoop)
-	   ("C-x c b" . my/helm-do-grep-book-notes)
-	   ("C-x c SPC" . helm-all-mark-rings)
-	   ;; ("C-c h" .  helm-command-prefix)
-	   ("C-x C-f" . helm-find-files)
-	   ))
+(use-package helm
+  :ensure t
+  ;; :init
+  :config
+  (setq
+   helm-quick-update t ; do not display invisible candidates
+   helm-idle-delay 0.01 ; be idle for this many seconds, before updating in delayed sources.
+   helm-input-idle-delay 0.01 ; be idle for this many seconds, before updating candidate buffer
+   helm-split-window-default-side 'other ;; open helm buffer in another window
+   helm-split-window-in-side-p t ;; open helm buffer inside current window, not occupy whole other window
+   helm-candidate-number-limit 100 ; limit the number of displayed canidates
+   helm-move-to-line-cycle-in-source nil ; move to end or beginning of source when reaching top or bottom of source.
+   ;; helm-command
+   helm-M-x-requires-pattern 0     ; show all candidates when set to 0
+   helm-M-x-fuzzy-match t ; optional fuzzy matching for helm-M-x
+   )
+  :bind (("C-c h" . helm-mini)
+	 ("C-h a" . helm-apropos)
+	 ("C-x C-b" . helm-buffers-list)
+	 ("C-x b" . helm-buffers-list)
+	 ("M-y" . helm-show-kill-ring)
+	 ("M-x" . helm-M-x)
+	 ("C-x c o" . helm-occur)
+	 ("C-x c s" . helm-swoop)
+	 ("C-x c b" . my/helm-do-grep-book-notes)
+	 ("C-x c SPC" . helm-all-mark-rings)
+	 ;; ("C-c h" .  helm-command-prefix)
+	 ("C-x C-f" . helm-find-files)))
 #+END_SRC
 
 ** Company
@@ -407,31 +324,31 @@ https://github.com/purcell/exec-path-from-shell
 - For auto-complete
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'after-init-hook 'global-company-mode)
-  (company-auctex-init)
+(add-hook 'after-init-hook 'global-company-mode)
+(company-auctex-init)
 #+END_SRC
 
 - global activation of the unicode symbol completion
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'company-backends 'company-math-symbols-unicode)
-  (add-to-list 'company-backends '(company-capf
-                                   :with company-dabbrev))
+(add-to-list 'company-backends 'company-math-symbols-unicode)
+(add-to-list 'company-backends '(company-capf
+                                 :with company-dabbrev))
 #+END_SRC
 
 - And with helm
 
 #+BEGIN_SRC emacs-lisp
-  (eval-after-load 'company
-    '(progn
-       (define-key company-mode-map (kbd "C-:") 'helm-company)
-       (define-key company-active-map (kbd "C-:") 'helm-company)))
+(eval-after-load 'company
+  '(progn
+     (define-key company-mode-map (kbd "C-:") 'helm-company)
+     (define-key company-active-map (kbd "C-:") 'helm-company)))
 #+END_SRC
 
 To prevent lowercasing:
 
 #+BEGIN_SRC emacs-lisp
-  (setq-default company-dabbrev-downcase nil)
+(setq-default company-dabbrev-downcase nil)
 #+END_SRC
 
 ** which-key
@@ -440,7 +357,7 @@ To prevent lowercasing:
   Shows command completions
 
 #+BEGIN_SRC emacs-lisp
-  (use-package which-key
+(use-package which-key
   :demand t
   :custom
   (which-key-sort-order 'which-key-prefix-then-key-order)
@@ -451,341 +368,219 @@ To prevent lowercasing:
   (which-key-mode 1)
   (which-key-setup-minibuffer)
   (set-face-attribute
-    'which-key-local-map-description-face nil :weight 'bold))
+   'which-key-local-map-description-face nil :weight 'bold))
 #+END_SRC
 
-** Rainbow delimiters
+** rainbow delimiters
 
 #+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :defer 1
-    :hook
-    (prog-mode . rainbow-delimiters-mode)
-  )
+(use-package rainbow-delimiters
+  :defer 1
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 
-** Browse kill ring
+** browse kill ring
 
 #+BEGIN_SRC emacs-lisp
-  (require 'browse-kill-ring)
+(require 'browse-kill-ring)
 #+END_SRC
 
-** Org mode
+** org mode
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org
-    :custom
-    (org-directory "~/Dropbox/Docs/Org")
-    (org-default-notes-file (concat org-directory "/OrgCapture.org"))
-    ;; use syntax-highlighting for src blocks
-    (org-src-fontify-natively t)
-    ;; strip blank lines when closing src block editor
-    (org-src-strip-leading-and-trailing-blank-lines t)
-    ;; preserve indentation in src blocks, don't re-indent
-    (org-src-preserve-indentation t)
-    ;; respect the src block syntax for tabs
-    (org-src-tab-acts-natively t)
-    ;; wrap lines on startup
-    (org-startup-truncated nil)
-    ;; if editing in an invisible region, complain.
-    (org-catch-invisible-edits 'show-and-error)
-    ;; don't ask when evaluating every src block
-    (org-confirm-babel-evaluate nil)
-    ;; don't hide emphasis markers, because there are soo many
-    (org-hide-emphasis-markers nil)
-    ;; try to draw utf8 characters, don't just show their code
-    (org-pretty-entities t)
-    ;; add a background to begin_quote and begin_verse blocks.
-    (org-fontify-quote-and-verse-blocks t)
-    ;; use a pretty character to show a collapsed section
-    (org-ellipsis " ▿")
-    ;; don't collapse blank lines when collapsing a tree
-    ;; as that messes with the ellipsis.
-    (org-cycle-separator-lines -1)
-    ;; don't align tags
-    (org-tag-column 0)
-    ;; prevent demoting heading also shifting text inside sections
-    (org-adapt-indentation nil)
-    ;; leave shift keys alone!
-    (org-support-shift-select t)
-    (org-replace-disputed-keys t)
-    ;; :hook
-    ;; (org-mode . org-indent-mode)
-    :config
-    (add-to-list 'org-structure-template-alist '("se" . "src elisp"))
-    (add-to-list 'org-structure-template-alist '("ss" . "src sh"))
-    (add-to-list 'org-structure-template-alist '("sp" . "src python"))
-    (setq org-babel-python-command "python3")
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 '(
-                                   (C . t)
-                                   (dot . t)
-                                   (emacs-lisp . t)
-                                   (js . t)
-                                   (latex . t)
-                                   (lisp . t)
-                                   (org . t)
-                                   (python . t)
-                                   ;; (rust . t)
-                                   (scheme . t)
-                                   )))
+(use-package org
+  :custom
+  (org-directory "~/Dropbox/Docs/Org")
+  (org-default-notes-file (concat org-directory "/OrgCapture.org"))
+  ;; use syntax-highlighting for src blocks
+  (org-src-fontify-natively t)
+  ;; strip blank lines when closing src block editor
+  (org-src-strip-leading-and-trailing-blank-lines t)
+  ;; preserve indentation in src blocks, don't re-indent
+  (org-src-preserve-indentation t)
+  ;; respect the src block syntax for tabs
+  (org-src-tab-acts-natively t)
+  ;; wrap lines on startup
+  (org-startup-truncated nil)
+  ;; if editing in an invisible region, complain.
+  (org-catch-invisible-edits 'show-and-error)
+  ;; ask when evaluating every src block
+  (org-confirm-babel-evaluate t)
+  ;; don't hide emphasis markers, because there are soo many
+  (org-hide-emphasis-markers nil)
+  ;; try to draw utf8 characters, don't just show their code
+  (org-pretty-entities t)
+  ;; add a background to begin_quote and begin_verse blocks.
+  (org-fontify-quote-and-verse-blocks t)
+  ;; use a pretty character to show a collapsed section
+					; (org-ellipsis " ▿")
+  ;; don't collapse blank lines when collapsing a tree
+  ;; as that messes with the ellipsis.
+  (org-cycle-separator-lines -1)
+  ;; don't align tags
+  (org-tag-column 0)
+  ;; prevent demoting heading also shifting text inside sections
+  (org-adapt-indentation nil)
+  ;; leave shift keys alone!
+  (org-support-shift-select t)
+  (org-replace-disputed-keys t)
+  ;; :hook
+  ;; (org-mode . org-indent-mode)
+  :config
+  (add-to-list 'org-structure-template-alist '("se" . "src elisp"))
+  (add-to-list 'org-structure-template-alist '("ss" . "src sh"))
+  (add-to-list 'org-structure-template-alist '("sp" . "src python"))
+  (setq org-babel-python-command "python3")
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '(
+                                 (C . t)
+                                 (dot . t)
+                                 (emacs-lisp . t)
+                                 (js . t)
+                                 (latex . t)
+                                 (lisp . t)
+                                 (org . t)
+                                 (python . t)
+                                 ;; (rust . t)
+                                 (scheme . t)
+                                 )))
 #+END_SRC
 
 *** Background Org Stuff
 
 - LaTeX in org
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'org-mode-hook 'LaTeX-math-mode)
-  (setq org-format-latex-options
-        '(:foreground default
-                      :background default
-                      :scale 1
-                      :html-foreground "Black"
-                      :html-background "Transparent"
-                      :html-scale 1.0
-                      :matchers ("begin" "$1" "$$" "\\(" "\\[")))
+(add-hook 'org-mode-hook 'LaTeX-math-mode)
+(setq org-format-latex-options
+      '(:foreground default
+                    :background default
+                    :scale 1
+                    :html-foreground "Black"
+                    :html-background "Transparent"
+                    :html-scale 1.0
+                    :matchers ("begin" "$1" "$$" "\\(" "\\[")))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 #+END_SRC
 
 - Including all org files from a directory into the agenda
   - Note, multiple directories can be added, like:
     - (setq org-agenda-files (quote ("~/agenda/work" "~/agenda/todo")))
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (file-expand-wildcards "~/Dropbox/Docs/Org/*.org"))
+(setq org-agenda-files (file-expand-wildcards "~/Dropbox/Docs/Org/*.org"))
 #+END_SRC
 
 - Auto add time and closing note to done
 #+BEGIN_SRC emacs-lisp
-  (setq org-log-done 'time)
-  (setq org-log-done 'note)
+(setq org-log-done 'time)
+(setq org-log-done 'note)
 #+END_SRC
 
-** Smartparens
+** smartparens
 
 #+BEGIN_SRC emacs-lisp
-  ;; https://github.com/Fuco1/smartparens
-  (require 'smartparens-config)
-  (require 'smartparens-latex)
-  (smartparens-global-mode t)
-  (show-smartparens-global-mode t)
+;; https://github.com/Fuco1/smartparens
+(require 'smartparens-config)
+(require 'smartparens-latex)
+(smartparens-global-mode t)
+(show-smartparens-global-mode t)
 
-  ;; needed to ensure text isn't deleted
-  ;; (https://github.com/Fuco1/smartparens/issues/834)
-  (define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
+;; needed to ensure text isn't deleted
+;; (https://github.com/Fuco1/smartparens/issues/834)
+(define-key LaTeX-mode-map (kbd "$") 'self-insert-command)
 
-  (sp-with-modes
-      '(tex-mode plain-tex-mode latex-mode LaTeX-mode)
-    (sp-local-pair "\\(" "\\)"
-		   :unless '(sp-latex-point-after-backslash)
-		   :trigger-wrap "$"
-		   :trigger "$"))
+(sp-with-modes
+    '(tex-mode plain-tex-mode latex-mode LaTeX-mode)
+  (sp-local-pair "\\(" "\\)"
+		 :unless '(sp-latex-point-after-backslash)
+		 :trigger-wrap "$"
+		 :trigger "$"))
 #+END_SRC
 
-** Themes
+** themes
 
 #+BEGIN_SRC emacs-lisp
-  ;; to get rid of buffer-face on shift click
-  (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
-  ;; to set right click to a menu bar instead of yanking
-  (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
+;; to get rid of buffer-face on shift click
+(define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
+;; to set right click to a menu bar instead of yanking
+(global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
 
-  (load-theme 'dracula t)
+(load-theme 'dracula t)
 
-  ;; For loading themes
-  ;; (defadvice load-theme (before theme-dont-propagate activate)
-  ;;   (mapc #'disable-theme custom-enabled-themes))
+;; For loading themes
+;; (defadvice load-theme (before theme-dont-propagate activate)
+;;   (mapc #'disable-theme custom-enabled-themes))
 #+END_SRC
 
-** Multiple cursors
+** multiple cursors
 
 #+BEGIN_SRC emacs-lisp
-  ;; For multiple cursors
-  (use-package multiple-cursors
-    :ensure t
-    :bind (("C->" . mc/mark-next-like-this)
-	   ("C-<" . mc/mark-previous-like-this)
-	   ("C-c C->" . mc/mark-all-like-this)
-	   ("C-c C-SPC" . mc/edit-lines)
-	   ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
+;; For multiple cursors
+(use-package multiple-cursors
+  :ensure t
+  :bind (("C->" . mc/mark-next-like-this)
+	 ("C-<" . mc/mark-previous-like-this)
+	 ("C-c C->" . mc/mark-all-like-this)
+	 ("C-c C-SPC" . mc/edit-lines)
+	 ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+END_SRC
 
-** Undo tree
+** undo tree
 
 #+BEGIN_SRC emacs-lisp
-  (use-package undo-tree
-    :ensure t
-    :init
-    (global-undo-tree-mode))
+(use-package undo-tree
+  :ensure t
+  :init
+  (global-undo-tree-mode))
 #+END_SRC
 
 ** ispell
 
 - For spell checking
 #+BEGIN_SRC emacs-lisp
-  (setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
-  (setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
-  (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
-  (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-  ; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
-  ; (add-hook 'org-mode-hook 'flyspell-mode)
-  ; (add-hook 'org-mode-hook 'flyspell-buffer)
+(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
+(setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
+(customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+					; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
+					; (add-hook 'org-mode-hook 'flyspell-mode)
+					; (add-hook 'org-mode-hook 'flyspell-buffer)
 #+END_SRC
 
-** Fix-word
+** fix-word
 
 #+BEGIN_SRC emacs-lisp
-  (use-package fix-word
-    :bind (("M-u" . #'fix-word-upcase)
-	   ("M-l" . #'fix-word-downcase)
-	   ("M-c" . #'fix-word-capitalize)))
+(use-package fix-word
+  :bind (("M-u" . #'fix-word-upcase)
+	 ("M-l" . #'fix-word-downcase)
+	 ("M-c" . #'fix-word-capitalize)))
 #+END_SRC
 
-** Highlight Indentation
+** highlight indentation
 
 - To highlight indentations
   - Options are fill, column, and character
   - There's no way to get indentation on empty lines as of now
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-  (setq highlight-indent-guides-method 'character)
-#+END_SRC
-
-** Web mode
-
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(setq web-mode-markup-indent-offset 2)
+(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+(setq highlight-indent-guides-method 'character)
 #+END_SRC
 
 ** magit
 
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :pin nongnu ; installation issues with melpa
-    )
+(use-package magit
+  :pin nongnu ; installation issues with melpa
+  :ensure t
+  :bind
+					; (("C-x g" . magit-status))
+  :config
+  (setq magit-push-always-verify nil))
 #+END_SRC
-
-* languages
-
-** LISP
-
-*** SLIME
-
-#+BEGIN_SRC emacs-lisp
-  ;; (setq inferior-lisp-program (executable-find "sbcl"))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  ;; (defun sort-lines-by-length (reverse beg end)
-  ;;   "Sort lines by length."
-  ;;   (interactive "P\nr")
-  ;;   (save-excursion
-  ;;     (save-restriction
-  ;;       (narrow-to-region beg end)
-  ;;       (goto-char (point-min))
-  ;;       (let ;; To make `end-of-line' and etc. to ignore fields.
-  ;;           ((inhibit-field-text-motion t))
-  ;;         (sort-subr reverse 'forward-line 'end-of-line nil nil
-  ;;                    (lambda (l1 l2)
-  ;;                      (apply #'< (mapcar (lambda (range) (- (cdr range) (car range)))
-  ;;                                         (list l1 l2)))))))))
-#+END_SRC
-
-*** Racket
-
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
-  (add-to-list 'org-src-lang-modes '("racket" . racket))
-    (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((racket . t)))
-#+END_SRC
-
-** python
-
-Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
-Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
-
-#+BEGIN_SRC emacs-lisp
-  (use-package elpy
-    :ensure t
-    :defer t
-    ;;:elpy-shell-darwin-use-pty t
-    :init
-    (advice-add 'python-mode :before 'elpy-enable)
-    :config
-    (setq elpy-rpc-python-command "python3") ; a
-    (setq python-shell-interpreter "python3") ; a
-    (setq python-shell-interpreter-args "-i")
-    ;(setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
-    (setq elpy-shell-darwin-use-pty t) ; b
-    )
-
-  ;; (require 'python-mode)
-
-  ;; (require 'py-autopep8)
-  ;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-
-  ;(defun my/python-mode-hook ()
-  ;  (add-to-list 'company-backends 'company-jedi))
-  ;
-  ;(add-hook 'python-mode-hook 'my/python-mode-hook)
-#+END_SRC
-
-** rust
-
-https://robert.kra.hn/posts/rust-emacs-setup/
-
-
-#+BEGIN_SRC emacs-lisp
-  (use-package rustic
-    :ensure
-    :bind (:map rustic-mode-map
-		("M-j" . lsp-ui-imenu)
-		("M-?" . lsp-find-references)
-		("C-c C-c l" . flycheck-list-errors)
-		("C-c C-c a" . lsp-execute-code-action)
-		("C-c C-c r" . lsp-rename)
-		("C-c C-c q" . lsp-workspace-restart)
-		("C-c C-c Q" . lsp-workspace-shutdown)
-		("C-c C-c s" . lsp-rust-analyzer-status))
-    :config
-    ;; uncomment for less flashiness
-    ;; (setq lsp-eldoc-hook nil)
-    ;; (setq lsp-enable-symbol-highlighting nil)
-    ;; (setq lsp-signature-auto-activate nil)
-
-    ;; comment to disable rustfmt on save
-    (setq rustic-format-on-save t)
-    (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
-
-  (defun rk/rustic-mode-hook ()
-    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-    ;; save rust buffers that are not file visiting. Once
-    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-    ;; no longer be necessary.
-    (when buffer-file-name
-      (setq-local buffer-save-without-query t))
-    (add-hook 'before-save-hook 'lsp-format-buffer nil t))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'rust-mode-hook (lambda () (setq indent-tabs-mode nil)))
-#+END_SRC
-
-* LSP
-
-# #+BEGIN_SRC emacs-lisp
-#   (use-package lsp-mode
-#   :hook ((c-mode python-mode) . lsp-deferred)
-#   :commands lsp)
-# #+END_SRC
-
-* Testing
 
 ** flycheck
 
@@ -794,15 +589,192 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :defer 1
   :init
   (global-flycheck-mode t))
-
-(use-package flycheck-posframe
-  :defer 1
-  :after flycheck
-  :hook (flycheck-mode . flycheck-posframe-mode)
-  :config
-  (flycheck-posframe-configure-pretty-defaults)
-  (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
+;; (use-package flycheck-posframe
+;; :defer 1
+;; :after flycheck
+;; :hook (flycheck-mode . flycheck-posframe-mode)
+;; :config
+;; (flycheck-posframe-configure-pretty-defaults)
+;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 #+END_SRC
 
+* languages
+
+** LaTeX
+
+- Tells emacs where to find LaTeX.
+#+BEGIN_SRC emacs-lisp
+(let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
+  (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
+  (add-to-list 'exec-path TeX-path))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package tex
+  :defer t
+  :ensure auctex
+  :init
+  (setq-default TeX-PDF-mode t)
+  (setq-default TeX-master "master") ; All master files called "master".
+  (setq TeX-auto-save t
+	TeX-save-query nil)
+  (setq TeX-parse-self t)
+  (setq reftex-plug-into-AUCTeX t)
+  (setq TeX-electric-math '("$" . "$")
+	TeX-electric-sub-and-superscript t)
+  (setq font-latex-fontify-sectioning 'color)
+  (setq TeX-view-program-selection '((output-pdf "PDF Viewer"))
+	TeX-view-program-list
+	'(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
+  (setq TeX-source-correlate-method 'synctex)
+  :hook
+  (LaTeX-mode . turn-on-reftex)
+  (LaTeX-mode . visual-line-mode)
+  (LaTeX-mode . LaTeX-math-mode)
+  (LaTeX-mode . TeX-source-correlate-mode)
+  (LaTeX-mode . display-line-numbers-mode)
+  :config)
+
+(use-package auctex-latexmk
+  :ensure t
+  :demand
+  :init
+  (auctex-latexmk-setup))
+#+END_SRC
+
+- use Skim as default pdf viewer
+  - Skim's displayline is used for forward search (from .tex to .pdf)
+  - option -r relaods the file; option -b highlights the current line; option -g opens Skim in the background
+  - For this to work, it seems one needs no spaces in the file name
+
+- ReFtex from
+  https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
+
+** lisp
+
+*** Racket
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
+(add-to-list 'org-src-lang-modes '("racket" . racket))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((racket . t)))
+#+END_SRC
+
+** python
+
+Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
+Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
+
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :ensure t
+  :defer t
+  ;;:elpy-shell-darwin-use-pty t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable)
+  :config
+  (setq elpy-rpc-python-command "python3") ; a
+  (setq python-shell-interpreter "python3") ; a
+  (setq python-shell-interpreter-args "-i")
+					;(setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
+  (setq elpy-shell-darwin-use-pty t) ; b
+  )
+
+;; (require 'python-mode)
+
+;; (require 'py-autopep8)
+;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+
+					;(defun my/python-mode-hook ()
+					;  (add-to-list 'company-backends 'company-jedi))
+					;
+					;(add-hook 'python-mode-hook 'my/python-mode-hook)
+#+END_SRC
+
+** rust
+
+https://robert.kra.hn/posts/rust-emacs-setup/
+
+
+#+BEGIN_SRC emacs-lisp
+(use-package rust-mode
+  :ensure t
+  :mode "\\.rs\\'"
+  :init
+  (setq lsp-rust-server 'rust-analyzer)
+					; :hook
+					; (rust-mode . lsp)
+  :config
+  (setq rust-format-on-save t)
+  :bind (:map rust-mode-map
+              ("C-c r" . rust-run)
+              ("C-c c" . rust-compile)
+              ("C-c t" . rust-test)))
+
+(use-package rustic
+  :ensure
+  :bind (:map rustic-mode-map
+              ("M-j" . lsp-ui-imenu)
+              ("M-?" . lsp-find-references)
+              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c a" . lsp-execute-code-action)
+              ("C-c C-c r" . lsp-rename)
+              ("C-c C-c q" . lsp-workspace-restart)
+              ("C-c C-c Q" . lsp-workspace-shutdown)
+              ("C-c C-c s" . lsp-rust-analyzer-status))
+  :config
+  ;; uncomment for less flashiness
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t)
+  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+
+(defun rk/rustic-mode-hook ()
+  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+  ;; save rust buffers that are not file visiting. Once
+  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+  ;; no longer be necessary.
+  (when buffer-file-name (setq-local buffer-save-without-query t))
+  (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+#+END_SRC
+
+* LSP
+
+https://ogbe.net/emacs/lsp
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :ensure t
+  :init (setq lsp-keymap-prefix "C-c C-l"
+              lsp-prefer-flymake nil
+              lsp-keep-workspace-alive nil)
+  :commands (lsp make-lsp-client lsp-register-client)
+  :hook (lsp-mode . lsp-enable-which-key-integration)
+  :config
+  ;; this is a particularly nasty bug
+  ;; https://github.com/bbatsov/projectile/issues/1387
+  (defun do.lsp/dont-resolve-symlinks-projectile (fun &rest args)
+    "Call FUN with ARGS but disable the effects of `file-truename'."
+    (cl-letf (((symbol-function 'file-truename) #'identity))
+      (apply fun args)))
+  (advice-add 'lsp--suggest-project-root :around
+              #'do.lsp/dont-resolve-symlinks-projectile))
+
+(use-package lsp-ui
+  :ensure t
+  :init (setq lsp-ui-flycheck-enable t)
+  :commands lsp-ui-mode)
+
+(use-package dap-mode
+  :ensure t
+  :after lsp-mode
+  :config
+  (dap-mode t)
+  (dap-ui-mode t))
+#+END_SRC
 
 
