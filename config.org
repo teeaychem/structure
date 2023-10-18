@@ -2,25 +2,54 @@
 #+STARTUP: overview
 #+STARTUP: content
 
-* Behind the scenes
+* Startup
 
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-  (defun ambrevar/reset-gc-cons-threshold ()
-    (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
-  (setq gc-cons-threshold (* 64 1024 1024))
-  (add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
+; (emacs-init-time)
+#+END_SRC
 
-  (setq default-file-name-handler-alist file-name-handler-alist)
-  (setq file-name-handler-alist nil)
-  (defun ambrevar/reset-file-name-handler-alist ()
-    (setq file-name-handler-alist default-file-name-handler-alist))
-  (add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
+- https://github.com/meatcar/emacs.d
+
+#+BEGIN_SRC emacs-lisp
+  (setq package-enable-at-startup nil)
+
+  ;; Resizing the Emacs frame can be a terribly expensive part of changing the
+  ;; font. By inhibiting this, we easily halve startup times with fonts that are
+  ;; larger than the system default.
+  (setq frame-inhibit-implied-resize t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-; (emacs-init-time)
+  ;; max memory available for gc on startup
+  (defvar me/gc-cons-threshold 16777216)
+  (setq gc-cons-threshold most-positive-fixnum
+	gc-cons-percentage 0.6)
+  (add-hook 'emacs-startup-hook
+	    (lambda ()
+	      (setq gc-cons-threshold me/gc-cons-threshold
+		    gc-cons-percentage 0.1)))
+
+  ;; max memory available for gc when opening minibuffer
+  (defun me/defer-garbage-collection-h ()
+    (setq gc-cons-threshold most-positive-fixnum))
+
+  (defun me/restore-garbage-collection-h ()
+    ;; Defer it so that commands launched immediately after will enjoy the
+    ;; benefits.
+    (run-at-time
+     1 nil (lambda () (setq gc-cons-threshold me/gc-cons-threshold))))
+
+  (add-hook 'minibuffer-setup-hook #'me/defer-garbage-collection-h)
+  (add-hook 'minibuffer-exit-hook #'me/restore-garbage-collection-h)
+  (setq garbage-collection-messages t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (when (boundp 'read-process-output-max)
+    ;; 1MB in bytes, default 4096 bytes
+    (setq read-process-output-max 1048576))
 #+END_SRC
 
 * Minimal config
@@ -44,13 +73,13 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 #+BEGIN_SRC emacs-lisp
   (setq savehist-file "~/.emacs.d/savehist")
   (setq savehist-additional-variables
-        '(buffer-name-history
-          compile-command
-          extended-command-history
-          file-name-history
-          kill-ring
-          regexp-search-ring
-          search-ring))
+	'(buffer-name-history
+	  compile-command
+	  extended-command-history
+	  file-name-history
+	  kill-ring
+	  regexp-search-ring
+	  search-ring))
   (savehist-mode 1)
 #+END_SRC
 
@@ -65,9 +94,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Indentation
 
 #+BEGIN_SRC emacs-lisp
-  (setq indent-tabs-mode t
-	tab-width 2
-	)
+  (setq indent-tabs-mode t tab-width 2)
 #+END_SRC
 
 - Yes and No
@@ -79,9 +106,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 - Misc
   - Turn down the time to echo keystrokes so I don't have to wait around for things to happen.
   - Dialog boxes are also a bit annoying, so just have Emacs use the echo area for everything.
-  - Beeping is for robots, and I am not a robot.
-  - Use a visual indicator instead of making horrible noises.
-  - Oh, and always highlight parentheses.
 
 #+BEGIN_SRC emacs-lisp
   (setq echo-keystrokes 0.1
@@ -95,6 +119,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (set-locale-environment "en_GB.UTF-8")
   (setenv "LANG" "en_GB.UTF-8")
 #+END_SRC
+
 
 * General config
 
@@ -115,6 +140,11 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 ** Interface tweaks
 
+#+BEGIN_SRC emacs-lisp
+  (setq truncate-string-ellipsis "…"
+	scroll-preserve-screen-position t)
+#+END_SRC
+
 - Font settings
 
 #+BEGIN_SRC emacs-lisp
@@ -122,14 +152,14 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (when (eq system-type 'darwin)
   ;; default Latin font (e.g. Input Mono)
   ;; Input is used to help with lag? It only has 4 different faces.
-  (set-face-attribute 'default nil :family "Source Code Pro";"Operator Mono";"mononoki";"Hack";"IBM Plex Mono";"Input Mono"
-  :height 150
-  ))
-  (setq-default mac-allow-anti-aliasing nil)
+  (set-face-attribute 'default nil
+		      ;; :family "Source Code Pro"
+		      :family "JuliaMono"
+		      :height 150
+		      ))
+  (setq-default mac-allow-anti-aliasing t)
   (setq inhibit-compacting-font-caches t)
 #+END_SRC
-
-#+RESULTS:
 
 - Disable the toolbar and the scroll bar
 
@@ -160,7 +190,7 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   - Delete selected text while typing
 
 #+BEGIN_SRC emacs-lisp
-(delete-selection-mode t)
+  (delete-selection-mode t)
 #+END_SRC
 
 - Enable subword for all programing modes
@@ -227,21 +257,17 @@ Auto-save often
   (setq sentence-end-double-space nil)
 #+END_SRC
 
-Show line-number in the mode line
+Show line-number and column-number in the mode line
 
 #+BEGIN_SRC emacs-lisp
   (line-number-mode 1)
-#+END_SRC
-
-Show column-number in the mode line
-#+BEGIN_SRC emacs-lisp
   (column-number-mode 1)
 #+END_SRC
 
 - For reloading bib files
 
 #+BEGIN_SRC emacs-lisp
-(global-auto-revert-mode t)
+  (global-auto-revert-mode t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -266,7 +292,10 @@ Show column-number in the mode line
   (setq split-width-threshold nil)
 #+END_SRC
 
+
 * Packages, etc.
+
+
 ** use-package
 
 #+BEGIN_SRC emacs-lisp
@@ -282,7 +311,8 @@ https://github.com/purcell/exec-path-from-shell
 ;  (exec-path-from-shell-initialize))
 #+END_SRC
 
-** LaTeX
+
+* LaTeX
 
 - Tells emacs where to find LaTeX.
 #+BEGIN_SRC emacs-lisp
@@ -292,51 +322,31 @@ https://github.com/purcell/exec-path-from-shell
   (add-to-list 'exec-path TeX-path))
 #+END_SRC
 
-- LaTeX Stuff
 #+BEGIN_SRC emacs-lisp
-(require 'auctex-latexmk)
-(auctex-latexmk-setup)
-#+END_SRC
-
-- Use PDF mode by default
-#+BEGIN_SRC emacs-lisp
-  (setq-default TeX-PDF-mode t)
-  ;; Make emacs aware of multi-file projects
-  (setq-default TeX-master "master") ; All master files called "master".
-  (setq-default TeX-master nil)
-
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq TeX-save-query nil)
-  (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-  (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)   ; with AUCTeX LaTeX mode
-  ;; (add-hook 'latex-mode-hook 'turn-on-reftex)   ; with Emacs latex mode
-#+END_SRC
-
-- ReFtex from https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
-
-#+BEGIN_SRC emacs-lisp
-  (setq reftex-plug-into-AUCTeX t)
-  ;; Only change sectioning colour
-  (setq font-latex-fontify-sectioning 'color)
-  ;; Exclude bold/italic from keywords
-  ;; (setq font-latex-deactivated-keyword-classes '("italic-command" "bold-command" "italic-declaration" "bold-declaration"))
-  ;; TeX-electric-math
-  (add-hook 'plain-TeX-mode-hook
-	    (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-			    (cons "$" "$"))))
-  ;
-  ;(add-hook 'LaTeX-mode-hook
-  ;          (lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-  ;                          (cons "\\(" "\\)"))))
-  ;(setq LaTeX-electric-left-right-brace t)
-  (setq TeX-electric-sub-and-superscript t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (setq TeX-source-correlate-method 'synctex)
-  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+  (use-package tex
+    :defer t
+    :ensure auctex
+    :init
+    (setq-default TeX-PDF-mode t)
+    (setq-default TeX-master "master") ; All master files called "master".
+    (setq TeX-auto-save t
+	  TeX-save-query nil)
+    (setq TeX-parse-self t)
+    (setq reftex-plug-into-AUCTeX t)
+    (setq TeX-electric-math '("$" . "$")
+	  TeX-electric-sub-and-superscript t)
+    (setq font-latex-fontify-sectioning 'color)
+    (setq TeX-view-program-selection '((output-pdf "PDF Viewer"))
+	  TeX-view-program-list
+	  '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
+    (setq TeX-source-correlate-method 'synctex)
+    :hook
+    (LaTeX-mode . turn-on-reftex)
+    (LaTeX-mode . visual-line-mode)
+    (LaTeX-mode . LaTeX-math-mode)
+    (LaTeX-mode . TeX-source-correlate-mode)
+    (LaTeX-mode . display-line-numbers-mode)
+    :config)
 #+END_SRC
 
 - use Skim as default pdf viewer
@@ -344,26 +354,19 @@ https://github.com/purcell/exec-path-from-shell
   - option -r relaods the file; option -b highlights the current line; option -g opens Skim in the background
   - For this to work, it seems one needs no spaces in the file name
 
+- ReFtex from
+  https://piotrkazmierczak.com/2010/emacs-as-the-ultimate-latex-editor/
+
+- LaTeX Stuff
 #+BEGIN_SRC emacs-lisp
-  (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
-  (setq TeX-view-program-list
-        '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
+(require 'auctex-latexmk)
+(auctex-latexmk-setup)
 #+END_SRC
 
-- Minted
 
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-listings 'minted)
-#+END_SRC
 
--  Minted options
+* general
 
-#+BEGIN_SRC emacs-lisp
-(setq-default org-export-latex-minted-options
-              '(("frame" "lines")
-                ("fontsize" "\\scriptsize")
-                ("linenos" "")))
-#+END_SRC
 
 ** Helm
 
@@ -437,17 +440,28 @@ To prevent lowercasing:
   Shows command completions
 
 #+BEGIN_SRC emacs-lisp
-  (which-key-mode)
-  (which-key-setup-minibuffer)
-  ;; (setq which-key-popup-type 'minibuffer)
+  (use-package which-key
+  :demand t
+  :custom
+  (which-key-sort-order 'which-key-prefix-then-key-order)
+  :init
   (setq which-key-idle-delay 0.1)
   (setq which-key-max-display-columns nil)
+  :config
+  (which-key-mode 1)
+  (which-key-setup-minibuffer)
+  (set-face-attribute
+    'which-key-local-map-description-face nil :weight 'bold))
 #+END_SRC
 
 ** Rainbow delimiters
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  (use-package rainbow-delimiters
+    :defer 1
+    :hook
+    (prog-mode . rainbow-delimiters-mode)
+  )
 #+END_SRC
 
 ** Browse kill ring
@@ -458,27 +472,66 @@ To prevent lowercasing:
 
 ** Org mode
 
-Activate org-mode
-
 #+BEGIN_SRC emacs-lisp
-  (require 'org)
-#+END_SRC
-
-And, leave shift keys alone!
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-support-shift-select t)
-  (setq org-replace-disputed-keys t)
+  (use-package org
+    :custom
+    (org-directory "~/Dropbox/Docs/Org")
+    (org-default-notes-file (concat org-directory "/OrgCapture.org"))
+    ;; use syntax-highlighting for src blocks
+    (org-src-fontify-natively t)
+    ;; strip blank lines when closing src block editor
+    (org-src-strip-leading-and-trailing-blank-lines t)
+    ;; preserve indentation in src blocks, don't re-indent
+    (org-src-preserve-indentation t)
+    ;; respect the src block syntax for tabs
+    (org-src-tab-acts-natively t)
+    ;; wrap lines on startup
+    (org-startup-truncated nil)
+    ;; if editing in an invisible region, complain.
+    (org-catch-invisible-edits 'show-and-error)
+    ;; don't ask when evaluating every src block
+    (org-confirm-babel-evaluate nil)
+    ;; don't hide emphasis markers, because there are soo many
+    (org-hide-emphasis-markers nil)
+    ;; try to draw utf8 characters, don't just show their code
+    (org-pretty-entities t)
+    ;; add a background to begin_quote and begin_verse blocks.
+    (org-fontify-quote-and-verse-blocks t)
+    ;; use a pretty character to show a collapsed section
+    (org-ellipsis " ▿")
+    ;; don't collapse blank lines when collapsing a tree
+    ;; as that messes with the ellipsis.
+    (org-cycle-separator-lines -1)
+    ;; don't align tags
+    (org-tag-column 0)
+    ;; prevent demoting heading also shifting text inside sections
+    (org-adapt-indentation nil)
+    ;; leave shift keys alone!
+    (org-support-shift-select t)
+    (org-replace-disputed-keys t)
+    ;; :hook
+    ;; (org-mode . org-indent-mode)
+    :config
+    (add-to-list 'org-structure-template-alist '("se" . "src elisp"))
+    (add-to-list 'org-structure-template-alist '("ss" . "src sh"))
+    (add-to-list 'org-structure-template-alist '("sp" . "src python"))
+    (setq org-babel-python-command "python3")
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 '(
+                                   (C . t)
+                                   (dot . t)
+                                   (emacs-lisp . t)
+                                   (js . t)
+                                   (latex . t)
+                                   (lisp . t)
+                                   (org . t)
+                                   (python . t)
+                                   ;; (rust . t)
+                                   (scheme . t)
+                                   )))
 #+END_SRC
 
 *** Background Org Stuff
-
-- Setting a custom org font
-
-#+BEGIN_SRC emacs-lisp
-  ;; (add-hook 'org-mode-hook
-  ;;  (lambda () (face-remap-add-relative 'default :family "Input Mono")))
-#+END_SRC
 
 - LaTeX in org
 #+BEGIN_SRC emacs-lisp
@@ -493,29 +546,6 @@ And, leave shift keys alone!
                       :matchers ("begin" "$1" "$$" "\\(" "\\[")))
 #+END_SRC
 
-- Prevent demoting heading also shifting text inside sections
-#+BEGIN_SRC emacs-lisp
-  (setq org-adapt-indentation nil)
-#+END_SRC
-
-- Adding fontlock for @nums@ page references
-#+BEGIN_SRC emacs-lisp
-  ;; (font-lock-add-keywords
-  ;;  'org-mode
-  ;;  '(("\\(@[0-9]*[-]*[0-9]*@\\)" 1 font-lock-comment-face t)))
-#+END_SRC
-
-- http://orgmode.org/guide/Activation.html#Activation
-  - The following lines are always needed.
-
-- Some org-mode keybindings
-#+BEGIN_SRC emacs-lisp
-  ;; (global-set-key "\C-cl" 'org-store-link)
-  ;; (global-set-key "\C-ca" 'org-agenda)
-  ;; (global-set-key "\C-cc" 'org-capture)
-  ;; (global-set-key "\C-cb" 'org-iswitchb)
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 #+END_SRC
@@ -527,73 +557,10 @@ And, leave shift keys alone!
   (setq org-agenda-files (file-expand-wildcards "~/Dropbox/Docs/Org/*.org"))
 #+END_SRC
 
-*** Agenda
-
-#+BEGIN_SRC emacs-lisp
-  ;; (setq-default org-todo-keywords '((sequence
-  ;;                       "TODO(t)"
-  ;;                       "FIXME(f)"
-  ;;                       "IN-PROGRESS(p)"
-  ;;                       "NEXT(n)"
-  ;;                       "WAITING(w)"
-  ;;                       "|"
-  ;;                       "DONE(d)"
-  ;;                       "COMPLETED(c)"
-  ;;                       "CANCELLED(x)")))
-  ;; (setq org-log-done t)
-#+END_SRC
-
 - Auto add time and closing note to done
 #+BEGIN_SRC emacs-lisp
   (setq org-log-done 'time)
   (setq org-log-done 'note)
-#+END_SRC
-
-- Org capture
-#+BEGIN_SRC emacs-lisp
-  (setq  org-directory "~/Dropbox/Docs/Org")
-  (setq org-default-notes-file (concat org-directory "/OrgCapture.org"))
-#+END_SRC
-
-- Fontify code in code blocks
-
-#+BEGIN_SRC emacs-lisp
-  ;; (setq org-src-fontify-natively t)
-#+END_SRC
-
-- Header size
-#+BEGIN_SRC emacs-lisp
-  ;; (defun my/org-mode-hook ()
-  ;  "Stop the org-level headers from increasing in height relative to the other text."
-  ;  (dolist (face '(org-level-1
-  ;                  org-level-2
-  ;                  org-level-3
-  ;                  org-level-4
-  ;                  org-level-5))
-  ;    (set-face-attribute face nil :weight 'semi-bold :height 1.0))
-  ;; )
-  ;; (
-  ;; add-hook 'org-mode-hook 'my/org-mode-hook)
-#+END_SRC
-
-*** Babel
-
-- Babel languages
-#+BEGIN_SRC emacs-lisp
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (dot . t)
-     (emacs-lisp . t)
-     (js . t)
-     (latex . t)
-     (lisp . t)
-     (org . t)
-     (python . t)
-     (R . t)
-     (ruby . t)
-     (scheme)
-     ))
 #+END_SRC
 
 ** Smartparens
@@ -625,26 +592,11 @@ And, leave shift keys alone!
   ;; to set right click to a menu bar instead of yanking
   (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
 
-  ;; Solves pointer problems?
-  ; (if (daemonp)
-  ;    (add-hook 'after-make-frame-functions
-  ;              (lambda (frame)
-  ;                (with-selected-frame frame
-  ;                  (load-theme  'leuven t))))
-
   (load-theme 'dracula t)
 
   ;; For loading themes
   ;; (defadvice load-theme (before theme-dont-propagate activate)
   ;;   (mapc #'disable-theme custom-enabled-themes))
-#+END_SRC
-
-** Line numbers
-
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'LaTeX-mode-hook 'display-line-numbers-mode)
-  (add-hook 'latex-mode-hook 'display-line-numbers-mode)
-  (add-hook 'js-mode-hook 'display-line-numbers-mode)
 #+END_SRC
 
 ** Multiple cursors
@@ -654,14 +606,10 @@ And, leave shift keys alone!
   (use-package multiple-cursors
     :ensure t
     :bind (("C->" . mc/mark-next-like-this)
-           ("C-<" . mc/mark-previous-like-this)
-           ("C-c C->" . mc/mark-all-like-this)
-           ("C-c C-SPC" . mc/edit-lines)
-           ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)
-           ))
-  ;; ;; (global-set-key (kbd "s-d") 'mc/mark-next-like-this)        ;; Cmd+d select next occurrence of region
-  ;;  (global-set-key (kbd "s-D") 'mc/mark-all-dwim)              ;; Cmd+Shift+d select all occurrences
-  ;;  (global-set-key (kbd "M-s-l") 'mc/edit-beginnings-of-lines) ;; Alt+Cmd+d add cursor to each line in region
+	   ("C-<" . mc/mark-previous-like-this)
+	   ("C-c C->" . mc/mark-all-like-this)
+	   ("C-c C-SPC" . mc/edit-lines)
+	   ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+END_SRC
 
 ** Undo tree
@@ -705,6 +653,7 @@ And, leave shift keys alone!
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character)
 #+END_SRC
+
 ** Web mode
 
 #+BEGIN_SRC emacs-lisp
@@ -720,8 +669,11 @@ And, leave shift keys alone!
     )
 #+END_SRC
 
-* LISP
-** SLIME
+* languages
+
+** LISP
+
+*** SLIME
 
 #+BEGIN_SRC emacs-lisp
   ;; (setq inferior-lisp-program (executable-find "sbcl"))
@@ -743,7 +695,7 @@ And, leave shift keys alone!
   ;;                                         (list l1 l2)))))))))
 #+END_SRC
 
-** Racket
+*** Racket
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
@@ -753,10 +705,26 @@ And, leave shift keys alone!
    '((racket . t)))
 #+END_SRC
 
-* Python (disabled)
+** python
+
+Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
+Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
 
 #+BEGIN_SRC emacs-lisp
-  ; (elpy-enable)
+  (use-package elpy
+    :ensure t
+    :defer t
+    ;;:elpy-shell-darwin-use-pty t
+    :init
+    (advice-add 'python-mode :before 'elpy-enable)
+    :config
+    (setq elpy-rpc-python-command "python3") ; a
+    (setq python-shell-interpreter "python3") ; a
+    (setq python-shell-interpreter-args "-i")
+    ;(setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
+    (setq elpy-shell-darwin-use-pty t) ; b
+    )
+
   ;; (require 'python-mode)
 
   ;; (require 'py-autopep8)
@@ -768,14 +736,73 @@ And, leave shift keys alone!
   ;(add-hook 'python-mode-hook 'my/python-mode-hook)
 #+END_SRC
 
+** rust
+
+https://robert.kra.hn/posts/rust-emacs-setup/
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rustic
+    :ensure
+    :bind (:map rustic-mode-map
+		("M-j" . lsp-ui-imenu)
+		("M-?" . lsp-find-references)
+		("C-c C-c l" . flycheck-list-errors)
+		("C-c C-c a" . lsp-execute-code-action)
+		("C-c C-c r" . lsp-rename)
+		("C-c C-c q" . lsp-workspace-restart)
+		("C-c C-c Q" . lsp-workspace-shutdown)
+		("C-c C-c s" . lsp-rust-analyzer-status))
+    :config
+    ;; uncomment for less flashiness
+    ;; (setq lsp-eldoc-hook nil)
+    ;; (setq lsp-enable-symbol-highlighting nil)
+    ;; (setq lsp-signature-auto-activate nil)
+
+    ;; comment to disable rustfmt on save
+    (setq rustic-format-on-save t)
+    (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+
+  (defun rk/rustic-mode-hook ()
+    ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+    ;; save rust buffers that are not file visiting. Once
+    ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+    ;; no longer be necessary.
+    (when buffer-file-name
+      (setq-local buffer-save-without-query t))
+    (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'rust-mode-hook (lambda () (setq indent-tabs-mode nil)))
+#+END_SRC
+
+* LSP
+
+# #+BEGIN_SRC emacs-lisp
+#   (use-package lsp-mode
+#   :hook ((c-mode python-mode) . lsp-deferred)
+#   :commands lsp)
+# #+END_SRC
+
 * Testing
 
 ** flycheck
 
 #+BEGIN_SRC emacs-lisp
- (use-package flycheck
-    :diminish flycheck-mode
-    :init
-    (global-flycheck-mode))
+(use-package flycheck
+  :defer 1
+  :init
+  (global-flycheck-mode t))
+
+(use-package flycheck-posframe
+  :defer 1
+  :after flycheck
+  :hook (flycheck-mode . flycheck-posframe-mode)
+  :config
+  (flycheck-posframe-configure-pretty-defaults)
+  (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 #+END_SRC
+
+
 
