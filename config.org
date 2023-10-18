@@ -129,10 +129,7 @@ For saving history
 - Font settings
 
 #+BEGIN_SRC emacs-lisp
-;; Font Settings
 (when (eq system-type 'darwin)
-  ;; default Latin font (e.g. Input Mono)
-  ;; Input is used to help with lag? It only has 4 different faces.
   (set-face-attribute 'default nil
 		      ;; :family "Source Code Pro"
 		      :family "JuliaMono"
@@ -221,11 +218,11 @@ For saving history
 
 
 #+BEGIN_SRC emacs-lisp
-					; (setq uniquify-buffer-name-style 'forward) ; Unique buffer names
+(setq uniquify-buffer-name-style 'forward) ; Unique buffer names
 (setq sentence-end-double-space nil)
 (setq-default delete-by-moving-to-trash t) ; trash instead of removing
-					; (setq create-lockfiles nil) ;; no need to create lockfiles
-					; (setq backup-by-copying t)
+(setq create-lockfiles nil) ;; no need to create lockfiles
+(setq backup-by-copying t)
 #+END_SRC
 
 Auto-save often
@@ -262,31 +259,22 @@ Auto-save often
 (setq use-package-always-ensure t)
 #+END_SRC
 
-** exec-path-from-shell
-
-https://github.com/purcell/exec-path-from-shell
-
-#+BEGIN_SRC emacs-lisp
-					;(when (memq window-system '(mac ns x))
-					;  (exec-path-from-shell-initialize))
-#+END_SRC
-
 * general
 
 ** whitespace
 
-# #+BEGIN_SRC emacs-lisp
-#   (use-package whitespace
-#     :demand
-#     :init
-#     ;; delete trailing whitespace before saving a file
-#     (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#     :config
-#     (set-face-attribute 'trailing-whitespace nil :background "indian red")
-#     (setq-default show-trailing-whitespace t))
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package whitespace
+  :demand
+  :init
+  ;; delete trailing whitespace before saving a file
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+  :config
+  (set-face-attribute 'trailing-whitespace nil :background "indian red")
+  (setq-default show-trailing-whitespace t))
+#+END_SRC
 
-** Helm
+** helm
 
 #+BEGIN_SRC emacs-lisp
 (use-package helm
@@ -319,7 +307,7 @@ https://github.com/purcell/exec-path-from-shell
 	 ("C-x C-f" . helm-find-files)))
 #+END_SRC
 
-** Company
+** company
 
 - For auto-complete
 
@@ -518,7 +506,6 @@ To prevent lowercasing:
 ** multiple cursors
 
 #+BEGIN_SRC emacs-lisp
-;; For multiple cursors
 (use-package multiple-cursors
   :ensure t
   :bind (("C->" . mc/mark-next-like-this)
@@ -577,7 +564,7 @@ To prevent lowercasing:
   :pin nongnu ; installation issues with melpa
   :ensure t
   :bind
-					; (("C-x g" . magit-status))
+  (("C-x g" . magit-status))
   :config
   (setq magit-push-always-verify nil))
 #+END_SRC
@@ -589,13 +576,13 @@ To prevent lowercasing:
   :defer 1
   :init
   (global-flycheck-mode t))
-;; (use-package flycheck-posframe
-;; :defer 1
-;; :after flycheck
-;; :hook (flycheck-mode . flycheck-posframe-mode)
-;; :config
-;; (flycheck-posframe-configure-pretty-defaults)
-;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
+(use-package flycheck-posframe
+  :defer 1
+  :after flycheck
+  :hook (flycheck-mode . flycheck-posframe-mode)
+  :config
+  (flycheck-posframe-configure-pretty-defaults)
+  (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p))
 #+END_SRC
 
 * languages
@@ -678,19 +665,9 @@ Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
   (setq elpy-rpc-python-command "python3") ; a
   (setq python-shell-interpreter "python3") ; a
   (setq python-shell-interpreter-args "-i")
-					;(setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
+  ;; (setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
   (setq elpy-shell-darwin-use-pty t) ; b
   )
-
-;; (require 'python-mode)
-
-;; (require 'py-autopep8)
-;; (add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-
-					;(defun my/python-mode-hook ()
-					;  (add-to-list 'company-backends 'company-jedi))
-					;
-					;(add-hook 'python-mode-hook 'my/python-mode-hook)
 #+END_SRC
 
 ** rust
@@ -776,5 +753,3 @@ https://ogbe.net/emacs/lsp
   (dap-mode t)
   (dap-ui-mode t))
 #+END_SRC
-
-
