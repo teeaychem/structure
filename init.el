@@ -1,30 +1,21 @@
 ;; magic. . .
 
-
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (package-initialize)
 (require 'package)
 
-;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package)
-  (package-install 'org))
-
 ;; Keeping ~/emacs.d clean
 (require 'no-littering)
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
-;; For exec-path-from-shell
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
+;; For exec-path-from-shell https://github.com/purcell/exec-path-from-shell
+(when (memq window-system '(mac ns)) (exec-path-from-shell-initialize))
 
 ;; Load config.org - my Emacs config
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
-
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -126,20 +117,17 @@
  '(mac-command-modifier 'super)
  '(mac-right-option-modifier 'left)
  '(mac-wheel-button-is-mouse-2 nil)
- '(org-agenda-files nil)
+ '(org-agenda-files '("~/Documents/projects/SICP/exercises.org"))
  '(org-fontify-done-headline t)
  '(org-fontify-quote-and-verse-blocks t)
  '(org-fontify-whole-heading-line t)
  '(org-list-allow-alphabetical t)
  '(org-preview-latex-image-directory "~/OrgTemp/")
  '(package-selected-packages
-   '(racket-mode undo-tree web-mode dracula-theme smartparens slime diff-hl highlight-indent-guides fix-word no-littering fzf elpy magit yasnippet bind-key diminish s popwin popup epl pkg-info math-symbol-lists async dash company helm-core which-key helm-company helm smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring deft rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex))
+   '(racket-mode undo-tree web-mode dracula-theme smartparens slime diff-hl highlight-indent-guides fix-word no-littering fzf elpy magit yasnippet bind-key diminish s popwin popup epl pkg-info math-symbol-lists async dash company helm-core which-key helm-company helm smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring rainbow-delimiters company-math flycheck company-auctex auctex-latexmk auctex))
  '(preview-image-type 'dvipng)
  '(preview-scale-function 1.0)
  '(reftex-cite-prompt-optional-args t)
- '(solarized-broken-srgb t)
- '(solarized-degrade nil)
- '(solarized-termcolors 256)
  '(undo-tree-history-directory-alist
    '(("" . "/Users/sparkes/Library/CloudStorage/Dropbox/Symlink/.emacs.d/undoTree")))
  '(vc-annotate-background "#000000")
