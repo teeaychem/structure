@@ -13,6 +13,7 @@
   - [[#locale][locale]]
   - [[#themes][themes]]
 - [[#packages-etc][packages, etc.]]
+  - [[#exec-path-from-shell][exec-path-from-shell]]
   - [[#no-littering][no-littering]]
   - [[#use-package][use-package]]
   - [[#whitespace][whitespace]]
@@ -27,7 +28,9 @@
   - [[#highlight-indentation][highlight indentation]]
   - [[#magit][magit]]
   - [[#flycheck][flycheck]]
+  - [[#yasnippet][yasnippet]]
 - [[#org-mode][org mode]]
+  - [[#background-org-stuff][background org stuff]]
 - [[#languages][languages]]
   - [[#latex][LaTeX]]
   - [[#lisp][lisp]]
@@ -36,10 +39,10 @@
   - [[#asp][ASP]]
 - [[#lsp][LSP]]
 - [[#completion][completion]]
-  - [[#vertico][vertico]]
   - [[#orderless][orderless]]
-  - [[#marginalia][marginalia]]
+  - [[#minibuffer][minibuffer]]
   - [[#consult][consult]]
+  - [[#corfu][corfu]]
 - [[#emacs][emacs]]
 
 * startup
@@ -112,6 +115,8 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
 (global-set-key (kbd "C-x K") 'kill-buffer)
+(setq insert-default-directory nil)
+;; (setq default-directory (concat (getenv "HOME") "/"))
 #+END_SRC
 
 ** saving & backups
@@ -244,31 +249,32 @@ Auto-save often
 ** input
 
 #+BEGIN_SRC emacs-lisp
-(setq indent-tabs-mode t tab-width 4)
+(setq-default indent-tabs-mode t
+	      tab-width 2)
 (setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
 (setq sentence-end-double-space nil)
 #+END_SRC
 
-- Editing
-  - Delete selected text while typing
-
 #+BEGIN_SRC emacs-lisp
-(delete-selection-mode t)
-#+END_SRC
-
-- Enable subword for all programing modes
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook 'subword-mode)
+(delete-selection-mode t) ;; delete selected text by typing
+(global-subword-mode t)
 #+END_SRC
 
 - Go to indentation on new line
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "RET") 'newline-and-indent)
+(setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
+      require-final-newline t)
 #+END_SRC
 
 ** locale
+
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(when (fboundp 'set-charset-priority) (set-charset-priority 'unicode))
+(setq locale-coding-system 'utf-8)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (set-locale-environment "en_GB.UTF-8")
@@ -281,7 +287,7 @@ Auto-save often
 ;; to get rid of buffer-face on shift click
 (define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
 ;; to set right click to a menu bar instead of yanking
-(global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
+;; (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -293,6 +299,22 @@ Auto-save often
 
 * packages, etc.
 
+** exec-path-from-shell
+
+#+BEGIN_SRC emacs-lisp
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :demand
+  :config
+  (exec-path-from-shell-initialize))
+#+END_SRC
+
+To see:
+
+#+BEGIN_SRC emacs-lisp
+;; (getenv "PATH")
+#+END_SRC
+
 ** no-littering
 
 #+BEGIN_SRC emacs-lisp
@@ -302,6 +324,8 @@ Auto-save often
   (require 'no-littering)
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
+  (setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
   :config
   (setq create-lockfiles nil
         delete-old-versions t
@@ -325,14 +349,14 @@ Auto-save often
   ;; delete trailing whitespace before saving a file
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
   :config
-  (set-face-attribute 'trailing-whitespace nil :background "indian red")
-  (setq-default show-trailing-whitespace t))
+  ;; (set-face-attribute 'trailing-whitespace nil :background "indian red")
+  ;; (setq-default show-trailing-whitespace t)
+  )
 #+END_SRC
 
 ** which-key
 
-- This is super useful
-  Shows command completions
+shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
@@ -417,7 +441,9 @@ Auto-save often
 (use-package undo-tree
   :ensure t
   :init
-  (global-undo-tree-mode))
+  (global-undo-tree-mode)
+  :custom
+  (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undoTree"))))
 #+END_SRC
 
 ** ispell
@@ -427,10 +453,6 @@ Auto-save often
 (setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
 (setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
 (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
-(add-hook 'LaTeX-mode-hook 'flyspell-mode)
-;; (add-hook 'LaTeX-mode-hook 'flyspell-buffer)
-;; (add-hook 'org-mode-hook 'flyspell-mode)
-;; (add-hook 'org-mode-hook 'flyspell-buffer)
 #+END_SRC
 
 ** fix-word
@@ -469,16 +491,33 @@ Auto-save often
 (use-package flycheck
   :defer 1
   :init
-  (global-flycheck-mode t))
+  (global-flycheck-mode t)
+  (setq flycheck-checker-error-threshold 99400)
+  :config
+  )
 
 (use-package flycheck-posframe
   :defer 1
   :after flycheck
   :hook (flycheck-mode . flycheck-posframe-mode)
   :config
+
   (flycheck-posframe-configure-pretty-defaults)
   ;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)
   )
+#+END_SRC
+
+** yasnippet
+
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :hook ((text-mode
+          prog-mode
+          conf-mode
+          snippet-mode) . yas-minor-mode-on)
+  :init
+  (setq yas-snippet-dir "~/.emacs.d/snippets"))
 #+END_SRC
 
 * org mode
@@ -505,8 +544,16 @@ Auto-save often
   ;; leave shift keys alone!
   (org-support-shift-select t)
   (org-replace-disputed-keys t)
+
+  (org-fontify-done-headline t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-fontify-whole-heading-line t)
+  (org-list-allow-alphabetical t)
   ;; :hook
   ;; (org-mode . org-indent-mode)
+  ;; (org-mode . flyspell-mode)
+  ;; (org-mode . flyspell-buffer)
+
   :config
   (add-to-list 'org-structure-template-alist '("se" . "src elisp"))
   (add-to-list 'org-structure-template-alist '("ss" . "src sh"))
@@ -528,7 +575,7 @@ Auto-save often
   (org-mode . toc-org-mode))
 #+END_SRC
 
-*** Background Org Stuff
+** background org stuff
 
 - LaTeX in org
 #+BEGIN_SRC emacs-lisp
@@ -559,7 +606,8 @@ Auto-save often
 
 ** LaTeX
 
-- Where to find LaTeX.
+Where to find LaTeX.
+
 #+BEGIN_SRC emacs-lisp
 (let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
   (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
@@ -577,6 +625,9 @@ Auto-save often
   (LaTeX-mode . LaTeX-math-mode)
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . display-line-numbers-mode)
+  (LaTeX-mode . flyspell-mode)
+  ;; (LaTeX-mode . flyspell-buffer)
+
   :custom
   (TeX-PDF-mode t)
   (TeX-master "master") ; All master files called "master".
@@ -589,12 +640,49 @@ Auto-save often
   (TeX-view-program-selection '((output-pdf "PDF Viewer")))
   (TeX-view-program-list '(("PDF Viewer"
 			    "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
-  (TeX-source-correlate-method 'synctex)
-  )
+  (TeX-source-correlate-method-active 'synctex)
+  (font-latex-fontify-script nil)
+
+  :custom-face
+  ;; (font-latex-math-face ((t (:foreground "pale violet red"))))
+  (font-latex-subscript-face ((t nil)))
+  (font-latex-superscript-face ((t nil))))
 
 (use-package auctex-latexmk
   :init
-  (auctex-latexmk-setup))
+  (auctex-latexmk-setup)
+  (add-to-list 'TeX-command-list
+	       '("Other"
+		 ""
+		 TeX-run-command t t
+		 :help "Run an arbitrary command"))
+  (add-to-list 'TeX-command-list
+	       '("Clean"
+		 "TeX-clean"
+		 TeX-run-function nil t
+		 :help "Delete generated intermediate files"))
+  (add-to-list 'TeX-command-list
+	       '("View"
+		 "%V"
+		 TeX-run-discard-or-function t t
+		 :help "Run Viewer"))
+  (add-to-list 'TeX-command-list
+	       '("Biber"
+		 "biber %(output-dir) %s" TeX-run-Biber nil (plain-tex-mode latex-mode)
+		 :help "Run Biber"))
+  (add-to-list 'TeX-command-list
+	       '("BibTeX"
+		 "bibtex %(O?aux)" TeX-run-BibTeX nil (plain-tex-mode latex-mode context-mode)
+		 :help "Run BibTeX"))
+  (add-to-list 'TeX-command-list
+	       '("LaTeX"
+		 "%`%l%(mode)%' %T" TeX-run-TeX nil (latex-mode)
+		 :help "Run LaTeX"))
+  (add-to-list 'TeX-command-list
+	       '("LatexMk"
+		 "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
+		 TeX-run-latexmk nil (plain-tex-mode latex-mode)
+		 :help "Run LatexMk")))
 #+END_SRC
 
 - use Skim as default pdf viewer
@@ -607,7 +695,7 @@ Auto-save often
 
 ** lisp
 
-*** Racket
+*** racket
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
@@ -618,6 +706,15 @@ Auto-save often
 #+END_SRC
 
 ** python
+
+#+BEGIN_SRC emacs-lisp
+(use-package python
+	:defer t
+	:config
+
+	:hook
+	(python-mode . (lambda () (setq fill-column 79))))
+#+END_SRC
 
 # Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
 # Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
@@ -637,6 +734,16 @@ Auto-save often
 #   )
 # #+END_SRC
 
+install with: pip install pyright
+
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
+#+END_SRC
+
 ** rust
 
 https://robert.kra.hn/posts/rust-emacs-setup/
@@ -648,10 +755,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :mode "\\.rs\\'"
   :init
   (setq lsp-rust-server 'rust-analyzer)
-  :hook
-  (rust-mode . lsp)
-  :config
-  (rust-format-on-save t)
+  (setq rust-format-on-save t)
   :bind (:map rust-mode-map
               ("C-c r" . rust-run)
               ("C-c c" . rust-compile)
@@ -674,7 +778,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   ;; (setq lsp-enable-symbol-highlighting nil)
   ;; (setq lsp-signature-auto-activate nil)
   ;; comment to disable rustfmt on save
-  (rustic-format-on-save t)
   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
   )
 
@@ -700,34 +803,64 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 * LSP
 
 https://ogbe.net/emacs/lsp
+https://github.com/minad/corfu/wiki
+
+Note: rust-analyzer requires more than a .rs file.
 
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-mode
   :ensure t
-  :init (setq lsp-keymap-prefix "C-c C-l"
-              lsp-prefer-flymake nil
-              lsp-keep-workspace-alive nil)
+  :init
+  (setq lsp-keymap-prefix "C-c C-l"
+        lsp-prefer-flymake nil
+        lsp-keep-workspace-alive nil)
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))) ;; configure orderless
+  :custom
+  (lsp-completion-provider :none) ;; use corfu
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-show-with-cursor t)
+  ;; (lsp-completion-provider :capf)
+  ;; (lsp-prefer-capf t)
+  (lsp-eldoc-render-all t)
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-rust-analyzer-inlay-hints-mode t)
+  (lsp-rust-analyzer-display-chaining-hints t)
   :commands
-  (lsp make-lsp-client lsp-register-client)
+  (lsp lsp-deferred make-lsp-client lsp-register-client)
   :hook
+  (lsp-mode . lsp-ui-mode)
   (lsp-mode . lsp-enable-which-key-integration)
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
   :config
-  ;; this is a particularly nasty bug
-  ;; https://github.com/bbatsov/projectile/issues/1387
-  (defun do.lsp/dont-resolve-symlinks-projectile (fun &rest args)
-    "Call FUN with ARGS but disable the effects of `file-truename'."
-    (cl-letf (((symbol-function 'file-truename) #'identity))
-      (apply fun args)))
-  (advice-add 'lsp--suggest-project-root :around
-              #'do.lsp/dont-resolve-symlinks-projectile))
+  :hook
+  (rust-mode . lsp)
+  )
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
 (use-package lsp-ui
-  :ensure t
+  :after lsp
   :init
   (setq lsp-ui-flycheck-enable t)
+  :config
+  (define-key lsp-ui-mode-map
+              [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map
+              [remap xref-find-references] #'lsp-ui-peek-find-references)
   :commands
-  lsp-ui-mode)
+  lsp-ui-mode
+  :bind (:map lsp-ui-doc-mode-map
+              ("M-<mouse-1>" . lsp-find-definition-mouse))
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  )
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
 ;; (use-package dap-mode
 ;;   :ensure t
 ;;   :after lsp-mode
@@ -736,9 +869,41 @@ https://ogbe.net/emacs/lsp
 ;;   (dap-ui-mode t))
 #+END_SRC
 
+Notes on a bug with projectile: https://github.com/bbatsov/projectile/issues/1387
+
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load "lsp-rust"
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection "rust-analyzer")
+    :remote? t
+    :major-modes '(rust-mode rustic-mode)
+    :initialization-options 'lsp-rust-analyzer--make-init-options
+    :notification-handlers (ht<-alist lsp-rust-notification-handlers)
+    :action-handlers (ht ("rust-analyzer.runSingle" #'lsp-rust--analyzer-run-single))
+    :library-folders-fn (lambda (_workspace) lsp-rust-analyzer-library-directories)
+    :ignore-messages nil
+    :server-id 'rust-analyzer-remote)))
+#+END_SRC
+
 * completion
 
-** vertico
+** orderless
+
+#+BEGIN_SRC emacs-lisp
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  ;; (completion-category-overrides '((file (styles partial-completion))))
+  )
+#+END_SRC
+
+** minibuffer
+
+*** vertico
+
+vertico for minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package vertico
@@ -750,17 +915,9 @@ https://ogbe.net/emacs/lsp
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
 #+END_SRC
 
-** orderless
+*** marginalia
 
-#+BEGIN_SRC emacs-lisp
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
-#+END_SRC
-
-** marginalia
+adds marginalia to the minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
@@ -896,6 +1053,80 @@ https://ogbe.net/emacs/lsp
 )
 #+END_SRC
 
+** corfu
+
+#+BEGIN_SRC emacs-lisp
+(use-package corfu
+  :init
+  (global-corfu-mode)
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Automatically display popups wherever available
+  (corfu-separator ?\s)          ;; Orderless field separator
+  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-preselect 'directory) ;; Select the first candidate, except for directories
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
+
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode))
+
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :bind
+  (:map corfu-map
+	("RET" . nil) ;; Free the RET key for less intrusive behavior.
+	)
+  )
+#+END_SRC
+
+Add extensions
+
+#+BEGIN_SRC emacs-lisp
+(use-package cape
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-elisp-symbol)
+         ("C-c p e" . cape-elisp-block)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p :" . cape-emoji)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  ;;(add-to-list 'completion-at-point-functions #'cape-history)
+  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+)
+#+END_SRC
+
 * emacs
 
 #+BEGIN_SRC emacs-lisp
@@ -917,11 +1148,23 @@ https://ogbe.net/emacs/lsp
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
+  ;; TAB cycle if there are only few candidates
+  ;; (setq completion-cycle-threshold 3)
+
   ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
   ;; Vertico commands are hidden in normal buffers.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
+  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
 
   ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t))
+  (setq enable-recursive-minibuffers t)
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (setq tab-always-indent 'complete)
+  :bind
+  (("C-z" . ignore))
+  )
+
 #+END_SRC
