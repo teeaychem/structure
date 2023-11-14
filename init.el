@@ -7,9 +7,6 @@
 (package-initialize)
 (require 'package)
 
-;; For exec-path-from-shell https://github.com/purcell/exec-path-from-shell
-;;(when (memq window-system '(mac ns)) (exec-path-from-shell-initialize))
-
 ;; Load config.org - my Emacs config
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
 
@@ -19,9 +16,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("88cb0f9c0c11dbb4c26a628d35eb9239d1cf580cfd28e332e654e7f58b4e721b" default))
+	 '("603a831e0f2e466480cdc633ba37a0b1ae3c3e9a4e90183833bc4def3421a961" default))
  '(package-selected-packages
-   '(toc-org modus-themes racket-mode undo-tree web-mode dracula-theme smartparens slime diff-hl highlight-indent-guides fix-word no-littering fzf magit yasnippet bind-key diminish s popwin popup epl pkg-info math-symbol-lists async dash which-key smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring rainbow-delimiters flycheck auctex-latexmk auctex)))
+	 '(toc-org racket-mode undo-tree web-mode dracula-theme slime diff-hl highlight-indent-guides fix-word no-littering fzf magit yasnippet bind-key diminish s popwin popup epl pkg-info math-symbol-lists async dash which-key smart-mode-line-powerline-theme use-package exec-path-from-shell smart-mode-line multiple-cursors browse-kill-ring rainbow-delimiters flycheck auctex-latexmk auctex)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

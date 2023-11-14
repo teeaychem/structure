@@ -29,6 +29,7 @@
   - [[#magit][magit]]
   - [[#flycheck][flycheck]]
   - [[#yasnippet][yasnippet]]
+  - [[#electric-pairs][electric pairs]]
 - [[#org-mode][org mode]]
   - [[#background-org-stuff][background org stuff]]
 - [[#languages][languages]]
@@ -44,6 +45,7 @@
   - [[#consult][consult]]
   - [[#corfu][corfu]]
 - [[#emacs][emacs]]
+- [[#treesit][treesit]]
 
 * startup
 
@@ -250,7 +252,7 @@ Auto-save often
 
 #+BEGIN_SRC emacs-lisp
 (setq-default indent-tabs-mode t
-	      tab-width 2)
+							tab-width 2)
 (setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
 (setq sentence-end-double-space nil)
 #+END_SRC
@@ -292,6 +294,7 @@ Auto-save often
 
 #+BEGIN_SRC emacs-lisp
 (load-theme 'dracula t)
+;; (load-theme 'modus-vivendi-tinted)
 ;; For loading themes
 ;; (defadvice load-theme (before theme-dont-propagate activate)
 ;;   (mapc #'disable-theme custom-enabled-themes))
@@ -401,12 +404,14 @@ shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
+  :disabled
   :diminish smartparens-mode ;; Do not show in modeline
   :init
   (require 'smartparens-config)
-  (require 'smartparens-latex)
+	(require 'smartparens-latex)
   (require 'smartparens-rust)
   :config
+	(sp-local-pair 'latex-mode "\\(" "\\)" :trigger-wrap "$")
   (smartparens-global-mode t) ;; These options can be t or nil.
   (show-smartparens-global-mode t)
   ;; (sp-show-pair-from-inside t)
@@ -520,6 +525,35 @@ shows command completions
   (setq yas-snippet-dir "~/.emacs.d/snippets"))
 #+END_SRC
 
+** electric pairs
+
+#+BEGIN_SRC emacs-lisp
+(use-package elec-pair
+  :config
+	(electric-pair-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defvar org-electric-pairs '((?/ . ?/)
+														 (?~ . ?~)) "Electric pairs for org-mode.")
+
+(defun org-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'org-mode-hook 'org-add-electric-pairs)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
+
+(defun LaTeX-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
+#+END_SRC
+
 * org mode
 
 #+BEGIN_SRC emacs-lisp
@@ -571,7 +605,6 @@ shows command completions
                                  (scheme . t)
                                  ))
   :hook
-  (org-mode . LaTeX-math-mode)
   (org-mode . toc-org-mode))
 #+END_SRC
 
@@ -614,35 +647,45 @@ Where to find LaTeX.
   (add-to-list 'exec-path TeX-path))
 #+END_SRC
 
+Note, mode binds tex files to LaTeX-mode explicitly.
+I guess without being explicit mode binds to the use-package package (here tex).
+
+Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customize~, but this is only for after latex is loaded.
+
 #+BEGIN_SRC emacs-lisp
 (use-package tex
-  :mode "\\.tex\\'"
-  :defer t
+  :mode ("\\.tex\\'" . LaTeX-mode)
+  ;; :defer f
   :ensure auctex
   :hook
-  (LaTeX-mode . turn-on-reftex)
-  (LaTeX-mode . visual-line-mode)
   (LaTeX-mode . LaTeX-math-mode)
+  (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . display-line-numbers-mode)
+	(LaTeX-mode . visual-line-mode)
   (LaTeX-mode . flyspell-mode)
+	(LaTeX-mode . TeX-fold-mode)
+	(LaTeX-mode .	(lambda () (set (make-variable-buffer-local 'TeX-electric-math)
+																(cons "\\(" "\\)"))))
   ;; (LaTeX-mode . flyspell-buffer)
 
   :custom
   (TeX-PDF-mode t)
-  (TeX-master "master") ; All master files called "master".
+  (TeX-master nil) ; All master files called "master".
   (TeX-auto-save t)
   (TeX-save-query nil)
   (TeX-parse-self t)
   (reftex-plug-into-AUCTeX t)
   (TeX-electric-sub-and-superscript t)
-  (font-latex-fontify-sectioning 'color)
+	(LaTeX-electric-left-right-brace t)
+	;;(TeX-electric-math t)
   (TeX-view-program-selection '((output-pdf "PDF Viewer")))
   (TeX-view-program-list '(("PDF Viewer"
-			    "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
+														"/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
   (TeX-source-correlate-method-active 'synctex)
+	(font-latex-fontify-sectioning 'color)
   (font-latex-fontify-script nil)
-
+	(LaTeX-math-abbrev-prefix "C-c 1")
   :custom-face
   ;; (font-latex-math-face ((t (:foreground "pale violet red"))))
   (font-latex-subscript-face ((t nil)))
@@ -652,37 +695,38 @@ Where to find LaTeX.
   :init
   (auctex-latexmk-setup)
   (add-to-list 'TeX-command-list
-	       '("Other"
-		 ""
-		 TeX-run-command t t
-		 :help "Run an arbitrary command"))
+							 '("Other"
+								 ""
+								 TeX-run-command t t
+								 :help "Run an arbitrary command"))
   (add-to-list 'TeX-command-list
-	       '("Clean"
-		 "TeX-clean"
-		 TeX-run-function nil t
-		 :help "Delete generated intermediate files"))
+							 '("Clean"
+								 "TeX-clean"
+								 TeX-run-function nil t
+								 :help "Delete generated intermediate files"))
   (add-to-list 'TeX-command-list
-	       '("View"
-		 "%V"
-		 TeX-run-discard-or-function t t
-		 :help "Run Viewer"))
+							 '("View"
+								 "%V"
+								 TeX-run-discard-or-function t t
+								 :help "Run Viewer"))
   (add-to-list 'TeX-command-list
-	       '("Biber"
-		 "biber %(output-dir) %s" TeX-run-Biber nil (plain-tex-mode latex-mode)
-		 :help "Run Biber"))
+							 '("Biber"
+								 "biber %(output-dir) %s" TeX-run-Biber nil (plain-tex-mode latex-mode)
+								 :help "Run Biber"))
   (add-to-list 'TeX-command-list
-	       '("BibTeX"
-		 "bibtex %(O?aux)" TeX-run-BibTeX nil (plain-tex-mode latex-mode context-mode)
-		 :help "Run BibTeX"))
+							 '("BibTeX"
+								 "bibtex %(O?aux)" TeX-run-BibTeX nil (plain-tex-mode latex-mode context-mode)
+								 :help "Run BibTeX"))
   (add-to-list 'TeX-command-list
-	       '("LaTeX"
-		 "%`%l%(mode)%' %T" TeX-run-TeX nil (latex-mode)
-		 :help "Run LaTeX"))
+							 '("LaTeX"
+								 "%`%l%(mode)%' %T" TeX-run-TeX nil (latex-mode)
+								 :help "Run LaTeX"))
   (add-to-list 'TeX-command-list
-	       '("LatexMk"
-		 "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
-		 TeX-run-latexmk nil (plain-tex-mode latex-mode)
-		 :help "Run LatexMk")))
+							 '("LatexMk"
+								 "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
+								 TeX-run-latexmk nil (plain-tex-mode latex-mode)
+								 :help "Run LatexMk")))
+
 #+END_SRC
 
 - use Skim as default pdf viewer
@@ -713,10 +757,19 @@ Where to find LaTeX.
 	:config
 
 	:hook
-	(python-mode . (lambda () (setq fill-column 79))))
+	(python-mode . (lambda () (setq fill-column 79)))
+	(python-mode . (lambda () (setq indent-tabs-mode nil)))
+	(python-mode . visual-line-mode))
 #+END_SRC
 
-# Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
+pip3 install autopep8
+
+#+BEGIN_SRC emacs-lisp
+(use-package py-autopep8
+  :hook ((python-mode) . py-autopep8-mode))
+#+END_SRC
+
+Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
 # Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
 
 # #+BEGIN_SRC emacs-lisp
@@ -734,7 +787,7 @@ Where to find LaTeX.
 #   )
 # #+END_SRC
 
-install with: pip install pyright
+install: pip install pyright
 
 #+BEGIN_SRC emacs-lisp
 (use-package lsp-pyright
@@ -756,6 +809,8 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :init
   (setq lsp-rust-server 'rust-analyzer)
   (setq rust-format-on-save t)
+	:hook
+	(rust-mode . lsp)
   :bind (:map rust-mode-map
               ("C-c r" . rust-run)
               ("C-c c" . rust-compile)
@@ -779,6 +834,12 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   ;; (setq lsp-signature-auto-activate nil)
   ;; comment to disable rustfmt on save
   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+	(push 'rustic-clippy flycheck-checkers)
+	:custom
+  (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer"))
+	:hook
+	(rust-mode . display-line-numbers-mode)
+	(rustic-mode . display-line-numbers-mode)
   )
 
 (defun rk/rustic-mode-hook ()
@@ -828,16 +889,13 @@ Note: rust-analyzer requires more than a .rs file.
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-rust-analyzer-inlay-hints-mode t)
   (lsp-rust-analyzer-display-chaining-hints t)
+	(lsp-disabled-clients '(semgrep-ls)) ;; global
   :commands
   (lsp lsp-deferred make-lsp-client lsp-register-client)
   :hook
   (lsp-mode . lsp-ui-mode)
   (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
-  :config
-  :hook
-  (rust-mode . lsp)
-  )
+  (lsp-completion-mode . my/lsp-mode-setup-completion))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1164,7 +1222,21 @@ Add extensions
   ;; `completion-at-point' is often bound to M-TAB.
   (setq tab-always-indent 'complete)
   :bind
-  (("C-z" . ignore))
-  )
+  (("C-z" . ignore)))
+#+END_SRC
 
+* treesit
+
+https://github.com/renzmann/treesit-auto
+https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
+
+#+BEGIN_SRC emacs-lisp
+(use-package treesit-auto
+	:disabled
+  :config
+	(setq treesit-auto-install 'prompt)
+  (global-treesit-auto-mode))
+
+;; (add-to-list 'major-mode-remap-alist
+;;             '(c-mode . c-ts-mode))
 #+END_SRC
