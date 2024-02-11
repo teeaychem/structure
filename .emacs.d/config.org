@@ -242,7 +242,7 @@ Auto-save often
   (set-face-attribute 'default nil
 		      ;; :family "Source Code Pro"
 		      :family "JuliaMono"
-		      :height 150
+		      :height 140
 		      ))
 (setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
@@ -251,7 +251,7 @@ Auto-save often
 ** input
 
 #+BEGIN_SRC emacs-lisp
-(setq-default indent-tabs-mode t
+(setq-default indent-tabs-mode nil
 							tab-width 2)
 (setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
 (setq sentence-end-double-space nil)
@@ -742,7 +742,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 *** racket
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/manualPackages/emacs-ob-racket")
+(add-to-list 'load-path "~/.emacs.d/local-packages/emacs-ob-racket")
 (add-to-list 'org-src-lang-modes '("racket" . racket))
 (org-babel-do-load-languages
  'org-babel-load-languages
