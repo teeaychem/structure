@@ -56,18 +56,12 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 ;; (emacs-init-time)
 #+END_SRC
 
-
 - https://github.com/meatcar/emacs.d
 
 #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
-;; Resizing the Emacs frame can be a terribly expensive part of changing the
-;; font. By inhibiting this, we easily halve startup times with fonts that are
-;; larger than the system default.
-(setq frame-inhibit-implied-resize t)
+;; (setq frame-inhibit-implied-resize t)
 #+END_SRC
-
-
 
 #+BEGIN_SRC emacs-lisp
 ;; max memory available for gc on startup
@@ -99,13 +93,9 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 * minimal config
 
-- Basic info
-  - Change user name and email
-
 #+BEGIN_SRC emacs-lisp
-(setq user-full-name "Benji Sparkes")
-(setq user-mail-address "bsparkes@stanford.edu")
-(add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
+(setq user-full-name "bsparkes")
+(setq user-mail-address "bsparkes@alumni.stanford.edu")
 #+END_SRC
 
 * general
@@ -124,6 +114,10 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 ** saving & backups
 
 #+BEGIN_SRC emacs-lisp
+(add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
 (desktop-save-mode)
 ;; Some display settings
 (save-place-mode t)
@@ -136,10 +130,8 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
         compile-command
         extended-command-history
         file-name-history
-        kill-ring
-        regexp-search-ring
-        search-ring))
-(savehist-mode 1)
+        kill-ring))
+(savehist-mode t)
 #+END_SRC
 
 - Change backup location and make some backup settings
@@ -157,7 +149,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 (setq-default delete-by-moving-to-trash t) ; trash instead of removing
 (setq create-lockfiles nil) ;; no need to create lockfiles
-(setq backup-by-copying t)
 #+END_SRC
 
 Auto-save often
@@ -191,8 +182,8 @@ Auto-save often
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(line-number-mode 1) ; show line-number in the mode line
-(column-number-mode 1) ; show column-number in the mode line
+(line-number-mode t) ; show line-number in the mode line
+(column-number-mode t) ; show column-number in the mode line
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -220,8 +211,8 @@ Auto-save often
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(tool-bar-mode -1) ;; disable the toolbar
-(toggle-scroll-bar -1) ;; disable the scroll bar
+(tool-bar-mode nil) ;; disable the toolbar
+(toggle-scroll-bar nil) ;; disable the scroll bar
 #+END_SRC
 
 - Enable pretty syntax highlighting everywhere
@@ -240,10 +231,9 @@ Auto-save often
 #+BEGIN_SRC emacs-lisp
 (when (eq system-type 'darwin)
   (set-face-attribute 'default nil
-		      ;; :family "Source Code Pro"
-		      :family "JuliaMono"
-		      :height 140
-		      ))
+		                  :family "JuliaMono"
+		                  :height 140
+		                  ))
 (setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
 #+END_SRC
@@ -294,10 +284,6 @@ Auto-save often
 
 #+BEGIN_SRC emacs-lisp
 (load-theme 'dracula t)
-;; (load-theme 'modus-vivendi-tinted)
-;; For loading themes
-;; (defadvice load-theme (before theme-dont-propagate activate)
-;;   (mapc #'disable-theme custom-enabled-themes))
 #+END_SRC
 
 * packages, etc.
@@ -347,7 +333,6 @@ To see:
 
 #+BEGIN_SRC emacs-lisp
 (use-package whitespace
-  :demand
   :init
   ;; delete trailing whitespace before saving a file
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -370,7 +355,7 @@ shows command completions
   (setq which-key-idle-delay 0.1)
   (setq which-key-max-display-columns nil)
   :config
-  (which-key-mode 1)
+  (which-key-mode t)
   (which-key-setup-minibuffer)
   (set-face-attribute
    'which-key-local-map-description-face nil :weight 'bold))
@@ -465,8 +450,8 @@ shows command completions
 #+BEGIN_SRC emacs-lisp
 (use-package fix-word
   :bind (("M-u" . #'fix-word-upcase)
-	 ("M-l" . #'fix-word-downcase)
-	 ("M-c" . #'fix-word-capitalize)))
+	       ("M-l" . #'fix-word-downcase)
+	       ("M-c" . #'fix-word-capitalize)))
 #+END_SRC
 
 ** highlight indentation
@@ -494,7 +479,7 @@ shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :defer 1
+  :defer t
   :init
   (global-flycheck-mode t)
   (setq flycheck-checker-error-threshold 99400)
@@ -502,11 +487,10 @@ shows command completions
   )
 
 (use-package flycheck-posframe
-  :defer 1
+  :defer t
   :after flycheck
   :hook (flycheck-mode . flycheck-posframe-mode)
   :config
-
   (flycheck-posframe-configure-pretty-defaults)
   ;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)
   )
@@ -535,7 +519,7 @@ shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (defvar org-electric-pairs '((?/ . ?/)
-														 (?~ . ?~)) "Electric pairs for org-mode.")
+														 (?~ . ?~)) "electric pairs for org-mode")
 
 (defun org-add-electric-pairs ()
   (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
@@ -793,8 +777,8 @@ install: pip install pyright
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
+                         (require 'lsp-pyright)
+                         (lsp))))  ; or lsp-deferred
 #+END_SRC
 
 ** rust
