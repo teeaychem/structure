@@ -1,0 +1,17 @@
+
+# homebrew
+alias bu='brew upgrade'
+
+# latex
+alias bibfix="rm -rf `biber --cache`; biber --version"
+
+# cmake
+alias cmakec='cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
+
+# git
+alias gd='git diff'
+alias gl='git log'
+alias glo='git log --pretty="oneline"'
+alias gr='git remote'
+alias grs='git remote show'
+alias gs='git status'

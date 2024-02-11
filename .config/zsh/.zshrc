@@ -47,10 +47,10 @@ HIST_STAMPS="yyyy-mm-dd"
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
-         macos
-         python
-         dirhistory
-         )
+    dirhistory
+    macos
+    python
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -67,9 +67,6 @@ for dump in $ZDOTDIR/.zcompdump(N.mh+24); do
 done
 
 compinit -C
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -89,7 +86,6 @@ compinit -C
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias bu='brew upgrade'
-alias bibfix="rm -rf `biber --cache`; biber --version"
+source $ZDOTDIR/aliases
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
