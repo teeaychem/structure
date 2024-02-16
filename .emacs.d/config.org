@@ -26,15 +26,16 @@
   - [[#ispell][ispell]]
   - [[#fix-word][fix-word]]
   - [[#highlight-indentation][highlight indentation]]
-  - [[#magit][magit]]
   - [[#flycheck][flycheck]]
   - [[#yasnippet][yasnippet]]
   - [[#electric-pairs][electric pairs]]
+  - [[#git][git]]
 - [[#org-mode][org mode]]
   - [[#background-org-stuff][background org stuff]]
 - [[#languages][languages]]
   - [[#latex][LaTeX]]
   - [[#lisp][lisp]]
+  - [[#racket][racket]]
   - [[#python][python]]
   - [[#rust][rust]]
   - [[#asp][ASP]]
@@ -470,16 +471,6 @@ shows command completions
   )
 #+END_SRC
 
-** magit
-
-#+BEGIN_SRC emacs-lisp
-(use-package magit
-  :pin nongnu ; installation issues with melpa
-  :ensure t
-  :bind
-  (("C-x g" . magit-status)))
-#+END_SRC
-
 ** flycheck
 
 #+BEGIN_SRC emacs-lisp
@@ -541,6 +532,28 @@ shows command completions
   (setq-local electric-pair-text-pairs electric-pair-pairs))
 
 (add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
+#+END_SRC
+
+** git
+
+*** magit
+
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :pin nongnu ; installation issues with melpa
+  :ensure t
+  :bind
+  (("C-x g" . magit-status)))
+#+END_SRC
+
+*** diff-hl-mode
+
+#+BEGIN_SRC emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :init
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 #+END_SRC
 
 * org mode
@@ -728,7 +741,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 
 ** lisp
 
-*** racket
+** racket
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/local-packages/emacs-ob-racket")
