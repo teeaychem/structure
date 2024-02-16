@@ -38,6 +38,7 @@
   - [[#python][python]]
   - [[#rust][rust]]
   - [[#asp][ASP]]
+  - [[#cpp][C(pp)]]
 - [[#lsp][LSP]]
 - [[#completion][completion]]
   - [[#orderless][orderless]]
@@ -52,7 +53,7 @@
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-(setq debug-on-error t)
+(setq debug-on-error nil)
 ;; (emacs-init-time)
 #+END_SRC
 
@@ -461,8 +462,12 @@ shows command completions
   - There's no way to get indentation on empty lines as of now
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-(setq highlight-indent-guides-method 'character)
+(use-package highlight-indent-guides
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  (setq highlight-indent-guides-method 'character)
+  )
 #+END_SRC
 
 ** magit
@@ -739,7 +744,6 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 (use-package python
 	:defer t
 	:config
-
 	:hook
 	(python-mode . (lambda () (setq fill-column 79)))
 	(python-mode . (lambda () (setq indent-tabs-mode nil)))
@@ -841,7 +845,21 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 (use-package pasp-mode
   :ensure t
   :defer t
-  :mode "\\.lp\\'"
+  :mode ("\\.lp\\'" "\\.las\\'")
+  )
+#+END_SRC
+
+** C(pp)
+
+#+BEGIN_SRC emacs-lisp
+(use-package clang-format
+  :defer t
+  :pin melpa
+  :bind
+  (("C-c i" . clang-format-region)
+   ("C-c u" . clang-format-buffer))
+  :init
+  (setq clang-format-style-option "llvm")
   )
 #+END_SRC
 
@@ -879,7 +897,9 @@ Note: rust-analyzer requires more than a .rs file.
   :hook
   (lsp-mode . lsp-ui-mode)
   (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . my/lsp-mode-setup-completion))
+  (lsp-completion-mode . my/lsp-mode-setup-completion)
+  ((c++-mode . lsp))
+  )
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
