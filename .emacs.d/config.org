@@ -928,6 +928,10 @@ adds marginalia to the minibuffer completions
 ** consult
 
 #+BEGIN_SRC emacs-lisp
+(use-package consult-flycheck)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
 ;; Example configuration for Consult
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -1046,6 +1050,13 @@ adds marginalia to the minibuffer completions
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
 )
+#+END_SRC
+
+*** consult-extra
+
+#+BEGIN_SRC emacs-lisp
+(use-package consult-project-extra
+  :ensure t)
 #+END_SRC
 
 ** corfu
