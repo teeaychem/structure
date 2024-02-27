@@ -40,7 +40,7 @@
   - [[#rust][rust]]
   - [[#asp][ASP]]
   - [[#cpp][C(pp)]]
-- [[#lsp][LSP]]
+- [[#eglot][eglot]]
 - [[#completion][completion]]
   - [[#orderless][orderless]]
   - [[#minibuffer][minibuffer]]
@@ -111,6 +111,12 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (global-set-key (kbd "C-x K") 'kill-buffer)
 (setq insert-default-directory nil)
 ;; (setq default-directory (concat (getenv "HOME") "/"))
+#+END_SRC
+
+Increase the amount of data which Emacs reads from the process#
+
+#+BEGIN_SRC emacs-lisp
+(setq read-process-output-max (* 3 1024 1024)) ;; 3mb
 #+END_SRC
 
 ** saving & backups
@@ -790,14 +796,6 @@ Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
 
 install: pip install pyright
 
-#+BEGIN_SRC emacs-lisp
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp))))  ; or lsp-deferred
-#+END_SRC
-
 ** rust
 
 https://robert.kra.hn/posts/rust-emacs-setup/
@@ -808,10 +806,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :ensure t
   :mode "\\.rs\\'"
   :init
-  (setq lsp-rust-server 'rust-analyzer)
   (setq rust-format-on-save t)
-	:hook
-	(rust-mode . lsp)
   :bind (:map rust-mode-map
               ("C-c r" . rust-run)
               ("C-c c" . rust-compile)
@@ -819,20 +814,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 (use-package rustic
   :ensure
-  :bind (:map rustic-mode-map
-              ("M-j" . lsp-ui-imenu)
-              ("M-?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status))
   :config
-  ;; uncomment for less flashiness
-  ;; (setq lsp-eldoc-hook nil)
-  ;; (setq lsp-enable-symbol-highlighting nil)
-  ;; (setq lsp-signature-auto-activate nil)
   ;; comment to disable rustfmt on save
   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
 	(push 'rustic-clippy flycheck-checkers)
@@ -842,14 +824,16 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 	(rust-mode . display-line-numbers-mode)
 	(rustic-mode . display-line-numbers-mode)
   )
+#+END_SRC
 
-(defun rk/rustic-mode-hook ()
-  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-  ;; save rust buffers that are not file visiting. Once
-  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-  ;; no longer be necessary.
-  (when buffer-file-name (setq-local buffer-save-without-query t))
-  (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+#+BEGIN_SRC emacs-lisp
+;; (defun rk/rustic-mode-hook ()
+;;   ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+;;   ;; save rust buffers that are not file visiting. Once
+;;   ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+;;   ;; no longer be necessary.
+;;   (when buffer-file-name (setq-local buffer-save-without-query t))
+;;   (add-hook 'before-save-hook 'lsp-format-buffer nil t))
 #+END_SRC
 
 ** ASP
@@ -876,89 +860,25 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 #+END_SRC
 
-* LSP
-
-https://ogbe.net/emacs/lsp
-https://github.com/minad/corfu/wiki
-
-Note: rust-analyzer requires more than a .rs file.
+* eglot
 
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
+(use-package eglot
   :ensure t
-  :init
-  (setq lsp-keymap-prefix "C-c C-l"
-        lsp-prefer-flymake nil
-        lsp-keep-workspace-alive nil)
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; configure orderless
-  :custom
-  (lsp-completion-provider :none) ;; use corfu
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-show-with-cursor t)
-  ;; (lsp-completion-provider :capf)
-  ;; (lsp-prefer-capf t)
-  (lsp-eldoc-render-all t)
-  (lsp-rust-analyzer-cargo-watch-command "clippy")
-  (lsp-rust-analyzer-inlay-hints-mode t)
-  (lsp-rust-analyzer-display-chaining-hints t)
-	(lsp-disabled-clients '(semgrep-ls)) ;; global
-  :commands
-  (lsp lsp-deferred make-lsp-client lsp-register-client)
-  :hook
-  (lsp-mode . lsp-ui-mode)
-  (lsp-mode . lsp-enable-which-key-integration)
-  (lsp-completion-mode . my/lsp-mode-setup-completion)
-  ((c++-mode . lsp))
+  :defer t
+  :hook ((c-mode
+          c++-mode
+          rustic-mode-hook
+          python-mode-hook) . eglot-ensure)
   )
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(use-package lsp-ui
-  :after lsp
-  :init
-  (setq lsp-ui-flycheck-enable t)
-  :config
-  (define-key lsp-ui-mode-map
-              [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map
-              [remap xref-find-references] #'lsp-ui-peek-find-references)
-  :commands
-  lsp-ui-mode
-  :bind (:map lsp-ui-doc-mode-map
-              ("M-<mouse-1>" . lsp-find-definition-mouse))
-  :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
-  )
-#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-;; (use-package dap-mode
-;;   :ensure t
-;;   :after lsp-mode
-;;   :config
-;;   (dap-mode t)
-;;   (dap-ui-mode t))
-#+END_SRC
-
-Notes on a bug with projectile: https://github.com/bbatsov/projectile/issues/1387
-
-#+BEGIN_SRC emacs-lisp
-(with-eval-after-load "lsp-rust"
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection "rust-analyzer")
-    :remote? t
-    :major-modes '(rust-mode rustic-mode)
-    :initialization-options 'lsp-rust-analyzer--make-init-options
-    :notification-handlers (ht<-alist lsp-rust-notification-handlers)
-    :action-handlers (ht ("rust-analyzer.runSingle" #'lsp-rust--analyzer-run-single))
-    :library-folders-fn (lambda (_workspace) lsp-rust-analyzer-library-directories)
-    :ignore-messages nil
-    :server-id 'rust-analyzer-remote)))
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode) .
+                 ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
 #+END_SRC
 
 * completion
