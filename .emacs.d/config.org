@@ -862,6 +862,8 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 * eglot
 
+maybe: https://github.com/casouri/eldoc-box
+
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :ensure t
@@ -972,7 +974,7 @@ adds marginalia to the minibuffer completions
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)
+         ("C-s" . consult-line)
          ("M-s L" . consult-line-multi)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
@@ -1052,7 +1054,7 @@ adds marginalia to the minibuffer completions
 )
 #+END_SRC
 
-*** consult-extra
+*** consult-project-extra
 
 #+BEGIN_SRC emacs-lisp
 (use-package consult-project-extra
