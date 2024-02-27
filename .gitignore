@@ -6,3 +6,8 @@
 
 *.~undo-tree~
 .emacs.d/
+/.rustup/
+/.swiftpm/
+/.python_history
+/.npm/
+/.iterm2/
