@@ -488,14 +488,14 @@ shows command completions
   :config
   )
 
-(use-package flycheck-posframe
-  :defer t
-  :after flycheck
-  :hook (flycheck-mode . flycheck-posframe-mode)
-  :config
-  (flycheck-posframe-configure-pretty-defaults)
-  ;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)
-  )
+;; (use-package flycheck-posframe
+;;   :defer t
+;;   :after flycheck
+;;   :hook (flycheck-mode . flycheck-posframe-mode)
+;;   :config
+;;   (flycheck-posframe-configure-pretty-defaults)
+;;   ;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)
+;;   )
 #+END_SRC
 
 ** yasnippet
