@@ -1,54 +1,6 @@
 -*- mode: org -*-
 #+STARTUP: overview content
 
-* table of contents                                                     :TOC:
-- [[#startup][startup]]
-- [[#minimal-config][minimal config]]
-- [[#general][general]]
-  - [[#misc][misc]]
-  - [[#saving--backups][saving & backups]]
-  - [[#display][display]]
-  - [[#font][font]]
-  - [[#input][input]]
-  - [[#locale][locale]]
-  - [[#themes][themes]]
-- [[#packages-etc][packages, etc.]]
-  - [[#exec-path-from-shell][exec-path-from-shell]]
-  - [[#no-littering][no-littering]]
-  - [[#use-package][use-package]]
-  - [[#whitespace][whitespace]]
-  - [[#which-key][which-key]]
-  - [[#rainbow-delimiters][rainbow delimiters]]
-  - [[#browse-kill-ring][browse kill ring]]
-  - [[#smartparens][smartparens]]
-  - [[#multiple-cursors][multiple cursors]]
-  - [[#undo-tree][undo tree]]
-  - [[#ispell][ispell]]
-  - [[#fix-word][fix-word]]
-  - [[#highlight-indentation][highlight indentation]]
-  - [[#flycheck][flycheck]]
-  - [[#yasnippet][yasnippet]]
-  - [[#electric-pairs][electric pairs]]
-  - [[#git][git]]
-- [[#org-mode][org mode]]
-  - [[#background-org-stuff][background org stuff]]
-- [[#languages][languages]]
-  - [[#latex][LaTeX]]
-  - [[#lisp][lisp]]
-  - [[#racket][racket]]
-  - [[#python][python]]
-  - [[#rust][rust]]
-  - [[#asp][ASP]]
-  - [[#cpp][C(pp)]]
-- [[#eglot][eglot]]
-- [[#completion][completion]]
-  - [[#orderless][orderless]]
-  - [[#minibuffer][minibuffer]]
-  - [[#consult][consult]]
-  - [[#corfu][corfu]]
-- [[#emacs][emacs]]
-- [[#treesit][treesit]]
-
 * startup
 
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
@@ -291,7 +243,21 @@ Auto-save often
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(load-theme 'dracula t)
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-spacegrey t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; or for treemacs users
+  (setq doom-themes-treemacs-theme "doom-spacegrey")
+  (doom-themes-treemacs-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 #+END_SRC
 
 * packages, etc.
@@ -480,13 +446,13 @@ shows command completions
 ** flycheck
 
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :defer t
-  :init
-  (global-flycheck-mode t)
-  (setq flycheck-checker-error-threshold 99400)
-  :config
-  )
+;; (use-package flycheck
+;;   :defer t
+;;   :init
+;;   (global-flycheck-mode t)
+;;   (setq flycheck-checker-error-threshold 99400)
+;;   :config
+;;   )
 
 ;; (use-package flycheck-posframe
 ;;   :defer t
@@ -612,8 +578,9 @@ shows command completions
                                  ;; (rust . t)
                                  (scheme . t)
                                  ))
-  :hook
-  (org-mode . toc-org-mode))
+  ;; :hook
+  ;; (org-mode . toc-org-mode)
+  )
 #+END_SRC
 
 ** background org stuff
@@ -817,7 +784,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :config
   ;; comment to disable rustfmt on save
   (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
-	(push 'rustic-clippy flycheck-checkers)
+	;; (push 'rustic-clippy flycheck-checkers)
 	:custom
   (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer"))
 	:hook
@@ -930,7 +897,7 @@ adds marginalia to the minibuffer completions
 ** consult
 
 #+BEGIN_SRC emacs-lisp
-(use-package consult-flycheck)
+;; (use-package consult-flycheck)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -960,7 +927,7 @@ adds marginalia to the minibuffer completions
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck)               ;; Alternative: consult-flycheck
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -974,7 +941,7 @@ adds marginalia to the minibuffer completions
          ("M-s g" . consult-grep)
          ("M-s G" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
-         ("C-s" . consult-line)
+         ("M-s s" . consult-line)
          ("M-s L" . consult-line-multi)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
@@ -1053,6 +1020,7 @@ adds marginalia to the minibuffer completions
   ;; (setq consult-project-function nil)
 )
 #+END_SRC
+
 
 *** consult-project-extra
 
@@ -1182,9 +1150,10 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 #+BEGIN_SRC emacs-lisp
 (use-package treesit-auto
-	:disabled
+  :custom
+  (treesit-auto-install 'prompt)
   :config
-	(setq treesit-auto-install 'prompt)
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
 ;; (add-to-list 'major-mode-remap-alist
