@@ -74,7 +74,7 @@ Increase the amount of data which Emacs reads from the process#
 ** saving & backups
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
+;; (add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -701,7 +701,6 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 								 "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
 								 TeX-run-latexmk nil (plain-tex-mode latex-mode)
 								 :help "Run LatexMk")))
-
 #+END_SRC
 
 - use Skim as default pdf viewer
@@ -836,9 +835,12 @@ maybe: https://github.com/casouri/eldoc-box
   :ensure t
   :defer t
   :hook ((c-mode
+          c-ts-mode-hook
           c++-mode
+          c++-ts-mode-hook
           rustic-mode-hook
-          python-mode-hook) . eglot-ensure)
+          python-mode-hook
+          python-ts-mode-hook) . eglot-ensure)
   )
 #+END_SRC
 
@@ -848,6 +850,10 @@ maybe: https://github.com/casouri/eldoc-box
   (add-to-list 'eglot-server-programs
                '((rust-ts-mode rust-mode) .
                  ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
+
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(LaTeX-mode . ("TexLab"))))
 #+END_SRC
 
 * completion
@@ -874,7 +880,7 @@ vertico for minibuffer completions
   :init
   (vertico-mode)
   ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
-  ;; (setq vertico-count 20) ;; Show more candidates
+  (setq vertico-count 40) ;; Show more candidates
   ;; (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
 #+END_SRC
@@ -1021,7 +1027,6 @@ adds marginalia to the minibuffer completions
 )
 #+END_SRC
 
-
 *** consult-project-extra
 
 #+BEGIN_SRC emacs-lisp
@@ -1158,4 +1163,9 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 ;; (add-to-list 'major-mode-remap-alist
 ;;             '(c-mode . c-ts-mode))
+
+(add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+(add-to-list 'major-mode-remap-alist
+             '(c-or-c++-mode . c-or-c++-ts-mode))
 #+END_SRC
