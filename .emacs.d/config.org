@@ -23,9 +23,8 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
 (add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold me/gc-cons-threshold
-                  gc-cons-percentage 0.1)))
+          (lambda () (setq gc-cons-threshold me/gc-cons-threshold
+                           gc-cons-percentage 0.1)))
 
 ;; max memory available for gc when opening minibuffer
 (defun me/defer-garbage-collection-h ()
@@ -38,14 +37,16 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 (add-hook 'minibuffer-setup-hook #'me/defer-garbage-collection-h)
 (add-hook 'minibuffer-exit-hook #'me/restore-garbage-collection-h)
-(setq garbage-collection-messages t)
+(setq garbage-collection-messages nil)
 #+END_SRC
+
+Increase the amount of data which Emacs reads from the process#
 
 #+BEGIN_SRC emacs-lisp
-(setq read-process-output-max (* 1024 1024))
+(setq read-process-output-max (* 3 1024 1024))
 #+END_SRC
 
-* minimal config
+* user info
 
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "bsparkes")
@@ -53,23 +54,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 #+END_SRC
 
 * general
-
-** misc
-
-- For killing the buffer I'm looking at, capitalised then does the default
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "C-x K") 'kill-buffer)
-(setq insert-default-directory nil)
-;; (setq default-directory (concat (getenv "HOME") "/"))
-#+END_SRC
-
-Increase the amount of data which Emacs reads from the process#
-
-#+BEGIN_SRC emacs-lisp
-(setq read-process-output-max (* 3 1024 1024)) ;; 3mb
-#+END_SRC
 
 ** saving & backups
 
@@ -260,7 +244,70 @@ Auto-save often
   (doom-themes-org-config))
 #+END_SRC
 
-* packages, etc.
+* internal
+
+** skeletons
+
+#+BEGIN_SRC emacs-lisp
+(setq skeleton-pair t) ; enable pairing
+
+(defun quoted-parentheses (arg)
+  (interactive "P")
+  (if (looking-back "\\\\")
+      (skeleton-insert '(nil "(" _ "\\)") nil)
+    (skeleton-pair-insert-maybe arg))
+  )
+
+(defun quoted-brackets (arg)
+  (interactive "P")
+  (if (looking-back "\\\\")
+      (skeleton-insert '(nil "[" _ "\\]") nil)
+    (skeleton-pair-insert-maybe arg))
+  )
+
+(global-set-key "(" 'quoted-parentheses)
+(global-set-key "[" 'quoted-brackets)
+#+END_SRC
+
+** electric pairs
+
+#+BEGIN_SRC emacs-lisp
+(use-package elec-pair
+  :config
+	(electric-pair-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defvar org-electric-pairs '((?/ . ?/)
+														 (?~ . ?~)) "electric pairs for org-mode")
+
+(defun org-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'org-mode-hook 'org-add-electric-pairs)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
+
+(defun LaTeX-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+(add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
+#+END_SRC
+
+** ispell
+
+- For spell checking
+#+BEGIN_SRC emacs-lisp
+(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
+(setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
+(customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
+#+END_SRC
+
+* external, etc.
 
 ** exec-path-from-shell
 
@@ -295,12 +342,6 @@ To see:
         kept-new-versions 6
         kept-old-versions 2
         version-control t))
-#+END_SRC
-
-** use-package
-
-#+BEGIN_SRC emacs-lisp
-(setq use-package-always-ensure t)
 #+END_SRC
 
 ** whitespace
@@ -339,7 +380,7 @@ shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package rainbow-delimiters
-  :defer 1
+  :defer t
   :hook
   (prog-mode . rainbow-delimiters-mode)
   :custom-face ;; https://ericscrivner.me/2015/06/better-emacs-rainbow-delimiters-color-scheme/
@@ -359,22 +400,64 @@ shows command completions
 (use-package browse-kill-ring)
 #+END_SRC
 
+** general
+
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :ensure t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ "C-x k" 'kill-this-buffer
+ "C-x K" 'kill-buffer)
+#+END_SRC
+
+** puni
+
+#+BEGIN_SRC emacs-lisp
+(use-package puni
+  :defer t
+  :init
+  ;; The default `puni-mode-map' respects "Emacs conventions".  We don't, so clear and rewrite it.
+  (setcdr puni-mode-map nil)
+  (general-define-key
+    :keymaps 'puni-mode-map
+    "DEL" 'puni-backward-delete-char
+    "C-d" 'puni-forward-delete-char
+    "M-d" 'puni-forward-kill-word
+    "M-DEL" 'puni-backward-kill-word
+    "C-k" 'puni-kill-line
+    "C-u" 'puni-backward-kill-line
+    "C-h" 'puni-force-delete
+    "C-M-f" 'puni-forward-sexp
+    "C-M-b" 'puni-backward-sexp
+    "C-M-a" 'puni-beginning-of-sexp
+    "C-M-e" 'puni-end-of-sexp)
+  (puni-global-mode)
+  ;; The shell program handles keys like C-k, M-DEL, etc.
+  (add-hook 'term-mode-hook #'puni-disable-puni-mode)
+  ;;(add-hook 'prog-mode-hook #'puni-flyindent-mode)
+  :config
+  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil))
+#+END_SRC
+
 ** smartparens
 
 #+BEGIN_SRC emacs-lisp
-(use-package smartparens
-  :disabled
-  :diminish smartparens-mode ;; Do not show in modeline
-  :init
-  (require 'smartparens-config)
-	(require 'smartparens-latex)
-  (require 'smartparens-rust)
-  :config
-	(sp-local-pair 'latex-mode "\\(" "\\)" :trigger-wrap "$")
-  (smartparens-global-mode t) ;; These options can be t or nil.
-  (show-smartparens-global-mode t)
-  ;; (sp-show-pair-from-inside t)
-  )
+;; (use-package smartparens
+;;   :disabled
+;;   :diminish smartparens-mode ;; Do not show in modeline
+;;   :init
+;;   (require 'smartparens-config)
+;; 	(require 'smartparens-latex)
+;;   (require 'smartparens-rust)
+;;   :config
+;; 	(sp-local-pair 'latex-mode "\\(" "\\)" :trigger-wrap "$")
+;;   (smartparens-global-mode t) ;; These options can be t or nil.
+;;   (show-smartparens-global-mode t)
+;;   ;; (sp-show-pair-from-inside t)
+;;   )
 
 ;; needed to ensure text isn't deleted
 ;; https://github.com/Fuco1/smartparens/issues/834
@@ -410,15 +493,6 @@ shows command completions
   (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undoTree"))))
 #+END_SRC
 
-** ispell
-
-- For spell checking
-#+BEGIN_SRC emacs-lisp
-(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
-(setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
-(customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
-#+END_SRC
-
 ** fix-word
 
 #+BEGIN_SRC emacs-lisp
@@ -443,7 +517,7 @@ shows command completions
   )
 #+END_SRC
 
-** flycheck
+** DISABLED flycheck
 
 #+BEGIN_SRC emacs-lisp
 ;; (use-package flycheck
@@ -477,35 +551,6 @@ shows command completions
   (setq yas-snippet-dir "~/.emacs.d/snippets"))
 #+END_SRC
 
-** electric pairs
-
-#+BEGIN_SRC emacs-lisp
-(use-package elec-pair
-  :config
-	(electric-pair-mode))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(defvar org-electric-pairs '((?/ . ?/)
-														 (?~ . ?~)) "electric pairs for org-mode")
-
-(defun org-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'org-mode-hook 'org-add-electric-pairs)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
-
-(defun LaTeX-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
-#+END_SRC
-
 ** git
 
 *** magit
@@ -530,7 +575,7 @@ shows command completions
   (face-spec-set 'diff-hl-delete `((((background light)) :background ,(face-attribute 'default :background))
                                    (t :background ,(face-attribute 'default :background))))
   (face-spec-set 'diff-hl-change `((((background light)) :background ,(face-attribute 'default :background))
-                                   (t :background ,(face-attribute 'default :background)))))
+                                   (t :background ,(face-attribute 'default :background))))
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
   (diff-hl-show-hunk-mouse-mode)
@@ -837,34 +882,19 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 #+END_SRC
 
-* eglot
-
-maybe: https://github.com/casouri/eldoc-box
-       https://github.com/nemethf/eglot-x#rust-analyzer-extensions
+** markdown
 
 #+BEGIN_SRC emacs-lisp
-(use-package eglot
-  :ensure t
-  :defer t
-  :hook ((c-mode
-          c-ts-mode-hook
-          c++-mode
-          c++-ts-mode-hook
-          rustic-mode-hook
-          python-mode-hook
-          python-ts-mode-hook) . eglot-ensure)
+(use-package markdown-mode
+  :mode (("/README\\(?:\\.md\\)?\\'" . gfm-mode)
+         ("\\.m[k]d\\'" . gfm-mode))
+  :config
+  (setq markdown-fontify-code-blocks-natively t
+        markdown-header-scaling t)
+  (setq-default
+   markdown-enable-math t)
   )
-#+END_SRC
 
-
-#+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
-
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '(LaTeX-mode . ("TexLab"))))
 #+END_SRC
 
 * completion
@@ -879,8 +909,6 @@ maybe: https://github.com/casouri/eldoc-box
   ;; (completion-category-overrides '((file (styles partial-completion))))
   )
 #+END_SRC
-
-** minibuffer
 
 *** vertico
 
@@ -1082,7 +1110,7 @@ https://github.com/Qkessler/consult-project-extra
   )
 #+END_SRC
 
-Add extensions
+** cape
 
 #+BEGIN_SRC emacs-lisp
 (use-package cape
@@ -1159,6 +1187,36 @@ Add extensions
   (setq tab-always-indent 'complete)
   :bind
   (("C-z" . ignore)))
+#+END_SRC
+
+* lsp stuff
+
+** eglot
+
+maybe: https://github.com/casouri/eldoc-box
+       https://github.com/nemethf/eglot-x#rust-analyzer-extensions
+
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :ensure t
+  :defer t
+  :hook ((c-mode
+          c-ts-mode-hook
+          c++-mode
+          c++-ts-mode-hook
+          rustic-mode-hook
+          python-mode-hook
+          python-ts-mode-hook) . eglot-ensure)
+  )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+  (add-to-list 'eglot-server-programs
+               '(LaTeX-mode . ("TexLab")))
+  )
 #+END_SRC
 
 * treesit
