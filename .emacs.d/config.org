@@ -77,14 +77,13 @@ Increase the amount of data which Emacs reads from the process#
   - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-(setq
- backup-by-copying t       ; don't clobber symlinks
- kept-new-versions 10      ; keep 10 latest versions
- kept-old-versions 0       ; don't bother with old versions
- delete-old-versions t     ; don't ask about deleting old S versions
- version-control t         ; number backups
- vc-make-backup-files nil) ; backup version controlled files
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups"))
+      backup-by-copying t       ; don't clobber symlinks
+      kept-new-versions 10      ; keep 10 latest versions
+      kept-old-versions 0       ; don't bother with old versions
+      delete-old-versions t     ; don't ask about deleting old S versions
+      version-control t         ; number backups
+      vc-make-backup-files nil) ; backup version controlled files
 
 (setq-default delete-by-moving-to-trash t) ; trash instead of removing
 (setq create-lockfiles nil) ;; no need to create lockfiles
@@ -141,9 +140,9 @@ Auto-save often
 
 #+BEGIN_SRC emacs-lisp
 (tooltip-mode -1)
-(setq tooltip-use-echo-area t)
+(setq use-dialog-box nil ;; have Emacs use the echo area for everything
+      tooltip-use-echo-area t)
 (defalias 'yes-or-no-p 'y-or-n-p)
-(setq use-dialog-box nil) ;; have Emacs use the echo area for everything
 (setq visible-bell t)
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines) (toggle-indicate-empty-lines))
@@ -159,8 +158,9 @@ Auto-save often
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(setq mouse-wheel-follow-mouse 't)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(setq mouse-wheel-follow-mouse 't
+      mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
 (setq
  ;; inhibit-startup-message t         ; Don't show the startup message...
  ;; inhibit-startup-screen t          ; ... or screen
@@ -170,8 +170,8 @@ Auto-save often
  )
 ;; This is rather radical, but saves from a lot of pain in the ass.
 ;; When split is automatic, always split windows vertically
-(setq split-height-threshold 0)
-(setq split-width-threshold nil)
+(setq split-height-threshold 0
+      split-width-threshold nil)
 #+END_SRC
 
 - Set line wrapping
@@ -228,8 +228,8 @@ Auto-save often
 (setq font-lock-maximum-decoration t)
 (global-font-lock-mode t)
 (global-hi-lock-mode nil)
-(setq jit-lock-contextually t)
-(setq jit-lock-stealth-verbose t)
+(setq jit-lock-contextually t
+      jit-lock-stealth-verbose t)
 #+END_SRC
 
 * internal
@@ -270,8 +270,8 @@ Auto-save often
 														 (?~ . ?~)) "electric pairs for org-mode")
 
 (defun org-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs)
+              electric-pair-text-pairs electric-pair-pairs))
 
 (add-hook 'org-mode-hook 'org-add-electric-pairs)
 #+END_SRC
@@ -280,8 +280,9 @@ Auto-save often
 (defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
 
 (defun LaTeX-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs))
-  (setq-local electric-pair-text-pairs electric-pair-pairs))
+  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs)
+              electric-pair-text-pairs electric-pair-pairs)
+  )
 
 (add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
 #+END_SRC
@@ -290,8 +291,9 @@ Auto-save often
 
 - For spell checking
 #+BEGIN_SRC emacs-lisp
-(setq ispell-program-name "aspell") ; could be ispell as well, depending on your preferences
-(setq ispell-dictionary "british") ; this can obviously be set to any language your spell-checking program supports
+(setq ispell-program-name "aspell" ; could be ispell
+      ispell-dictionary "british"
+      )
 (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
 #+END_SRC
 
@@ -355,8 +357,8 @@ shows command completions
   :custom
   (which-key-sort-order 'which-key-prefix-then-key-order)
   :init
-  (setq which-key-idle-delay 0.1)
-  (setq which-key-max-display-columns nil)
+  (setq which-key-idle-delay 0.1
+        which-key-max-display-columns nil)
   :config
   (which-key-mode t)
   (which-key-setup-minibuffer)
@@ -638,8 +640,8 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 - Auto add time and closing note to done
 #+BEGIN_SRC emacs-lisp
-(setq org-log-done 'time)
-(setq org-log-done 'note)
+(setq org-log-done 'time
+      org-log-done 'note)
 #+END_SRC
 
 * languages
