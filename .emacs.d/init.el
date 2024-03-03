@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
 ;;; Code:
-(setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (package-initialize)
@@ -27,19 +27,6 @@
  )
 
 (require 'server)
-(unless (server-running-p) (server-start)) ; start emacs in server mode so that skim can talk to it
-
-;; This should always be at the end!
-;; Here we set cmd to meta, leaving alt available for alternative characters.
-;; (setq mac-option-key-is-meta nil)
-;; (setq mac-command-key-is-meta t)
-(setq mac-command-modifier 'meta)
-(setq mac-option-modifier nil)
-(setq mac-right-option-modifier 'left)
-(setq mac-wheel-button-is-mouse-2 nil)
-;; Set fn to hyper
-;; (setq ns-function-modifier 'hyper)
-;; Also, don't pass uses of command to the system
-(setq mac-pass-command-to-system nil)
+(unless (server-running-p) (server-start)) ; start emacs in server mode so skim can talk to it
 
 ;;; init.el ends here

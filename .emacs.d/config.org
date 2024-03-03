@@ -367,7 +367,7 @@ To see:
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
   (setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
   :config
   (setq create-lockfiles nil
         delete-old-versions t
@@ -424,31 +424,31 @@ shows command completions
 The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package puni
-    :defer t
-    :init
-    (puni-global-mode)
-    (setcdr puni-mode-map nil)
-    :bind
-    (:map puni-mode-map
-          ("DEL" . puni-backward-delete-char)
-          ("C-d" . puni-forward-delete-char)
-          ("M-d" . puni-forward-kill-word)
-          ("M-DEL" . puni-backward-kill-word)
-          ("C-k" . puni-kill-line)
-          ("C-u" . puni-backward-kill-line)
-          ("C-h" . puni-force-delete)
-          ("C-M-f" . puni-forward-sexp)
-          ("C-M-b" . puni-backward-sexp)
-          ("C-M-a" . puni-beginning-of-sexp)
-          ("C-M-e" . puni-end-of-sexp)
-          )
-    :config
-    (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
-    :hook
-    (term-mode #'puni-disable-puni-mode)
-    ;;(prog-mode #'puni-flyindent-mode)
-    )
+(use-package puni
+  :defer t
+  :init
+  (puni-global-mode)
+  (setcdr puni-mode-map nil)
+  :bind
+  (:map puni-mode-map
+        ("DEL" . puni-backward-delete-char)
+        ("C-d" . puni-forward-delete-char)
+        ("M-d" . puni-forward-kill-word)
+        ("M-DEL" . puni-backward-kill-word)
+        ("C-k" . puni-kill-line)
+        ("C-u" . puni-backward-kill-line)
+        ("C-h" . puni-force-delete)
+        ("C-M-f" . puni-forward-sexp)
+        ("C-M-b" . puni-backward-sexp)
+        ("C-M-a" . puni-beginning-of-sexp)
+        ("C-M-e" . puni-end-of-sexp)
+        )
+  :config
+  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
+  :hook
+  (term-mode #'puni-disable-puni-mode)
+  ;;(prog-mode #'puni-flyindent-mode)
+  )
 #+END_SRC
 
 ** smartparens
@@ -485,10 +485,10 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package multiple-cursors
   :ensure t
   :bind (("C->" . mc/mark-next-like-this)
-	 ("C-<" . mc/mark-previous-like-this)
-	 ("C-c C->" . mc/mark-all-like-this)
-	 ("C-c C-SPC" . mc/edit-lines)
-	 ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
+	       ("C-<" . mc/mark-previous-like-this)
+	       ("C-c C->" . mc/mark-all-like-this)
+	       ("C-c C-SPC" . mc/edit-lines)
+	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+END_SRC
 
 ** undo tree
@@ -820,9 +820,9 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   (setq rust-format-on-save t)
   :bind
   (:map rust-mode-map
-         ("C-c r" . rust-run)
-         ("C-c c" . rust-compile)
-         ("C-c t" . rust-test))
+        ("C-c r" . rust-run)
+        ("C-c c" . rust-compile)
+        ("C-c t" . rust-test))
   )
 
 (use-package rustic
@@ -902,15 +902,15 @@ vertico for minibuffer completions
 adds marginalia to the minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
-  (use-package marginalia
-    :ensure t
-    :init
-    (marginalia-mode)
-    :bind (:map minibuffer-local-map
-                ("M-A" . marginalia-cycle))
-    :custom
-    (marginalia-max-relative-age 0)
-    (marginalia-align 'right))
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode)
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
+  :custom
+  (marginalia-max-relative-age 0)
+  (marginalia-align 'right))
 #+END_SRC
 
 ** consult
@@ -1037,7 +1037,7 @@ adds marginalia to the minibuffer completions
   ;; (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;;;; 5. No project support
   ;; (setq consult-project-function nil)
-)
+  )
 #+END_SRC
 
 *** consult-project-extra
@@ -1124,7 +1124,7 @@ https://github.com/Qkessler/consult-project-extra
   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
-)
+  )
 #+END_SRC
 
 * lsp stuff
@@ -1132,7 +1132,7 @@ https://github.com/Qkessler/consult-project-extra
 ** eglot
 
 maybe: https://github.com/casouri/eldoc-box
-       https://github.com/nemethf/eglot-x#rust-analyzer-extensions
+https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
