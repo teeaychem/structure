@@ -15,11 +15,10 @@ mouseSideButtons = hs.eventtap.new({ hs.eventtap.event.types.otherMouseDown },
   function(e)
     if e:getButtonState(4) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 42, true):post()
-    end
-    if e:getButtonState(3) then
+    elseif e:getButtonState(3) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
     end
-end
+  end
 )
 mouseSideButtons:start()
 
@@ -27,7 +26,6 @@ eisuuFlag = true
 
 eisuuD = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function(e)
-    print(e:getKeyCodec)
     if e:getKeyCode() == 102 then
       eisuuFlag = true
     elseif (eisuuFlag and e:getKeyCode() == 8) then
@@ -35,7 +33,7 @@ eisuuD = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
     elseif (eisuuFlag and e:getKeyCode() == 9) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
     end
-end
+  end
 ):start()
 
 eisuuU = hs.eventtap.new({ hs.eventtap.event.types.keyUp },
@@ -43,7 +41,7 @@ eisuuU = hs.eventtap.new({ hs.eventtap.event.types.keyUp },
     if e:getKeyCode() == 102 then
       eisuuFlag = false
     end
-end
+  end
 ):start()
 
 
