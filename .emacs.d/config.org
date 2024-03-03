@@ -832,26 +832,8 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 (use-package rustic
   :ensure
-  :config
-  ;; comment to disable rustfmt on save
-  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
-	;; (push 'rustic-clippy flycheck-checkers)
 	:custom
-  (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer"))
-	:hook
-	(rust-mode . display-line-numbers-mode)
-	(rustic-mode . display-line-numbers-mode)
-  )
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-;; (defun rk/rustic-mode-hook ()
-;;   ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-;;   ;; save rust buffers that are not file visiting. Once
-;;   ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-;;   ;; no longer be necessary.
-;;   (when buffer-file-name (setq-local buffer-save-without-query t))
-;;   (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+  (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer")))
 #+END_SRC
 
 ** ASP
