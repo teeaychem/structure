@@ -46,11 +46,53 @@ Increase the amount of data which Emacs reads from the process#
 (setq read-process-output-max (* 3 1024 1024))
 #+END_SRC
 
-* user info
+* emacs
 
 #+BEGIN_SRC emacs-lisp
-(setq user-full-name "bsparkes")
-(setq user-mail-address "bsparkes@alumni.stanford.edu")
+(use-package emacs
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s" (replace-regexp-in-string "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" "" crm-separator) (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  ;; TAB cycle if there are only few candidates
+  ;; (setq completion-cycle-threshold 3)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+  (setq read-extended-command-predicate
+        #'command-completion-default-include-p)
+
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t)
+
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (setq tab-always-indent 'complete)
+  :custom
+  '(minibuffer-prompt-properties (quote (read-only t cursor-intangible t face minibuffer-prompt)))
+  (user-full-name "bsparkes")
+  (user-mail-address "bsparkes@alumni.stanford.edu")
+  :bind
+  (("C-z" . ignore)
+   ("C-x k" . kill-this-buffer)
+   ("C-x K" . kill-buffer)
+   ("RET" . newline-and-indent) ;; go to indentation on new line
+   ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
+   ("<mouse-2>" . ignore) ;; figure out what to do with middle button…
+   ("<mouse-3>" . context-menu-open)
+   )
+  ;; :hook
+  )
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
 * general
@@ -334,19 +376,6 @@ To see:
         version-control t))
 #+END_SRC
 
-** whitespace
-
-#+BEGIN_SRC emacs-lisp
-(use-package whitespace
-  :init
-  ;; delete trailing whitespace before saving a file
-  (add-hook 'before-save-hook 'delete-trailing-whitespace)
-  :config
-  ;; (set-face-attribute 'trailing-whitespace nil :background "indian red")
-  ;; (setq-default show-trailing-whitespace t)
-  )
-#+END_SRC
-
 ** which-key
 
 shows command completions
@@ -399,8 +428,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
     :defer t
     :init
     (puni-global-mode)
-    (add-hook 'term-mode-hook #'puni-disable-puni-mode)
-    ;;(add-hook 'prog-mode-hook #'puni-flyindent-mode)
     (setcdr puni-mode-map nil)
     :bind
     (:map puni-mode-map
@@ -417,7 +444,11 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
           ("C-M-e" . puni-end-of-sexp)
           )
     :config
-    (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil))
+    (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
+    :hook
+    (term-mode #'puni-disable-puni-mode)
+    ;;(prog-mode #'puni-flyindent-mode)
+    )
 #+END_SRC
 
 ** smartparens
@@ -490,30 +521,9 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package highlight-indent-guides
   :ensure t
   :init
-  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   (setq highlight-indent-guides-method 'character)
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode) ;; issue if use with :hook
   )
-#+END_SRC
-
-** DISABLED flycheck
-
-#+BEGIN_SRC emacs-lisp
-;; (use-package flycheck
-;;   :defer t
-;;   :init
-;;   (global-flycheck-mode t)
-;;   (setq flycheck-checker-error-threshold 99400)
-;;   :config
-;;   )
-
-;; (use-package flycheck-posframe
-;;   :defer t
-;;   :after flycheck
-;;   :hook (flycheck-mode . flycheck-posframe-mode)
-;;   :config
-;;   (flycheck-posframe-configure-pretty-defaults)
-;;   ;; (add-hook 'flycheck-posframe-inhibit-functions #'company--active-p)
-;;   )
 #+END_SRC
 
 ** yasnippet
@@ -559,7 +569,8 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (diff-hl-show-hunk-mouse-mode)
   :init
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  )
 #+END_SRC
 
 * org mode
@@ -1116,49 +1127,6 @@ https://github.com/Qkessler/consult-project-extra
 )
 #+END_SRC
 
-* emacs
-
-#+BEGIN_SRC emacs-lisp
-(use-package emacs
-  :init
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
-  (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s" (replace-regexp-in-string "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" "" crm-separator) (car args))
-          (cdr args)))
-  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-  ;; Do not allow the cursor in the minibuffer prompt
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; TAB cycle if there are only few candidates
-  ;; (setq completion-cycle-threshold 3)
-
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
-
-  ;; Enable recursive minibuffers
-  (setq enable-recursive-minibuffers t)
-
-  ;; Enable indentation+completion using the TAB key.
-  ;; `completion-at-point' is often bound to M-TAB.
-  (setq tab-always-indent 'complete)
-  :bind
-  (("C-z" . ignore)
-   ("C-x k" . kill-this-buffer)
-   ("C-x K" . kill-buffer)
-   ("RET" . newline-and-indent) ;; go to indentation on new line
-   ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
-   ("<mouse-2>" . mouse-popup-menubar-stuff) ;; broken… but unsure what default does
-   )
-  )
-#+END_SRC
-
 * lsp stuff
 
 ** eglot
@@ -1171,12 +1139,12 @@ maybe: https://github.com/casouri/eldoc-box
   :ensure t
   :defer t
   :hook ((c-mode
-          c-ts-mode-hook
+          c-ts-mode
           c++-mode
-          c++-ts-mode-hook
-          rustic-mode-hook
-          python-mode-hook
-          python-ts-mode-hook) . eglot-ensure)
+          c++-ts-mode
+          rustic-mode
+          python-mode
+          python-ts-mode) . eglot-ensure)
   )
 #+END_SRC
 
