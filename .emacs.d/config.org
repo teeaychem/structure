@@ -932,13 +932,14 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+BEGIN_SRC emacs-lisp
 (use-package lua-mode
+  :custom
+  (lua-indent-level 2)
   :config
   ;; (lua-indent-level 2)
   )
 #+END_SRC
 
 #+RESULTS:
-: t
 
 * completion
 
