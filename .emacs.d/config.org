@@ -58,12 +58,7 @@ Increase the amount of data which Emacs reads from the process#
 ** saving & backups
 
 #+BEGIN_SRC emacs-lisp
-;; (add-hook 'focus-out-hook 'save-buffer) ; to save buffer on losing focus
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
 (desktop-save-mode)
-;; Some display settings
 (save-place-mode t)
 #+END_SRC
 
@@ -551,9 +546,9 @@ shows command completions
   (setq yas-snippet-dir "~/.emacs.d/snippets"))
 #+END_SRC
 
-** git
+* git
 
-*** magit
+** magit
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -563,7 +558,7 @@ shows command completions
   (("C-x g" . magit-status)))
 #+END_SRC
 
-*** diff-hl
+** diff-hl
 
 #+BEGIN_SRC emacs-lisp
 (use-package diff-hl
