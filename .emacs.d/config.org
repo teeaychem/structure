@@ -123,8 +123,6 @@ Increase the amount of data which Emacs reads from the process#
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
-
-
 ** saving & backups
 
 #+BEGIN_SRC emacs-lisp
@@ -562,8 +560,14 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (setq highlight-indent-guides-method 'character)
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode) ;; issue if use with :hook
+  :custom
+  (highlight-indent-guides-auto-odd-face-perc 50)
+  (highlight-indent-guides-auto-even-face-perc 50)
+  (highlight-indent-guides-auto-character-face-perc 55)
   )
 #+END_SRC
+
+#+RESULTS:
 
 ** yasnippet
 
@@ -923,6 +927,18 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 
 #+END_SRC
+
+** lua
+
+#+BEGIN_SRC emacs-lisp
+(use-package lua-mode
+  :config
+  ;; (lua-indent-level 2)
+  )
+#+END_SRC
+
+#+RESULTS:
+: t
 
 * completion
 
