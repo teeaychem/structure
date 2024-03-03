@@ -6,7 +6,7 @@
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-(setq debug-on-error nil)
+(setq debug-on-error t)
 ;; (emacs-init-time)
 #+END_SRC
 
@@ -97,14 +97,47 @@ Auto-save often
 (global-auto-revert-mode t) ; for reloading bib files, etc.
 #+END_SRC
 
+** input
+
+#+BEGIN_SRC emacs-lisp
+(setq-default indent-tabs-mode nil
+							tab-width 2)
+(setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
+(setq sentence-end-double-space nil)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(delete-selection-mode t) ;; delete selected text by typing
+(global-subword-mode t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
+      require-final-newline t)
+#+END_SRC
+
+** locale
+
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(when (fboundp 'set-charset-priority) (set-charset-priority 'unicode))
+(setq locale-coding-system 'utf-8)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(set-locale-environment "en_GB.UTF-8")
+(setenv "LANG" "en_GB.UTF-8")
+#+END_SRC
+
+* visual stuff
+
 ** display
 
 #+BEGIN_SRC emacs-lisp
 (setq uniquify-buffer-name-style 'forward) ; Unique buffer names
 #+END_SRC
 
-- By default Emacs will display its tooltips in a separate frame.
-  - If you want to force Emacs to use the echo area exclusively, you can do that with this handy code snippet:
+- By default Emacs will display its tooltips in a separate frame,  force Emacs to use the echo area:
 
 #+BEGIN_SRC emacs-lisp
 (tooltip-mode -1)
@@ -154,72 +187,7 @@ Auto-save often
 (toggle-scroll-bar nil) ;; disable the scroll bar
 #+END_SRC
 
-- Enable pretty syntax highlighting everywhere
-
-#+BEGIN_SRC emacs-lisp
-(require 'font-lock)
-(setq font-lock-maximum-decoration t)
-(global-font-lock-mode t)
-(global-hi-lock-mode nil)
-(setq jit-lock-contextually t)
-(setq jit-lock-stealth-verbose t)
-#+END_SRC
-
-** font
-
-#+BEGIN_SRC emacs-lisp
-(when (eq system-type 'darwin)
-  (set-face-attribute 'default nil
-		                  :family "JuliaMono"
-		                  :height 140
-		                  ))
-(setq-default mac-allow-anti-aliasing nil)
-(setq inhibit-compacting-font-caches t)
-#+END_SRC
-
-** input
-
-#+BEGIN_SRC emacs-lisp
-(setq-default indent-tabs-mode nil
-							tab-width 2)
-(setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
-(setq sentence-end-double-space nil)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(delete-selection-mode t) ;; delete selected text by typing
-(global-subword-mode t)
-#+END_SRC
-
-- Go to indentation on new line
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "RET") 'newline-and-indent)
-(setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
-      require-final-newline t)
-#+END_SRC
-
-** locale
-
-#+BEGIN_SRC emacs-lisp
-(prefer-coding-system 'utf-8)
-(when (fboundp 'set-charset-priority) (set-charset-priority 'unicode))
-(setq locale-coding-system 'utf-8)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(set-locale-environment "en_GB.UTF-8")
-(setenv "LANG" "en_GB.UTF-8")
-#+END_SRC
-
 ** themes
-
-#+BEGIN_SRC emacs-lisp
-;; to get rid of buffer-face on shift click
-(define-key global-map (kbd "<S-down-mouse-1>") 'mouse-save-then-kill)
-;; to set right click to a menu bar instead of yanking
-;; (global-set-key [mouse-2] 'mouse-popup-menubar-stuff)
-#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
@@ -237,6 +205,50 @@ Auto-save often
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+#+END_SRC
+
+** font
+
+#+BEGIN_SRC emacs-lisp
+(when (eq system-type 'darwin)
+  (set-face-attribute 'default nil
+		                  :family "JuliaMono"
+		                  :height 140
+		                  ))
+(setq-default mac-allow-anti-aliasing t)
+(setq inhibit-compacting-font-caches t)
+#+END_SRC
+
+** syntax highlighting
+
+- Enable syntax highlighting everywhere
+
+#+BEGIN_SRC emacs-lisp
+(require 'font-lock)
+(setq font-lock-maximum-decoration t)
+(global-font-lock-mode t)
+(global-hi-lock-mode nil)
+(setq jit-lock-contextually t)
+(setq jit-lock-stealth-verbose t)
+#+END_SRC
+
+* key bindings
+
+** general
+
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :ensure t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ "C-x k" 'kill-this-buffer
+ "C-x K" 'kill-buffer
+ "RET" 'newline-and-indent ;; go to indentation on new line
+ "<S-down-mouse-1>" 'mouse-save-then-kill ;; remove buffer-face on shift click
+ "<mouse-2>" 'mouse-popup-menubar-stuff ;; broken… but unsure what default does
+ )
 #+END_SRC
 
 * internal
@@ -393,19 +405,6 @@ shows command completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package browse-kill-ring)
-#+END_SRC
-
-** general
-
-#+BEGIN_SRC emacs-lisp
-(use-package general
-  :ensure t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- "C-x k" 'kill-this-buffer
- "C-x K" 'kill-buffer)
 #+END_SRC
 
 ** puni
@@ -824,10 +823,12 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :mode "\\.rs\\'"
   :init
   (setq rust-format-on-save t)
-  :bind (:map rust-mode-map
-              ("C-c r" . rust-run)
-              ("C-c c" . rust-compile)
-              ("C-c t" . rust-test)))
+  :general
+  (:keymaps 'rust-mode-map
+            :prefix "C-c"
+            "r" 'rust-run
+            "c" 'rust-compile
+            "t" 'rust-test))
 
 (use-package rustic
   :ensure
@@ -1226,9 +1227,6 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
   :config
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
-
-;; (add-to-list 'major-mode-remap-alist
-;;             '(c-mode . c-ts-mode))
 
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
