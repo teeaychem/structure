@@ -518,11 +518,22 @@ shows command completions
   (("C-x g" . magit-status)))
 #+END_SRC
 
-*** diff-hl-mode
+*** diff-hl
 
 #+BEGIN_SRC emacs-lisp
 (use-package diff-hl
   :ensure t
+  :config
+  (setq diff-hl-draw-borders t)
+  (face-spec-set 'diff-hl-insert `((((background light)) :background ,(face-attribute 'default :background))
+                                   (t :background ,(face-attribute 'default :background))))
+  (face-spec-set 'diff-hl-delete `((((background light)) :background ,(face-attribute 'default :background))
+                                   (t :background ,(face-attribute 'default :background))))
+  (face-spec-set 'diff-hl-change `((((background light)) :background ,(face-attribute 'default :background))
+                                   (t :background ,(face-attribute 'default :background)))))
+  (global-diff-hl-mode)
+  (diff-hl-flydiff-mode)
+  (diff-hl-show-hunk-mouse-mode)
   :init
   (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
@@ -730,7 +741,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 	:defer t
 	:config
 	:hook
-	(python-mode . (lambda () (setq fill-column 79)))
+	(python-mode . (lambda () (setq fill-column 127)))
 	(python-mode . (lambda () (setq indent-tabs-mode nil)))
 	(python-mode . visual-line-mode))
 #+END_SRC
@@ -829,6 +840,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 * eglot
 
 maybe: https://github.com/casouri/eldoc-box
+       https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
@@ -848,8 +860,7 @@ maybe: https://github.com/casouri/eldoc-box
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
-               '((rust-ts-mode rust-mode) .
-                 ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
+               '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
 
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
@@ -1029,9 +1040,15 @@ adds marginalia to the minibuffer completions
 
 *** consult-project-extra
 
+https://github.com/Qkessler/consult-project-extra
+
 #+BEGIN_SRC emacs-lisp
 (use-package consult-project-extra
-  :ensure t)
+  :ensure t
+  :bind
+  (("C-c p f" . consult-project-extra-find)
+   ("C-c p o" . consult-project-extra-find-other-window))
+  )
 #+END_SRC
 
 ** corfu
@@ -1060,8 +1077,8 @@ adds marginalia to the minibuffer completions
   ;; `global-corfu-modes' to exclude certain modes.
   :bind
   (:map corfu-map
-	("RET" . nil) ;; Free the RET key for less intrusive behavior.
-	)
+	      ("RET" . nil) ;; Free the RET key for less intrusive behavior.
+	      )
   )
 #+END_SRC
 
@@ -1075,7 +1092,7 @@ Add extensions
          ("C-c p t" . complete-tag)        ;; etags
          ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
          ("C-c p h" . cape-history)
-         ("C-c p f" . cape-file)
+         ;; ("C-c p f" . cape-file)
          ("C-c p k" . cape-keyword)
          ("C-c p s" . cape-elisp-symbol)
          ("C-c p e" . cape-elisp-block)
@@ -1086,7 +1103,7 @@ Add extensions
          ("C-c p \\" . cape-tex)
          ("C-c p _" . cape-tex)
          ("C-c p ^" . cape-tex)
-         ("C-c p &" . cape-sgml)
+         ("C-c p &" . cape-&sgml)
          ("C-c p r" . cape-rfc1345))
   :init
   ;; Add to the global default value of `completion-at-point-functions' which is
@@ -1116,11 +1133,7 @@ Add extensions
   ;; Add prompt indicator to `completing-read-multiple'.
   ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
   (defun crm-indicator (args)
-    (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
-                  (car args))
+    (cons (format "[CRM%s] %s" (replace-regexp-in-string "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" "" crm-separator) (car args))
           (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
@@ -1166,6 +1179,5 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-(add-to-list 'major-mode-remap-alist
-             '(c-or-c++-mode . c-or-c++-ts-mode))
+(add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
 #+END_SRC
