@@ -232,25 +232,6 @@ Auto-save often
 (setq jit-lock-stealth-verbose t)
 #+END_SRC
 
-* key bindings
-
-** general
-
-#+BEGIN_SRC emacs-lisp
-(use-package general
-  :ensure t)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(general-define-key
- "C-x k" 'kill-this-buffer
- "C-x K" 'kill-buffer
- "RET" 'newline-and-indent ;; go to indentation on new line
- "<S-down-mouse-1>" 'mouse-save-then-kill ;; remove buffer-face on shift click
- "<mouse-2>" 'mouse-popup-menubar-stuff ;; broken… but unsure what default does
- )
-#+END_SRC
-
 * internal
 
 ** skeletons
@@ -409,31 +390,32 @@ shows command completions
 
 ** puni
 
+The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
+
 #+BEGIN_SRC emacs-lisp
-(use-package puni
-  :defer t
-  :init
-  ;; The default `puni-mode-map' respects "Emacs conventions".  We don't, so clear and rewrite it.
-  (setcdr puni-mode-map nil)
-  (general-define-key
-    :keymaps 'puni-mode-map
-    "DEL" 'puni-backward-delete-char
-    "C-d" 'puni-forward-delete-char
-    "M-d" 'puni-forward-kill-word
-    "M-DEL" 'puni-backward-kill-word
-    "C-k" 'puni-kill-line
-    "C-u" 'puni-backward-kill-line
-    "C-h" 'puni-force-delete
-    "C-M-f" 'puni-forward-sexp
-    "C-M-b" 'puni-backward-sexp
-    "C-M-a" 'puni-beginning-of-sexp
-    "C-M-e" 'puni-end-of-sexp)
-  (puni-global-mode)
-  ;; The shell program handles keys like C-k, M-DEL, etc.
-  (add-hook 'term-mode-hook #'puni-disable-puni-mode)
-  ;;(add-hook 'prog-mode-hook #'puni-flyindent-mode)
-  :config
-  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil))
+  (use-package puni
+    :defer t
+    :init
+    (puni-global-mode)
+    (add-hook 'term-mode-hook #'puni-disable-puni-mode)
+    ;;(add-hook 'prog-mode-hook #'puni-flyindent-mode)
+    (setcdr puni-mode-map nil)
+    :bind
+    (:map puni-mode-map
+          ("DEL" . puni-backward-delete-char)
+          ("C-d" . puni-forward-delete-char)
+          ("M-d" . puni-forward-kill-word)
+          ("M-DEL" . puni-backward-kill-word)
+          ("C-k" . puni-kill-line)
+          ("C-u" . puni-backward-kill-line)
+          ("C-h" . puni-force-delete)
+          ("C-M-f" . puni-forward-sexp)
+          ("C-M-b" . puni-backward-sexp)
+          ("C-M-a" . puni-beginning-of-sexp)
+          ("C-M-e" . puni-end-of-sexp)
+          )
+    :config
+    (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil))
 #+END_SRC
 
 ** smartparens
@@ -823,12 +805,12 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :mode "\\.rs\\'"
   :init
   (setq rust-format-on-save t)
-  :general
-  (:keymaps 'rust-mode-map
-            :prefix "C-c"
-            "r" 'rust-run
-            "c" 'rust-compile
-            "t" 'rust-test))
+  :bind
+  (:map rust-mode-map
+         ("C-c r" . rust-run)
+         ("C-c c" . rust-compile)
+         ("C-c t" . rust-test))
+  )
 
 (use-package rustic
   :ensure
@@ -888,7 +870,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 #+END_SRC
 
-*** vertico
+** vertico
 
 vertico for minibuffer completions
 
@@ -898,23 +880,24 @@ vertico for minibuffer completions
   (vertico-mode)
   ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
   (setq vertico-count 40) ;; Show more candidates
-  ;; (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
 #+END_SRC
 
-*** marginalia
+** marginalia
 
 adds marginalia to the minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
-(use-package marginalia
-  :ensure t
-  :init
-  (marginalia-mode)
-  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
-  :custom
-  (marginalia-max-relative-age 0)
-  (marginalia-align 'right))
+  (use-package marginalia
+    :ensure t
+    :init
+    (marginalia-mode)
+    :bind (:map minibuffer-local-map
+                ("M-A" . marginalia-cycle))
+    :custom
+    (marginalia-max-relative-age 0)
+    (marginalia-align 'right))
 #+END_SRC
 
 ** consult
@@ -1164,7 +1147,14 @@ https://github.com/Qkessler/consult-project-extra
   ;; `completion-at-point' is often bound to M-TAB.
   (setq tab-always-indent 'complete)
   :bind
-  (("C-z" . ignore)))
+  (("C-z" . ignore)
+   ("C-x k" . kill-this-buffer)
+   ("C-x K" . kill-buffer)
+   ("RET" . newline-and-indent) ;; go to indentation on new line
+   ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
+   ("<mouse-2>" . mouse-popup-menubar-stuff) ;; broken… but unsure what default does
+   )
+  )
 #+END_SRC
 
 * lsp stuff
