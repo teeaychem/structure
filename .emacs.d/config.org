@@ -1,6 +1,15 @@
 -*- mode: org -*-
 #+STARTUP: overview content
 
+* to investigate
+
+https://wilkesley.org/~ian/xah/emacs/emacs.html
+https://www.reddit.com/r/emacs/comments/1ai00g5/more_totally_evident_but_super_useful_emacs/
+
+https://github.com/Wilfred/helpful
+https://github.com/Alexander-Miller/treemacs
+https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://editorconfig.org
+
 * startup
 
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
@@ -9,8 +18,6 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 (setq debug-on-error t)
 ;; (emacs-init-time)
 #+END_SRC
-
-- https://github.com/meatcar/emacs.d
 
 #+BEGIN_SRC emacs-lisp
 (setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
@@ -46,7 +53,28 @@ Increase the amount of data which Emacs reads from the process#
 (setq read-process-output-max (* 3 1024 1024))
 #+END_SRC
 
-* emacs
+* general
+
+** mac
+
+#+BEGIN_SRC emacs-lisp
+(use-package emacs
+  :custom
+  (when (lc/is-macos)
+    (mac-command-modifier 'meta)     ; command as super
+    (mac-option-modifier nil)     ; alt as meta
+    (mac-right-option-modifier 'left)
+    (mac-control-modifier nil)
+    (mac-pass-command-to-system nil)
+    )
+  ;; when on emacs-mac
+  (when (fboundp 'mac-auto-operator-composition-mode)
+      (mac-auto-operator-composition-mode)   ;; enables font ligatures
+      )
+  )
+#+END_SRC
+
+** emacs
 
 #+BEGIN_SRC emacs-lisp
 (use-package emacs
@@ -95,7 +123,7 @@ Increase the amount of data which Emacs reads from the process#
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
-* general
+
 
 ** saving & backups
 
@@ -192,6 +220,17 @@ Auto-save often
 (setq-default line-spacing 2)
 (setq truncate-string-ellipsis "…")
 (setq scroll-preserve-screen-position t)
+#+END_SRC
+
+Padding
+
+#+BEGIN_SRC emacs-lisp
+;; (setq-default left-margin-width 1
+;;               right-margin-width 1)
+;; (set-window-buffer nil (current-buffer))
+
+(add-to-list 'default-frame-alist '(internal-border-width . 4))
+(set-frame-parameter nil 'internal-border-width 4)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -548,8 +587,21 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :pin nongnu ; installation issues with melpa
   :ensure t
   :bind
-  (("C-x g" . magit-status)))
+  (("C-c g s" . magit-status)
+   ("C-c g g" . magit-status)
+   ("C-c g S" . magit-status-here)
+   ("C-c g b" . magit-blame)
+   ("C-c g l" . magit-log)
+   ("C-c g d" . magit-diff)
+   ("C-c g r" . magit-refresh)
+   )
+  :custom
+  (magit-log-arguments '("--graph" "--decorate" "--color"))
+  )
 #+END_SRC
+
+#+RESULTS:
+: magit-refresh
 
 ** diff-hl
 
@@ -568,8 +620,10 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (diff-hl-flydiff-mode)
   (diff-hl-show-hunk-mouse-mode)
   :init
-  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  :hook
+  ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+   (magit-post-refresh . diff-hl-magit-post-refresh)
+   )
   )
 #+END_SRC
 
@@ -979,7 +1033,6 @@ adds marginalia to the minibuffer completions
   ;; relevant when you use the default completion UI.
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
-  ;; The :init configuration is always executed (Not lazy)
   :init
 
   ;; Optionally configure the register formatting. This improves the register
@@ -996,8 +1049,7 @@ adds marginalia to the minibuffer completions
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
+  ;; Configure other variables and modes in the :config section, after lazily loading the package.
   :config
 
   ;; Optionally configure preview. The default value
