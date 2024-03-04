@@ -463,7 +463,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+BEGIN_SRC emacs-lisp
 (use-package puni
   :defer t
-  :init
+  :config
   (puni-global-mode)
   (setcdr puni-mode-map nil)
   :bind
@@ -584,7 +584,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
-  :pin nongnu ; installation issues with melpa
   :bind
   (("C-c g s" . magit-status)
    ("C-c g g" . magit-status)
