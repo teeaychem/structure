@@ -26,12 +26,18 @@ eisuuFlag = true
 
 eisuuD = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function(e)
-    if e:getKeyCode() == 102 then
+    eisuuKeys = {}
+    eisuuKeys[8] = true
+    eisuuKeys[9] = true
+    thisKeyCode = e:getKeyCode()
+    if thisKeyCode == 102 then
       eisuuFlag = true
-    elseif (eisuuFlag and e:getKeyCode() == 8) then
+    elseif (eisuuFlag and thisKeyCode == 8) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 42, true):post()
-    elseif (eisuuFlag and e:getKeyCode() == 9) then
+    elseif (eisuuFlag and thisKeyCode == 9) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
+    elseif eisuuFlag == true and not eisuuKeys[thisKeyCode] then
+      eisuuFlag = false
     end
   end
 ):start()
@@ -46,19 +52,20 @@ eisuuU = hs.eventtap.new({ hs.eventtap.event.types.keyUp },
 
 
 -- Use to figure out key
--- local events = hs.eventtap.event.types
--- keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
---   function (e)
---     local gestureType = e:getType(true)
---     if gestureType == hs.eventtap.event.types.gesture then
---       print("ok")
---     end
---     if keyCode == 50 then
---       hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
---       hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
---       return true
---     end
--- end)
--- keyboardTracker:start()
+local events = hs.eventtap.event.types
+keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
+  function (e)
+    local gestureType = e:getKeyCode(true)
+    print(gestureType)
+    if gestureType == hs.eventtap.event.types.gesture then
+      print(gestureType)
+    end
+    if keyCode == 50 then
+      hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
+      hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
+      return true
+    end
+end)
+keyboardTracker:start()
 
 -- https://github.com/mengelbrecht/hammerspoon-config/blob/main/init.lua
