@@ -10,7 +10,7 @@
 
 
 ;; Load config.org - my Emacs config
-(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+(org-babel-load-file (expand-file-name "~/.config/emacs/config.org"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

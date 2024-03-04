@@ -534,7 +534,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (global-undo-tree-mode)
   :custom
-  (undo-tree-history-directory-alist '(("." . "~/.emacs.d/undoTree"))))
+  (undo-tree-history-directory-alist '(("." . "~/.config/emacs/undoTree/"))))
 #+END_SRC
 
 ** fix-word
@@ -812,7 +812,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 ** racket
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.emacs.d/local-packages/emacs-ob-racket")
+(add-to-list 'load-path "~/.config/emacs/local-packages/emacs-ob-racket")
 (add-to-list 'org-src-lang-modes '("racket" . racket))
 (org-babel-do-load-languages
  'org-babel-load-languages
