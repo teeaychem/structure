@@ -23,12 +23,12 @@ mouseSideButtons = hs.eventtap.new({ hs.eventtap.event.types.otherMouseDown },
 mouseSideButtons:start()
 
 eisuuFlag = true
+eisuuKeys = {}
+eisuuKeys[8] = true
+eisuuKeys[9] = true
 
 eisuuD = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function(e)
-    eisuuKeys = {}
-    eisuuKeys[8] = true
-    eisuuKeys[9] = true
     thisKeyCode = e:getKeyCode()
     if thisKeyCode == 102 then
       eisuuFlag = true
@@ -56,9 +56,7 @@ local events = hs.eventtap.event.types
 keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function (e)
     local gestureType = e:getKeyCode(true)
-    print(gestureType)
     if gestureType == hs.eventtap.event.types.gesture then
-      print(gestureType)
     end
     if keyCode == 50 then
       hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
