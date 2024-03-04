@@ -15,7 +15,7 @@ https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://ed
 From https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+BEGIN_SRC emacs-lisp
-(setq debug-on-error t)
+;; (setq debug-on-error t)
 ;; (emacs-init-time)
 #+END_SRC
 
@@ -58,20 +58,21 @@ Increase the amount of data which Emacs reads from the process#
 ** mac
 
 #+BEGIN_SRC emacs-lisp
-(use-package emacs
-  :custom
-  (when (lc/is-macos)
+(when (eq system-type 'darwin)
+  (use-package emacs
+    :custom
     (mac-command-modifier 'meta)     ; command as super
-    (mac-option-modifier nil)     ; alt as meta
+    (mac-option-modifier 'option)     ; alt as meta
     (mac-right-option-modifier 'left)
-    (mac-control-modifier nil)
-    (mac-pass-command-to-system nil)
+    (mac-control-modifier 'control)
+    (mac-pass-command-to-system t)
     )
-  ;; when on emacs-mac
-  (when (fboundp 'mac-auto-operator-composition-mode)
-      (mac-auto-operator-composition-mode)   ;; enables font ligatures
-      )
   )
+;; when on emacs-mac
+(when (fboundp 'mac-auto-operator-composition-mode)
+  (mac-auto-operator-composition-mode)   ;; enables font ligatures
+  )
+
 #+END_SRC
 
 ** emacs
@@ -270,7 +271,6 @@ Padding
 
 #+BEGIN_SRC emacs-lisp
 (use-package doom-themes
-  :ensure t
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -520,7 +520,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package multiple-cursors
-  :ensure t
   :bind (("C->" . mc/mark-next-like-this)
 	       ("C-<" . mc/mark-previous-like-this)
 	       ("C-c C->" . mc/mark-all-like-this)
@@ -532,7 +531,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package undo-tree
-  :ensure t
   :init
   (global-undo-tree-mode)
   :custom
@@ -556,7 +554,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package highlight-indent-guides
-  :ensure t
   :init
   (setq highlight-indent-guides-method 'character)
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode) ;; issue if use with :hook
@@ -573,7 +570,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
-  :ensure t
   :hook ((text-mode
           prog-mode
           conf-mode
@@ -589,7 +585,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :pin nongnu ; installation issues with melpa
-  :ensure t
   :bind
   (("C-c g s" . magit-status)
    ("C-c g g" . magit-status)
@@ -611,7 +606,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package diff-hl
-  :ensure t
   :config
   (setq diff-hl-draw-borders t)
   (face-spec-set 'diff-hl-insert `((((background light)) :background ,(face-attribute 'default :background))
@@ -850,7 +844,6 @@ Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
 
 # #+BEGIN_SRC emacs-lisp
 # (use-package elpy
-#   :ensure t
 #   :defer t
 #   :init
 #   (advice-add 'python-mode :before 'elpy-enable)
@@ -872,7 +865,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+BEGIN_SRC emacs-lisp
 (use-package rust-mode
-  :ensure t
   :mode "\\.rs\\'"
   :init
   (setq rust-format-on-save t)
@@ -884,7 +876,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 
 (use-package rustic
-  :ensure
 	:custom
   (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer")))
 #+END_SRC
@@ -893,7 +884,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+BEGIN_SRC emacs-lisp
 (use-package pasp-mode
-  :ensure t
   :defer t
   :mode ("\\.lp\\'" "\\.las\\'")
   )
@@ -974,7 +964,6 @@ adds marginalia to the minibuffer completions
 
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
-  :ensure t
   :init
   (marginalia-mode)
   :bind (:map minibuffer-local-map
@@ -1115,7 +1104,6 @@ https://github.com/Qkessler/consult-project-extra
 
 #+BEGIN_SRC emacs-lisp
 (use-package consult-project-extra
-  :ensure t
   :bind
   (("C-c p f" . consult-project-extra-find)
    ("C-c p o" . consult-project-extra-find-other-window))
@@ -1205,7 +1193,6 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :ensure t
   :defer t
   :hook ((c-mode
           c-ts-mode

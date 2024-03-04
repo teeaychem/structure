@@ -1,11 +1,13 @@
 ;; -*- lexical-binding: t; -*-
 
 ;;; Code:
+(require 'package)
+(package-initialize)
 (setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
+(setq use-package-always-ensure t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
-(package-initialize)
-(require 'package)
+
 
 ;; Load config.org - my Emacs config
 (org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
