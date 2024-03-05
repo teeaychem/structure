@@ -132,7 +132,7 @@ Increase the amount of data which Emacs reads from the process#
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(setq savehist-file "~/.emacs.d/savehist")
+(setq savehist-file  (concat user-emacs-directory "etc/savehist"))
 (setq savehist-additional-variables
       '(buffer-name-history
         compile-command
@@ -146,7 +146,7 @@ Increase the amount of data which Emacs reads from the process#
   - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups"))
+(setq backup-directory-alist `(("." . ,(concat user-emacs-directory "etc/backups")))
       backup-by-copying t       ; don't clobber symlinks
       kept-new-versions 10      ; keep 10 latest versions
       kept-old-versions 0       ; don't bother with old versions
@@ -157,6 +157,8 @@ Increase the amount of data which Emacs reads from the process#
 (setq-default delete-by-moving-to-trash t) ; trash instead of removing
 (setq create-lockfiles nil) ;; no need to create lockfiles
 #+END_SRC
+
+#+RESULTS:
 
 Auto-save often
 - every 20 characters typed is the minimum
@@ -534,7 +536,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (global-undo-tree-mode)
   :custom
-  (undo-tree-history-directory-alist '(("." . "~/.config/emacs/undoTree/"))))
+  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "etc//undoTree")))))
 #+END_SRC
 
 ** fix-word
@@ -565,18 +567,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+END_SRC
 
 #+RESULTS:
-
-** yasnippet
-
-#+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :hook ((text-mode
-          prog-mode
-          conf-mode
-          snippet-mode) . yas-minor-mode-on)
-  :init
-  (setq yas-snippet-dir "~/.emacs.d/snippets"))
-#+END_SRC
 
 * git
 
@@ -812,7 +802,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 ** racket
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.config/emacs/local-packages/emacs-ob-racket")
+(add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
 (add-to-list 'org-src-lang-modes '("racket" . racket))
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -1268,15 +1258,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
   ;; either locally or globally. `expand-abbrev' is bound to C-x '.
   ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
   ;; (global-tempel-abbrev-mode)
+  :custom
+  (tempel-path (concat user-emacs-directory "etc/tempel/templates.eld"))
 )
 #+END_SRC
-
-#+RESULTS:
-: tempel-insert
-
-#+BEGIN_SRC emacs-lisp
-(print tempel-path)
-#+END_SRC
-
-#+RESULTS:
-: /Users/sparkes/.emacs.d/etc/tempel/templates.eld
