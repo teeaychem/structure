@@ -816,8 +816,9 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 	:defer t
 	:config
 	:hook
-	(python-mode . (lambda () (setq fill-column 127)))
-	(python-mode . (lambda () (setq indent-tabs-mode nil)))
+	(python-mode . (lambda () (setq-default fill-column 127
+                                          indent-tabs-mode nil
+                                          tab-width 2)))
 	(python-mode . visual-line-mode))
 #+END_SRC
 
