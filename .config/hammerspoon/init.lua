@@ -1,42 +1,34 @@
--- function dump(o)
---   if type(o) == 'table' then
---     local s = '{ '
---     for k,v in pairs(o) do
---       if type(k) ~= 'number' then k = '"'..k..'"' end
---       s = s .. '['..k..'] = ' .. dump(v) .. ','
---     end
---     return s .. '} '
---   else
---     return tostring(o)
---   end
--- end
 
 mouseSideButtons = hs.eventtap.new({ hs.eventtap.event.types.otherMouseDown },
   function(e)
     if e:getButtonState(4) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 42, true):post()
+      return true -- to supress original key
     elseif e:getButtonState(3) then
       hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
+      return true -- to supress original key
     end
+
   end
 )
 mouseSideButtons:start()
 
-eisuuFlag = true
-eisuuKeys = {}
-eisuuKeys[8] = true
-eisuuKeys[9] = true
+eisuuFlag = false
 
 eisuuD = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function(e)
     thisKeyCode = e:getKeyCode()
-    if thisKeyCode == 102 then
+    if eisuuFlag == true then
+      if thisKeyCode == 8 then
+        hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
+        return true
+      elseif thisKeyCode == 9 then
+        hs.eventtap.event.newKeyEvent({"command", "shift"}, 42, true):post()
+        return true
+      end
+    elseif thisKeyCode == 102 then
       eisuuFlag = true
-    elseif (eisuuFlag and thisKeyCode == 8) then
-      hs.eventtap.event.newKeyEvent({"command", "shift"}, 42, true):post()
-    elseif (eisuuFlag and thisKeyCode == 9) then
-      hs.eventtap.event.newKeyEvent({"command", "shift"}, 30, true):post()
-    elseif eisuuFlag == true and not eisuuKeys[thisKeyCode] then
+    else
       eisuuFlag = false
     end
   end
@@ -56,6 +48,11 @@ local events = hs.eventtap.event.types
 keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
   function (e)
     local gestureType = e:getKeyCode(true)
+    print(hs.keycodes.map[gestureType])
+    print(hs.inspect(hs.keycodes.layouts()))
+    print(hs.inspect(hs.keycodes.methods()))
+    print(hs.keycodes.currentMethod())
+    print(hs.keycodes.currentLayout())
     if gestureType == hs.eventtap.event.types.gesture then
     end
     if keyCode == 50 then
@@ -64,6 +61,6 @@ keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
       return true
     end
 end)
-keyboardTracker:start()
+-- keyboardTracker:start()
 
 -- https://github.com/mengelbrecht/hammerspoon-config/blob/main/init.lua
