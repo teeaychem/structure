@@ -1067,31 +1067,44 @@ adds marginalia to the minibuffer completions
 
   ;; Optionally configure the narrowing key. Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; "C-+"
-
-  ;; (setq consult-buffer-sources
-  ;;       '(consult--source-hidden-buffer
-  ;;         consult--source-modified-buffer
-  ;;         consult--source-buffer
-  ;;         (:name "Ephemeral"
-  ;;                :narrow   ?m
-  ;;                :category buffer
-  ;;                :state    consult--buffer-state
-  ;;                :items ("*Messages*" "*scratch*"))
-  ;;         (:name "C/pp"
-  ;;                :narrow   ?m
-  ;;                :category buffer
-  ;;                :state    consult--buffer-state
-  ;;                :items (lambda () (consult--buffer-query :sort 'visibility :as #'buffer-name :include '(".\.c$" "\.h$" "\.cpp$" "\.hpp$"))))
-  ;;         ))
-  ;; (setq consult-buffer-filter
-  ;;       '("\\` "
-  ;;         "\\`\\*Completions\\*\\'"
-  ;;         "\\`\\*scratch\\*\\'"
-  ;;         "\\`\\*Messages\\*\\'"
-  ;;         ;; ".\\.cpp$"
-  ;;         ))
   )
 #+END_SRC
+
+In-progress macro to split consult by filename
+
+#+begin_src emacs-lisp
+(defmacro make-consult-filter (name extension mode)
+  `(progn
+     (with-eval-after-load 'consult
+     (defvar ,(intern (format "+consult-%1$s-filter" name)) ,(format ".\\.%1$s$" extension))
+     (add-to-list 'consult-buffer-filter ,(intern-soft (format "+consult-%1$s-filter" name)))
+     (defvar ,(intern (format "+consult-source-%1$s" name))
+       `(:name      ,(format "%s" ',name)
+         :narrow    ?x
+         :category  buffer
+         :face      consult-buffer
+         :history   buffer-name-history
+         :state  ,'consult--buffer-state  ;; Preview
+         :items
+         ,(lambda () (consult--buffer-query
+                      :sort 'visibility
+                      :as 'buffer-name
+                      :exclude (remq ,(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
+                      :mode ',mode)))
+  ,(format "%s buffer source." name))
+     (push ',(intern-soft (format "+consult-source-%1$s" name)) consult-buffer-sources)
+     (print ,(intern-soft (format "+consult-source-%1$s" name)))
+     )))
+
+
+(make-consult-filter lua lua lua-mode)
+(make-consult-filter python py (python-mode python-ts-mode))
+;; (print (symbol-value (intern-soft (format "+consult-lua-filter"))))
+
+;; (print +consult-source-lua)
+;; (print +consult-source-python)
+;; (print consult-buffer-sources)
+#+end_src
 
 *** consult-project-extra
 
