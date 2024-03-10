@@ -1073,11 +1073,11 @@ adds marginalia to the minibuffer completions
 In-progress macro to split consult by filename
 
 #+begin_src emacs-lisp
-(defmacro make-consult-filter (name extension mode)
+(defmacro make-consult-filter (name extensions mode)
   `(progn
      (with-eval-after-load 'consult
-     (defvar ,(intern (format "+consult-%1$s-filter" name)) ,(format ".\\.%1$s$" extension))
-     (add-to-list 'consult-buffer-filter ,(intern-soft (format "+consult-%1$s-filter" name)))
+     (defvar ,(intern (format "+consult-%1$s-filter" name)) ',(mapcar (lambda (x) (format ".\\.%1$s$" x)) extensions))
+     (setq consult-buffer-filter (append consult-buffer-filter ,(intern-soft (format "+consult-%1$s-filter" name))))
      (defvar ,(intern (format "+consult-source-%1$s" name))
        `(:name      ,(format "%s" ',name)
          :narrow    ?x
@@ -1085,25 +1085,20 @@ In-progress macro to split consult by filename
          :face      consult-buffer
          :history   buffer-name-history
          :state  ,'consult--buffer-state  ;; Preview
-         :items
-         ,(lambda () (consult--buffer-query
-                      :sort 'visibility
-                      :as 'buffer-name
-                      :exclude (remq ,(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
-                      :mode ',mode)))
-  ,(format "%s buffer source." name))
+         :items ,(lambda () (consult--buffer-query
+                             :sort 'visibility
+                             :as 'buffer-name
+                             :exclude '() ;; (remq ',(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
+                             :mode ',mode)))
+       ,(format "%s buffer source." name))
      (push ',(intern-soft (format "+consult-source-%1$s" name)) consult-buffer-sources)
-     (print ,(intern-soft (format "+consult-source-%1$s" name)))
      )))
 
 
-(make-consult-filter lua lua lua-mode)
-(make-consult-filter python py (python-mode python-ts-mode))
-;; (print (symbol-value (intern-soft (format "+consult-lua-filter"))))
-
-;; (print +consult-source-lua)
-;; (print +consult-source-python)
-;; (print consult-buffer-sources)
+(make-consult-filter lua ("lua") lua-mode)
+(make-consult-filter python ("py") (python-mode python-ts-mode))
+(make-consult-filter c++ ("c" "cpp" "h") (c-mode c++-mode c-ts-mode c++-ts-mode))
+(make-consult-filter cmake ("cmake") (cmake-mode cmake-ts-mode))
 #+end_src
 
 *** consult-project-extra
