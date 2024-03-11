@@ -158,8 +158,6 @@ Increase the amount of data which Emacs reads from the process#
 (setq create-lockfiles nil) ;; no need to create lockfiles
 #+END_SRC
 
-#+RESULTS:
-
 Auto-save often
 - every 20 characters typed is the minimum
 #+BEGIN_SRC emacs-lisp
@@ -566,8 +564,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   )
 #+END_SRC
 
-#+RESULTS:
-
 * git
 
 ** magit
@@ -587,9 +583,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (magit-log-arguments '("--graph" "--decorate" "--color"))
   )
 #+END_SRC
-
-#+RESULTS:
-: magit-refresh
 
 ** diff-hl
 
@@ -919,8 +912,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   )
 #+END_SRC
 
-#+RESULTS:
-
 * completion
 
 ** orderless
@@ -1084,15 +1075,16 @@ In-progress macro to split consult by filename
          :category  buffer
          :face      consult-buffer
          :history   buffer-name-history
-         :state  ,'consult--buffer-state  ;; Preview
-         :items ,(lambda () (consult--buffer-query
-                             :sort 'visibility
-                             :as 'buffer-name
-                             :exclude '() ;; (remq ',(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
-                             :mode ',mode)))
+         :state     ,#'consult--buffer-state  ;; Preview
+         :items     ,(lambda () (consult--buffer-query
+                                 :sort 'visibility
+                                 :as #'buffer-name
+                                 :exclude '() ;; (remq ',(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
+                                 :mode ',mode)))
        ,(format "%s buffer source." name))
      (push ',(intern-soft (format "+consult-source-%1$s" name)) consult-buffer-sources)
-     )))
+     ))
+  )
 
 
 (make-consult-filter lua ("lua") lua-mode)
@@ -1143,8 +1135,6 @@ https://github.com/Qkessler/consult-project-extra
 	      )
   )
 #+END_SRC
-
-#+RESULTS:
 
 ** cape
 
@@ -1216,7 +1206,17 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
   (add-to-list 'eglot-server-programs
                '(LaTeX-mode . ("TexLab")))
   )
-#+END_SRC
+#+END_Src
+
+# *** Booster
+
+# M-x package-vc-install https://github.com/jdtsmith/eglot-booster
+
+# #+begin_src emacs-lisp
+# (use-package eglot-booster
+# 	:after eglot
+# 	:config	(eglot-booster-mode))
+# #+end_src
 
 * treesit
 
