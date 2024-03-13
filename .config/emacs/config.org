@@ -1067,9 +1067,9 @@ In-progress macro to split consult by filename
 (defmacro make-consult-filter (name extensions mode)
   `(progn
      (with-eval-after-load 'consult
-     (defvar ,(intern (format "+consult-%1$s-filter" name)) ',(mapcar (lambda (x) (format ".\\.%1$s$" x)) extensions))
-     (setq consult-buffer-filter (append consult-buffer-filter ,(intern-soft (format "+consult-%1$s-filter" name))))
-     (defvar ,(intern (format "+consult-source-%1$s" name))
+     (defvar ,(intern (format "+consult-%s-filter" name)) ',(mapcar (lambda (x) (format ".\\.%s$" x)) extensions))
+     (setq consult-buffer-filter (append consult-buffer-filter ,(intern-soft (format "+consult-%s-filter" name))))
+     (defvar ,(intern (format "+consult-source-%s" name))
        `(:name      ,(format "%s" ',name)
          :narrow    ?x
          :category  buffer
@@ -1082,7 +1082,7 @@ In-progress macro to split consult by filename
                                  :exclude '() ;; (remq ',(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
                                  :mode ',mode)))
        ,(format "%s buffer source." name))
-     (push ',(intern-soft (format "+consult-source-%1$s" name)) consult-buffer-sources)
+     (push ',(intern-soft (format "+consult-source-%s" name)) consult-buffer-sources)
      ))
   )
 
@@ -1091,6 +1091,13 @@ In-progress macro to split consult by filename
 (make-consult-filter python ("py") (python-mode python-ts-mode))
 (make-consult-filter c++ ("c" "cpp" "h") (c-mode c++-mode c-ts-mode c++-ts-mode))
 (make-consult-filter cmake ("cmake") (cmake-mode cmake-ts-mode))
+(make-consult-filter TeX ("tex") (latex-mode LaTeX-mode tex-mode TeX-mode))
+
+(with-eval-after-load 'consult
+  (progn
+    (add-to-list 'recentf-exclude "\*EGLOT")
+    (add-to-list 'consult-buffer-filter "\*EGLOT"))
+  )
 #+end_src
 
 *** consult-project-extra
