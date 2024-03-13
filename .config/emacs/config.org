@@ -1064,40 +1064,40 @@ adds marginalia to the minibuffer completions
 In-progress macro to split consult by filename
 
 #+begin_src emacs-lisp
-(defmacro make-consult-filter (name extensions mode)
-  `(progn
-     (with-eval-after-load 'consult
-     (defvar ,(intern (format "+consult-%s-filter" name)) ',(mapcar (lambda (x) (format ".\\.%s$" x)) extensions))
-     (setq consult-buffer-filter (append consult-buffer-filter ,(intern-soft (format "+consult-%s-filter" name))))
-     (defvar ,(intern (format "+consult-source-%s" name))
-       `(:name      ,(format "%s" ',name)
-         :narrow    ?x
-         :category  buffer
-         :face      consult-buffer
-         :history   buffer-name-history
-         :state     ,#'consult--buffer-state  ;; Preview
-         :items     ,(lambda () (consult--buffer-query
-                                 :sort 'visibility
-                                 :as #'buffer-name
-                                 :exclude '() ;; (remq ',(intern-soft (format "+consult-%1$s-filter" name)) consult-buffer-filter)
-                                 :mode ',mode)))
-       ,(format "%s buffer source." name))
-     (push ',(intern-soft (format "+consult-source-%s" name)) consult-buffer-sources)
-     ))
-  )
-
-
-(make-consult-filter lua ("lua") lua-mode)
-(make-consult-filter python ("py") (python-mode python-ts-mode))
-(make-consult-filter c++ ("c" "cpp" "h") (c-mode c++-mode c-ts-mode c++-ts-mode))
-(make-consult-filter cmake ("cmake") (cmake-mode cmake-ts-mode))
-(make-consult-filter TeX ("tex") (latex-mode LaTeX-mode tex-mode TeX-mode))
-
 (with-eval-after-load 'consult
   (progn
+    ;; macro after load as used consult stuff, progn to sequence use of macro
+    (defmacro make-consult-filter (name extensions mode)
+      `(progn
+         (with-eval-after-load 'consult
+           (defvar ,(intern (format "+consult-%s-filter" name)) ',(mapcar (lambda (x) (format ".\\.%s$" x)) extensions))
+           (setq consult-buffer-filter (append ,(intern-soft (format "+consult-%s-filter" name)) consult-buffer-filter))
+           (defvar ,(intern (format "+consult-source-%s" name))
+             `(:name      ,(format "%s" ',name)
+                          :narrow    ?x
+                          :category  buffer
+                          :face      consult-buffer
+                          :history   buffer-name-history
+                          :state     ,#'consult--buffer-state  ;; Preview
+                          :items     ,(lambda () (consult--buffer-query
+                                                  :sort 'visibility
+                                                  :as #'buffer-name
+                                                  :exclude ',(cl-set-difference consult-buffer-filter ',(intern-soft (format "+consult-%1$s-filter" name)))
+                                                  :mode ',mode)))
+             ,(format "%s buffer source." name))
+           (push ',(intern-soft (format "+consult-source-%s" name)) consult-buffer-sources))))
+
+    ;; instances of macro
+    (make-consult-filter lua ("lua") lua-mode)
+    (make-consult-filter python ("py") (python-mode python-ts-mode))
+    (make-consult-filter c++ ("c" "cpp" "h") (c-mode c++-mode c-ts-mode c++-ts-mode))
+    (make-consult-filter cmake ("cmake") (cmake-mode cmake-ts-mode))
+    (make-consult-filter TeX ("tex") (latex-mode LaTeX-mode tex-mode TeX-mode))
+
+    ;; Additional things to exclude
     (add-to-list 'recentf-exclude "\*EGLOT")
-    (add-to-list 'consult-buffer-filter "\*EGLOT"))
-  )
+    (add-to-list 'consult-buffer-filter "\*EGLOT")
+    ))
 #+end_src
 
 *** consult-project-extra
