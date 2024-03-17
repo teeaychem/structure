@@ -1130,15 +1130,21 @@ These buffers can be seen by using space
 #+begin_src emacs-lisp
 (with-eval-after-load 'consult
   (defmacro consult-hide-filter (regex)
-    (add-to-list 'recentf-exclude ,regex)
-    (add-to-list 'consult-buffer-filter ,regex)))
+    `(progn
+       (add-to-list 'recentf-exclude ,(format "%s" regex))
+       (add-to-list 'consult-buffer-filter ,(format "%s" regex))
+       )))
 #+end_src
+
+#+RESULTS:
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'consult
   (consult-hide-filter "\*EGLOT")
   (consult-hide-filter "magit"))
 #+end_src
+
+#+RESULTS:
 
 *** consult-project-extra
 
