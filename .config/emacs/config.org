@@ -1,30 +1,30 @@
 -*- mode: org -*-
-#+STARTUP: overview content
+#+startup: overview content
 
 * to investigate
 
 https://wilkesley.org/~ian/xah/emacs/emacs.html
 https://www.reddit.com/r/emacs/comments/1ai00g5/more_totally_evident_but_super_useful_emacs/
 
-https://github.com/Wilfred/helpful
-https://github.com/Alexander-Miller/treemacs
+https://github.com/wilfred/helpful
+https://github.com/alexander-miller/treemacs
 https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://editorconfig.org
 
 * startup
 
-From https://github.com/howardabrams/dot-files/blob/master/emacs.org
+from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; (setq debug-on-error t)
 ;; (emacs-init-time)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
 ;; (setq frame-inhibit-implied-resize t)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; max memory available for gc on startup
 (defvar me/gc-cons-threshold (* 128 1024 1024)) ;; 128mb
 (setq gc-cons-threshold most-positive-fixnum
@@ -38,26 +38,26 @@ From https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (setq gc-cons-threshold most-positive-fixnum))
 
 (defun me/restore-garbage-collection-h ()
-  ;; Defer it so that commands launched immediately after will enjoy the benefits.
+  ;; defer it so that commands launched immediately after will enjoy the benefits.
   (run-at-time
    1 nil (lambda () (setq gc-cons-threshold me/gc-cons-threshold))))
 
 (add-hook 'minibuffer-setup-hook #'me/defer-garbage-collection-h)
 (add-hook 'minibuffer-exit-hook #'me/restore-garbage-collection-h)
 (setq garbage-collection-messages nil)
-#+END_SRC
+#+end_src
 
-Increase the amount of data which Emacs reads from the process#
+increase the amount of data which emacs reads from the process#
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq read-process-output-max (* 3 1024 1024))
-#+END_SRC
+#+end_src
 
 * general
 
 ** mac
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (when (eq system-type 'darwin)
   (use-package emacs
     :custom
@@ -122,16 +122,18 @@ Increase the amount of data which Emacs reads from the process#
   )
 
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-#+END_SRC
 
-** saving & backups
+(setq confirm-kill-emacs 'yes-or-no-p)
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+*** saving & backups
+
+#+begin_src emacs-lisp
 (desktop-save-mode)
 (save-place-mode t)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq savehist-file  (concat user-emacs-directory "etc/savehist"))
 (setq savehist-additional-variables
       '(buffer-name-history
@@ -140,12 +142,12 @@ Increase the amount of data which Emacs reads from the process#
         file-name-history
         kill-ring))
 (savehist-mode t)
-#+END_SRC
+#+end_src
 
-- Change backup location and make some backup settings
-  - From: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
+- change backup location and make some backup settings
+  - from: http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "etc/backups")))
       backup-by-copying t       ; don't clobber symlinks
       kept-new-versions 10      ; keep 10 latest versions
@@ -156,60 +158,86 @@ Increase the amount of data which Emacs reads from the process#
 
 (setq-default delete-by-moving-to-trash t) ; trash instead of removing
 (setq create-lockfiles nil) ;; no need to create lockfiles
-#+END_SRC
+#+end_src
 
-Auto-save often
+auto-save often
 - every 20 characters typed is the minimum
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq auto-save-interval 200)
+#+end_src
+
+#+begin_src emacs-lisp
 (global-auto-revert-mode t) ; for reloading bib files, etc.
-#+END_SRC
+#+end_src
 
-** input
+*** input
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq-default indent-tabs-mode nil
 							tab-width 2)
 (setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
 (setq sentence-end-double-space nil)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (delete-selection-mode t) ;; delete selected text by typing
 (global-subword-mode t)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
       require-final-newline t)
-#+END_SRC
+#+end_src
 
-** locale
+*** locale
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (prefer-coding-system 'utf-8)
 (when (fboundp 'set-charset-priority) (set-charset-priority 'unicode))
 (setq locale-coding-system 'utf-8)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-(set-locale-environment "en_GB.UTF-8")
-(setenv "LANG" "en_GB.UTF-8")
-#+END_SRC
+#+begin_src emacs-lisp
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+#+end_src
+
+#+begin_src emacs-lisp
+(set-locale-environment "en_gb.utf-8")
+(setenv "lang" "en_gb.utf-8")
+#+end_src
+
+*** recent files
+
+https://robbmann.io/emacsd/
+
+#+begin_src emacs-lisp
+(recentf-mode t)
+(defun sparkes/find-recent-file ()
+"Find a file that was recently visted using completing-read."
+(interactive)
+(find-file (completing-read "Find recent file: " recentf-list nil t)))
+
+(global-set-key (kbd "C-c r") #'sparkes/find-recent-file)
+#+end_src
 
 * visual stuff
 
 ** display
 
-#+BEGIN_SRC emacs-lisp
-(setq uniquify-buffer-name-style 'forward) ; Unique buffer names
-#+END_SRC
+#+begin_src emacs-lisp
+(setq uniquify-buffer-name-style 'forward) ; unique buffer names
+#+end_src
 
-- By default Emacs will display its tooltips in a separate frame,  force Emacs to use the echo area:
+- by default emacs will display its tooltips in a separate frame,  force emacs to use the echo area:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (tooltip-mode -1)
-(setq use-dialog-box nil ;; have Emacs use the echo area for everything
+(setq use-dialog-box nil ;; have emacs use the echo area for everything
       tooltip-use-echo-area t)
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq visible-bell t)
@@ -219,71 +247,73 @@ Auto-save often
 (setq-default line-spacing 2)
 (setq truncate-string-ellipsis "…")
 (setq scroll-preserve-screen-position t)
-#+END_SRC
+#+end_src
 
-Padding
+padding
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; (setq-default left-margin-width 1
 ;;               right-margin-width 1)
 ;; (set-window-buffer nil (current-buffer))
 
 (add-to-list 'default-frame-alist '(internal-border-width . 4))
 (set-frame-parameter nil 'internal-border-width 4)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (line-number-mode t) ; show line-number in the mode line
 (column-number-mode t) ; show column-number in the mode line
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq mouse-wheel-follow-mouse 't
       mouse-wheel-scroll-amount '(1 ((shift) . 1)))
 
 (setq
- ;; inhibit-startup-message t         ; Don't show the startup message...
+ ;; inhibit-startup-message t         ; don't show the startup message...
  ;; inhibit-startup-screen t          ; ... or screen
- cursor-in-non-selected-windows t  ; Hide the cursor in inactive windows
- ;; initial-scratch-message nil       ; Empty scratch buffer
- help-window-select t              ; Select help window so it's easy to quit it with 'q'
+ cursor-in-non-selected-windows t  ; hide the cursor in inactive windows
+ ;; initial-scratch-message nil       ; empty scratch buffer
+ help-window-select t              ; select help window so it's easy to quit it with 'q'
  )
-;; This is rather radical, but saves from a lot of pain in the ass.
-;; When split is automatic, always split windows vertically
+;; this is rather radical, but saves from a lot of pain in the ass.
+;; when split is automatic, always split windows vertically
 (setq split-height-threshold 0
       split-width-threshold nil)
-#+END_SRC
+#+end_src
 
-- Set line wrapping
+- set line wrapping
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq-default fill-column 1024)
 (set-default 'truncate-lines nil)
-(auto-fill-mode t) ;; Wrap lines automatically
-#+END_SRC
+(auto-fill-mode t) ;; wrap lines automatically
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
-(tool-bar-mode nil) ;; disable the toolbar
+#+begin_src emacs-lisp
+(tool-bar-mode -1) ;; disable the toolbar, nil doesn't work?
 (toggle-scroll-bar nil) ;; disable the scroll bar
-#+END_SRC
+#+end_src
+
 
 ** themes
 
-#+BEGIN_SRC emacs-lisp
-(use-package doom-themes
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-spacegrey t)
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :config
+    ;; global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-rouge t) ;; rouge laserwave spacegrey ephemeral fairy-floss peacock
 
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-spacegrey")
-  (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+    ;; enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+    ;; or for treemacs users
+    ;; (setq doom-themes-treemacs-theme "doom-spacegrey")
+    ;; (doom-themes-treemacs-config)
+    ;; corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config)
+    )
 #+END_SRC
 
 ** font
@@ -294,7 +324,7 @@ Padding
 		                  :family "JuliaMono"
 		                  :height 140
 		                  ))
-(setq-default mac-allow-anti-aliasing t)
+(setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
 #+END_SRC
 
@@ -376,15 +406,28 @@ Padding
 (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
 #+END_SRC
 
+** fly(make/spell)
+
+#+begin_src emacs-lisp
+(use-package flymake
+  :bind (:map flymake-mode-map
+         ("C-c n" . flymake-goto-next-error)
+         ("C-c p" . flymake-goto-prev-error)))
+
+(add-hook 'prog-mode-hook #'flymake-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+#+end_src
+
 * external, etc.
 
 ** exec-path-from-shell
 
 #+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
+  :if (memq window-system '(mac ns x darwin))
   :demand
   :config
+  (setq exec-path-from-shell-arguments '("-l"))
   (exec-path-from-shell-initialize))
 #+END_SRC
 
@@ -613,7 +656,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package org
   :mode ("\\.org" . org-mode)
   :custom
-  (org-directory "~/Dropbox/Docs/Org")
+  (org-directory "~/Documents/Org")
   (org-default-notes-file (concat org-directory "/OrgCapture.org"))
   (org-src-fontify-natively t) ;; use syntax-highlighting for src blocks
   (org-src-strip-leading-and-trailing-blank-lines t) ;; strip blank lines when closing src block editor
@@ -808,10 +851,10 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 (use-package python
 	:defer t
 	:config
+  (setq-default fill-column 127
+                indent-tabs-mode nil
+                tab-width 2)
 	:hook
-	(python-mode . (lambda () (setq-default fill-column 127
-                                          indent-tabs-mode nil
-                                          tab-width 2)))
 	(python-mode . visual-line-mode))
 #+END_SRC
 
@@ -819,6 +862,7 @@ pip3 install autopep8
 
 #+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
+  :defer t
   :hook ((python-mode) . py-autopep8-mode))
 #+END_SRC
 
@@ -1248,6 +1292,13 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
           rustic-mode
           python-mode
           python-ts-mode) . eglot-ensure)
+  :bind (("C-c l c" . eglot-reconnect)
+         ("C-c l d" . flymake-show-buffer-diagnostics)
+         ("C-c l f f" . eglot-format)
+         ("C-c l f b" . eglot-format-buffer)
+         ("C-c l l" . eglot)
+         ("C-c l r n" . eglot-rename)
+         ("C-c l s" . eglot-shutdown))
   )
 #+END_SRC
 
@@ -1382,4 +1433,21 @@ one sexp."]))
 
 (easy-menu-add-item (lookup-key global-map [menu-bar edit]) nil
                     cc/move-text-menu "Fill")
+#+end_src
+
+* LLM
+
+https://github.com/ahyatt/llmz1z
+https://github.com/s-kostyaev/ellama
+
+#+begin_src emacs-lisp
+(use-package ellama
+  :init
+  ;; setup key bindings
+  (setopt ellama-keymap-prefix "C-c e")
+  ;; language you want ellama to translate to
+  (setopt ellama-language "English")
+  (require 'llm-llamacpp)
+  (setopt ellama-provider
+		      (make-llm-llamacpp)))
 #+end_src
