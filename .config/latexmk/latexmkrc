@@ -20,7 +20,7 @@ $pdflatex = 'pdflatex -interaction=nonstopmode -shell-escape -synctex=1 -file-li
 $pdflatex .= ' && cp %D %B.pdf';
 $pdflatex .= ' && cp %D %Z%B.synctex.gz .';
 
-$out_dir = '/Users/sparkes/Documents/TexTemp';
+$out_dir = '/private/tmp/Tex';
 
 $preview_mode = 0;
 $postscript_mode = 0;
@@ -31,7 +31,7 @@ $pdf_previewer = 'open -a skim';
 #$pdf_update_method = 4;
 #$pdf_update_command = 'open -a skim' # "sleep 0.5;" #;-a Skim";
 
-$aux_dir = '/Users/sparkes/Documents/TexTemp';
+$aux_dir = '/private/tmp/Tex';
 
 # For Skim preferences
 # /Applications/Emacs.app/Contents/MacOS/bin/emacsclient
