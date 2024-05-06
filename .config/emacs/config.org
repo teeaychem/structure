@@ -192,25 +192,39 @@ https://robbmann.io/emacsd/
 ** display
 
 #+begin_src emacs-lisp
-(setq uniquify-buffer-name-style 'forward) ; unique buffer names
+(customize-set-variable 'uniquify-buffer-name-style 'forward) ; unique buffer names
 
-(tool-bar-mode -1) ;; disable the toolbar, nil doesn't work?
-(toggle-scroll-bar nil) ;; disable the scroll bar
-
-(line-number-mode t) ; show line-number in the mode line
-(column-number-mode t) ; show column-number in the mode line
+(customize-set-variable 'line-number-mode t) ; show line-number in the mode line
+(customize-set-variable 'column-number-mode t) ; show column-number in the mode line
 
 (setq-default fill-column 1024)
 (set-default 'truncate-lines nil)
-(auto-fill-mode t) ;; wrap lines automatically
+(customize-set-variable 'auto-fill-mode t) ;; wrap lines automatically
 #+end_src
 
-- by default emacs will display its tooltips in a separate frame,  force emacs to use the echo area:
+customise to extend to new frames
 
 #+begin_src emacs-lisp
-(tooltip-mode -1)
-(setq use-dialog-box nil ;; have emacs use the echo area for everything
-      tooltip-use-echo-area t)
+(customize-set-variable 'scroll-bar-mode nil)
+(customize-set-variable 'horizontal-scroll-bar-mode nil)
+#+end_src
+
+#+begin_src emacs-lisp
+(customize-set-variable 'tool-bar-mode t)
+(customize-set-variable 'menu-bar-mode nil)
+
+(customize-set-variable 'tool-bar-border 0)
+(customize-set-variable 'tool-bar-images-pixel-height 6)
+(customize-set-variable 'tool-bar-style 'text) ;; text, image
+#+end_src
+
+#+begin_src emacs-lisp
+(customize-set-variable 'tooltip-mode nil)
+(customize-set-variable 'use-dialog-box nil)
+(customize-set-variable 'tooltip-use-echo-area t) ;; have emacs use the echo area for everything
+#+end_src
+
+#+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 (setq visible-bell t)
 (setq-default indicate-empty-lines t)
@@ -227,7 +241,6 @@ padding
 ;; (setq-default left-margin-width 1
 ;;               right-margin-width 1)
 ;; (set-window-buffer nil (current-buffer))
-
 (add-to-list 'default-frame-alist '(internal-border-width . 4))
 (set-frame-parameter nil 'internal-border-width 4)
 #+end_src
@@ -362,7 +375,7 @@ padding
          ("C-c p" . flymake-goto-prev-error)))
 
 (add-hook 'prog-mode-hook #'flymake-mode)
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 #+end_src
 
 * external, etc.
@@ -526,9 +539,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (prog-mode . highlight-indent-guides-mode))
 #+END_SRC
 
-#+RESULTS:
-| tempel-setup-capf | highlight-indent-guides-mode | rainbow-delimiters-mode | flyspell-prog-mode | flymake-mode |
-
 * git
 
 ** magit
@@ -647,14 +657,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 ** LaTeX
 
-Where to find LaTeX.
-
-#+BEGIN_SRC emacs-lisp
-(let ((TeX-path (expand-file-name "/usr/local/bin:/usr/local/texlive/2023basic/bin/universal-darwin")))
-  (setenv "PATH" (concat TeX-path ":" (getenv "PATH")))
-  (add-to-list 'exec-path TeX-path))
-#+END_SRC
-
 Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customize~, but this is only for after latex is loaded.
 
 #+BEGIN_SRC emacs-lisp
@@ -726,18 +728,15 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 								                   :help "Run LatexMk")))
 #+END_SRC
 
-
-
 ** lisp
 
-** racket
+*** racket
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
 (add-to-list 'org-src-lang-modes '("racket" . racket))
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((racket . t)))
+(org-babel-do-load-languages 'org-babel-load-languages
+                             '((racket . t)))
 #+END_SRC
 
 ** python
@@ -748,8 +747,8 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 	:config
   (setq-default fill-column 127
                 indent-tabs-mode nil
-                tab-width 2
-                python-indent-offset 2)
+                tab-width 4
+                python-indent-offset 4)
 	:hook
 	(python-mode . visual-line-mode))
 #+END_SRC
@@ -841,8 +840,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 #+BEGIN_SRC emacs-lisp
 (use-package lua-mode
   :custom
-  (lua-indent-level 2)
-  )
+  (lua-indent-level 2))
 #+END_SRC
 
 * completion
@@ -1311,20 +1309,20 @@ https://github.com/ahyatt/llmz1z
 https://github.com/s-kostyaev/ellama
 
 #+begin_src emacs-lisp
-(use-package ellama
-  :init
-  ;; setup key bindings
-  (setopt ellama-keymap-prefix "C-c e")
-  ;; language you want ellama to translate to
-  (setopt ellama-language "English")
-  (require 'llm-llamacpp)
-  (setopt ellama-provider
-		      (make-llm-llamacpp)))
+;; (use-package ellama
+;;   :init
+;;   ;; setup key bindings
+;;   (setopt ellama-keymap-prefix "C-c e")
+;;   ;; language you want ellama to translate to
+;;   (setopt ellama-language "English")
+;;   (require 'llm-llamacpp)
+;;   (setopt ellama-provider
+;; 		      (make-llm-llamacpp)))
 #+end_src
 
 #+begin_src emacs-lisp
 ;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/eilac/"))
 
-(use-package eilac
-  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/eilac/")))
+;; (use-package eilac
+;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/eilac/")))
 #+end_src
