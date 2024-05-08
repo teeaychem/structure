@@ -778,7 +778,9 @@ Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
 #   )
 # #+END_SRC
 
-install: pip install pyright
+install: homebrew
+if fails to work, might be due to some inaccessible file in a buffer
+
 
 ** rust
 
@@ -804,11 +806,23 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 ** ASP
 
-#+BEGIN_SRC emacs-lisp
-(use-package pasp-mode
-  :defer t
-  :mode ("\\.lp\\'" "\\.las\\'"))
-#+END_SRC
+#+begin_src emacs-lisp
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package)
+
+(use-package clingo-ts-mode
+  :mode "\\.lp\\'"
+  :vc (:fetcher github :repo teeaychem/clingo-ts-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/"))
+
+;; (use-package clingo-ts-mode
+;;   :mode "\\.lp'\\"
+;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/")))
+#+end_src
 
 ** C/pp
 
@@ -1325,4 +1339,15 @@ https://github.com/s-kostyaev/ellama
 
 ;; (use-package eilac
 ;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/eilac/")))
+#+end_src
+
+
+
+
+
+
+#+begin_src emacs-lisp
+;; (not (equal (region-beginning) (region-end)))
+;; `(,(region-beginning) ,(region-end))
+;; (region-active-p)
 #+end_src
