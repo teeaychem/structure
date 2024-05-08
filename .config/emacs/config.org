@@ -1192,7 +1192,12 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
          ("C-c l l" . eglot)
          ("C-c l r n" . eglot-rename)
          ("C-c l s" . eglot-shutdown))
-  )
+  :custom-face
+  (eglot-highlight-symbol-face ((t (:bold t
+                                    :italic t
+                                    :underline t)))))
+
+
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
