@@ -46,29 +46,29 @@ eisuuU = hs.eventtap.new({ hs.eventtap.event.types.keyUp },
 
 
 -- Use to figure out key
-local inspect = require('inspect')
-local events = hs.eventtap.event.types
-keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
- function (e)
-   -- local gestureType = e:getKeyCode(true)
-   local gestureType = e
-   print(inspect(e:getRawEventData()))
-   print(inspect(e:getCharacters()))
-   print(inspect(e:getKeyCode()))
+-- local inspect = require('inspect')
+-- local events = hs.eventtap.event.types
+-- keyboardTracker = hs.eventtap.new({ hs.eventtap.event.types.keyDown },
+--  function (e)
+--    -- local gestureType = e:getKeyCode(true)
+--    local gestureType = e
+--    print(inspect(e:getRawEventData()))
+--    print(inspect(e:getCharacters()))
+--    print(inspect(e:getKeyCode()))
 
-   -- print(hs.keycodes.map[gestureType])
-   -- print(hs.inspect(hs.keycodes.layouts()))
-   -- print(hs.inspect(hs.keycodes.methods()))
-   -- print(hs.keycodes.currentMethod())
-   -- print(hs.keycodes.currentLayout())
-   if gestureType == hs.eventtap.event.types.gesture then
-   end
-   if keyCode == 50 then
-     hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
-     hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
-     return true
-   end
-end)
+--    -- print(hs.keycodes.map[gestureType])
+--    -- print(hs.inspect(hs.keycodes.layouts()))
+--    -- print(hs.inspect(hs.keycodes.methods()))
+--    -- print(hs.keycodes.currentMethod())
+--    -- print(hs.keycodes.currentLayout())
+--    if gestureType == hs.eventtap.event.types.gesture then
+--    end
+--    if keyCode == 50 then
+--      hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
+--      hs.eventtap.event.newKeyEvent(hs.keycodes.map.alt,true):post()
+--      return true
+--    end
+-- end)
 -- keyboardTracker:start()
 
 -- https://github.com/mengelbrecht/hammerspoon-config/blob/main/init.lua
