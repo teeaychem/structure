@@ -96,6 +96,19 @@ function find-up() {
 }
 
 
+function venv-up() {
+  search_path=$(pwd)
+  while [[ "$search_path" != "" && ! -e "$search_path/.venv" ]]; do
+    search_path=${search_path%/*}
+  done
+  if [[  -e $search_path ]]; then
+      source "$search_path/.venv/bin/activate"
+  else
+      echo "failure: could not find $1 in any parent of $(pwd)"
+  fi
+}
+
+
 # # # completions
 
 # compinstall
