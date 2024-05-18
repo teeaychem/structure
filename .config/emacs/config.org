@@ -509,7 +509,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (global-undo-tree-mode)
   :custom
-  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "etc//undoTree")))))
+  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "undo-tree")))))
 #+END_SRC
 
 ** fix-word
@@ -743,14 +743,12 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 
 #+BEGIN_SRC emacs-lisp
 (use-package python
-	:defer t
-	:config
-  (setq-default fill-column 127
+  :defer t
+  :config
+  (setq-default fill-column 1024
                 indent-tabs-mode nil
                 tab-width 4
-                python-indent-offset 4)
-	:hook
-	(python-mode . visual-line-mode))
+                python-indent-offset 4))
 #+END_SRC
 
 pip3 install autopep8
@@ -761,26 +759,9 @@ pip3 install autopep8
   :hook ((python-mode) . py-autopep8-mode))
 #+END_SRC
 
-Lines marked 'a' are from: https://github.com/jorgenschaefer/elpy/issues/1867
-# Lines marked 'b' are from: https://github.com/jorgenschaefer/elpy/pull/1970
-
-# #+BEGIN_SRC emacs-lisp
-# (use-package elpy
-#   :defer t
-#   :init
-#   (advice-add 'python-mode :before 'elpy-enable)
-#   :config
-#   (setq elpy-rpc-python-command "python3") ; a
-#   (setq python-shell-interpreter "python3") ; a
-#   (setq python-shell-interpreter-args "-i")
-#   ;; (setq python-shell-interpreter-args "-c exec('__import__(\\'readline\\')') -i")
-#   (setq elpy-shell-darwin-use-pty t) ; b
-#   )
-# #+END_SRC
 
 install: homebrew
 if fails to work, might be due to some inaccessible file in a buffer
-
 
 ** rust
 
@@ -811,17 +792,17 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   (package-vc-install "https://github.com/slotThe/vc-use-package"))
 (require 'vc-use-package)
 
-(use-package clingo-ts-mode
-  :mode "\\.lp\\'"
-  :vc (:fetcher github :repo teeaychem/clingo-ts-mode))
+;; (use-package clingo-ts-mode
+;;   :mode "\\.lp\\'"
+;;   :vc (:fetcher github :repo teeaychem/clingo-ts-mode))
 #+end_src
 
 #+begin_src emacs-lisp
-;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/"))
+(add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/"))
 
-;; (use-package clingo-ts-mode
-;;   :mode "\\.lp'\\"
-;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/")))
+(use-package clingo-ts-mode
+  :mode "\\.lp'\\"
+  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/")))
 #+end_src
 
 ** C/pp
@@ -1202,22 +1183,23 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
-  (add-to-list 'eglot-server-programs
-               '(LaTeX-mode . ("TexLab")))
+  (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+  ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
+  (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
 #+END_Src
 
-# *** Booster
+#+begin_src emacs-lisp
+(advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
 
-# M-x package-vc-install https://github.com/jdtsmith/eglot-booster
+(defun my/eglot-capf ()
+  (setq-local completion-at-point-functions
+              (list (cape-capf-super
+                     #'eglot-completion-at-point
+                     #'tempel-expand))))
 
-# #+begin_src emacs-lisp
-# (use-package eglot-booster
-# 	:after eglot
-# 	:config	(eglot-booster-mode))
-# #+end_src
+(add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+#+end_src
 
 * treesit
 
@@ -1239,7 +1221,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 * text expansion
 
-** temple
+** tempel
 
 #+BEGIN_SRC emacs-lisp
 (use-package tempel
@@ -1258,7 +1240,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
   ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
   ;; (global-tempel-abbrev-mode)
   :custom
-  (tempel-path (concat user-emacs-directory "etc/tempel/templates.eld"))
+  (tempel-path (concat user-emacs-directory "tempel/templates.eld"))
   ;; (tempel-trigger-prefix "<") ;; Require trigger prefix before template name when completing.
   :hook
   ((conf-mode
