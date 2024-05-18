@@ -1,3 +1,6 @@
+# # # maybe someday
+# https://getantidote.github.io/usage
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -13,34 +16,37 @@ source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 # locale
 export LC_ALL=en_GB.UTF-8
 
+# # # keys
+
+bindkey '^I'   complete-word       # tab          | complete
+bindkey '^[[Z' autosuggest-accept  # shift + tab  | autosuggest
+
+# for option + { <-, => }
+bindkey "\e\e[D" backward-word
+bindkey "\e\e[C" forward-word
+
 # # # aliases # # #
 
 # homebrew
 alias bu='brew upgrade'
 
-# latex
-alias bibfix="rm -rf `biber --cache`; biber --version"
-
 # cmake
 alias cmakec='cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
 
 # git
-alias gd='git diff'
-alias gl='git log'
-alias glo='git log --pretty="oneline"'
-alias gr='git remote'
-alias grs='git remote show'
+alias gdiff='git diff'
+alias glog='git log'
+alias glogl='git log --pretty="oneline"'
+alias grem='git remote'
+alias grems='git remote show'
 alias gs='git status'
+alias groot='git rev-parse --show-toplevel'
 
 # # # aliases end # # #
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
 # # # python
 # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/python/python.plugin.zsh
-
-builtin which py > /dev/null || alias py='python3'
-
+alias py='python3'
 alias py3='python3'
 
 alias pyfind='find . -name "*.py"'
@@ -55,7 +61,6 @@ function pyclean() {
 
 # # # macos
 # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/macos
-
 alias showfiles="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
 alias hidefiles="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
 
@@ -75,11 +80,30 @@ function rmdsstore() {
   find "${@:-.}" -type f -name .DS_Store -delete
 }
 
+
+# # # misc. functions
+
+function find-up() {
+  search_path=$(pwd)
+  while [[ "$search_path" != "" && ! -e "$search_path/$1" ]]; do
+    search_path=${search_path%/*}
+  done
+  if [[  -e $search_path ]]; then
+      echo "$search_path"
+  else
+      echo "failure: could not find $1 in any parent of $(pwd)"
+  fi
+}
+
+
+# # # completions
+
 # compinstall
 # https://github.com/zsh-users/zsh-completions
 
-zstyle ':completion:*' completer _complete _ignored _approximate
+zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'l:|=* r:|=*'
+zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle :compinstall filename '/Users/sparkes/.config/zsh/.zshrc'
 
 if type brew &>/dev/null; then
@@ -87,12 +111,14 @@ if type brew &>/dev/null; then
 
     autoload -Uz compinit
     compinit
-  fi
+fi
 
 # Additionally, if you receive "zsh compinit: insecure directories" warnings when attempting to load these completions, you may need to run these commands:
 # chmod go-w '/opt/homebrew/share'
 # chmod -R go-w '/opt/homebrew/share/zsh'
 
+
+# # # autosuggestions
 
 # https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
