@@ -1,6 +1,5 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-
 # ruby
 PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 GEMSDIR=$(gem environment gemdir)/bin
@@ -11,16 +10,15 @@ export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 
 # less
 export LESSHISTFILE="$XDG_STATE_HOME"/less/history
-alias less='less --lesskey-file=$XDG_CONFIG_HOME/lesskey'
 
 # man
-alias man='man --pager="less --lesskey-file=$XDG_CONFIG_HOME/lesskey"'
+alias man='man --pager="less"'
 
 # rust
-# export CARGO_HOME=$XDG_DATA_HOME/cargo
-# export RUSTUP_HOME=$XDG_DATA_HOME/rustup
-# export RUSTBIN="$CARGO_HOME/bin"
-export PATH="$PATH:RUSTBIN"
+export CARGO_HOME=$HOME/.cargo
+export RUSTUP_HOME=$HOME/.rustup
+export RUSTBIN="$CARGO_HOME/bin"
+export PATH="$PATH:$RUSTBIN"
 
 # racket
 # export RACKET=/Applications/Racket\ v8.9/bin
@@ -31,3 +29,7 @@ export PATH=$PATH:./node_modules/.bin
 
 # hammerspoon
 # defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua"
+
+#clingo
+export CLINGO_LIBRARY_PATH=/opt/homebrew/opt/clingo/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLINGO_LIBRARY_PATH

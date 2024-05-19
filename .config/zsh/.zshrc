@@ -18,12 +18,15 @@ export LC_ALL=en_GB.UTF-8
 
 # # # keys
 
+set -o emacs
+
 bindkey '^I'   complete-word       # tab          | complete
 bindkey '^[[Z' autosuggest-accept  # shift + tab  | autosuggest
 
-# for option + { <-, => }
-bindkey "\e\e[D" backward-word
-bindkey "\e\e[C" forward-word
+bindkey "\e\e[D" emacs-backward-word  # | option + <-
+bindkey "^[[1;5D" emacs-backward-word # | ctl + <-
+bindkey "\e\e[C" emacs-forward-word   # | option + ->
+bindkey "^[[1;5C" emacs-forward-word  # | ctl + ->
 
 # # # aliases # # #
 
@@ -104,7 +107,7 @@ function venv-up() {
   if [[  -e $search_path ]]; then
       source "$search_path/.venv/bin/activate"
   else
-      echo "failure: could not find $1 in any parent of $(pwd)"
+      echo "failure: could not find a .venv folder in any parent of $(pwd)"
   fi
 }
 
