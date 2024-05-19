@@ -67,8 +67,8 @@ increase the amount of data which emacs reads from the process#
     (mac-control-modifier 'control)
     (mac-pass-command-to-system t)))
 
-(when (fboundp 'mac-auto-operator-composition-mode) ;; when on emacs-mac
-  (mac-auto-operator-composition-mode))   ;; enables font ligatures
+;; (when (fboundp 'mac-auto-operator-composition-mode) ;; when on emacs-mac
+;;   (mac-auto-operator-composition-mode))   ;; enables font ligatures
 
 #+END_SRC
 
