@@ -1,7 +1,13 @@
+
 ((python-base-mode
-  . ((eglot-workspace-configuration
+  . ((eglot-workspace-configuration ;; https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
       . (:pylsp (:plugins (:jedi (:environment "./.venv/")
                            :jedi_completion (:include_params t
-                                             :fuzzy t)
-                           :pylint (:enabled :json-false)))))
+                                             :fuzzy t
+                                             :include_params :json-false
+                                             :include_class_objects :json-false
+                                             :resolve_at_most 50)
+                           :pylint (:enabled :json-false)
+                           :mccabe
+                           (:enabled :json-false)))))
      (indent-tabs-mode . nil))))
