@@ -33,3 +33,6 @@ export PATH=$PATH:./node_modules/.bin
 #clingo
 export CLINGO_LIBRARY_PATH=/opt/homebrew/opt/clingo/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLINGO_LIBRARY_PATH
+
+# python
+export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME
