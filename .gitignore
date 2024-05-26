@@ -1,27 +1,21 @@
-*.DS_Store
+**.DS_Store
 
-.cache
-.cups
-.dropbox
+emacs/.emacs.desktop
+emacs/.org-id-locations
+emacs/config.el
+emacs/elpa/*
+emacs/etc/*
+emacs/etc/*
+emacs/org-persist/*
+emacs/places*
+emacs/recentf
+emacs/savehist
+emacs/tree-sitter/*
+emacs/undo-tree/*
+emacs/var/*
 
-*.~undo-tree~
-*/emacs/
-*/npm/
-*/zsh/
-.python_history
-.iterm2/
-.oh-my-zsh/
-.ssh/
+npm/*
 
-Applications/
-Desktop/
-Documents/
-Downloads/
-Library/
-Movies/
-Music/
-Pictures/
-Public/
-.Trash/
-bin/
-/.config/.local/
+zsh/.zcompdump
+zsh/.zsh_history
+zsh/.zsh_sessions/*

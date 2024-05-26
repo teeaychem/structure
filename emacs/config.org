@@ -464,31 +464,31 @@ shows command completions
 The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+BEGIN_SRC emacs-lisp
-(use-package puni
-  :defer t
-  :config
-  (puni-global-mode)
-  (setcdr puni-mode-map nil)
-  :bind
-  (:map puni-mode-map
-        ("DEL" . puni-backward-delete-char)
-        ("C-d" . puni-forward-delete-char)
-        ("M-d" . puni-forward-kill-word)
-        ("M-DEL" . puni-backward-kill-word)
-        ("C-k" . puni-kill-line)
-        ("C-u" . puni-backward-kill-line)
-        ("C-h" . puni-force-delete)
-        ("C-M-f" . puni-forward-sexp)
-        ("C-M-b" . puni-backward-sexp)
-        ("C-M-a" . puni-beginning-of-sexp)
-        ("C-M-e" . puni-end-of-sexp)
-        )
-  :config
-  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
-  :hook
-  (term-mode #'puni-disable-puni-mode)
-  ;;(prog-mode #'puni-flyindent-mode)
-  )
+;; (use-package puni \\n
+;;   :defer t \\n
+;;   :config \\n
+;;   (puni-global-mode) \\n
+;;   (setcdr puni-mode-map nil) \\n
+;;   :bind \\n
+;;   (:map puni-mode-map \\n
+;;         ("DEL" . puni-backward-delete-char) \\n
+;;         ("C-d" . puni-forward-delete-char) \\n
+;;         ("M-d" . puni-forward-kill-word) \\n
+;;         ("M-DEL" . puni-backward-kill-word) \\n
+;;         ("C-k" . puni-kill-line) \\n
+;;         ("C-u" . puni-backward-kill-line) \\n
+;;         ("C-h" . puni-force-delete) \\n
+;;         ("C-M-f" . puni-forward-sexp) \\n
+;;         ("C-M-b" . puni-backward-sexp) \\n
+;;         ("C-M-a" . puni-beginning-of-sexp) \\n
+;;         ("C-M-e" . puni-end-of-sexp) \\n
+;;         ) \\n
+;;   :config \\n
+;;   (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil) \\n
+;;   :hook \\n
+;;   (term-mode #'puni-disable-puni-mode) \\n
+;;   ;\;\(prog-mode #'puni-flyindent-mode) \\n
+;;   ) \\n
 #+END_SRC
 
 ** multiple cursors
@@ -794,11 +794,15 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 #+end_src
 
 #+begin_src emacs-lisp
-(add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/"))
+(add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/"))
 
-(use-package clingo-ts-mode
-  :mode "\\.lp'\\"
-  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-ts-mode/")))
+(use-package clingo-asp-mode
+  :mode ("\\.lp\\'" "\\.las\\'")
+  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
+
+(use-package clingo-asp-ts-mode
+  :mode ("\\.lp\\'" "\\.las\\'")
+  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
 #+end_src
 
 ** C/pp
@@ -1145,9 +1149,7 @@ https://github.com/Qkessler/consult-project-extra
   )
 #+END_SRC
 
-* lsp stuff
-
-** eglot
+* eglot
 
 maybe: https://github.com/casouri/eldoc-box
 https://github.com/nemethf/eglot-x#rust-analyzer-extensions
@@ -1181,7 +1183,7 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
-  (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
+  (add-to-list 'eglot-server-programs '(python-base-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
 #+END_Src
 
@@ -1214,6 +1216,20 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
 #+END_SRC
+
+#+begin_src emacs-lisp
+(setq clingo-tsauto-config
+      (make-treesit-auto-recipe
+       :lang 'clingo
+       :ts-mode 'clingo-ts-mode
+       :remap '(clingo-mode)
+       :url "https://github.com/teeaychem/tree-sitter-clingo"
+       :revision "master"
+       :source-dir "src"
+       :ext "\\.lp\\'"))
+
+(add-to-list 'treesit-auto-recipe-list clingo-tsauto-config)
+#+end_src
 
 * text expansion
 
