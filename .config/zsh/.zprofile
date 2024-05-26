@@ -12,7 +12,7 @@ export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 export LESSHISTFILE="$XDG_STATE_HOME"/less/history
 
 # man
-alias man='man --pager="less"'
+alias man='man -pager="less"'
 
 # rust
 export CARGO_HOME=$HOME/.cargo
