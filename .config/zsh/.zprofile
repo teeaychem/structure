@@ -36,3 +36,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLINGO_LIBRARY_PATH
 
 # python
 export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME
+
+# hunspell
+export DICPATH="$XDG_CONFIG_HOME/hunspell/dictionaries"
