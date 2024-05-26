@@ -668,14 +668,9 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   (LaTeX-mode . LaTeX-math-mode)
   (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . TeX-source-correlate-mode)
-  (LaTeX-mode . display-line-numbers-mode)
-	(LaTeX-mode . visual-line-mode)
   (LaTeX-mode . flyspell-mode)
-	(LaTeX-mode . TeX-fold-mode)
-	(LaTeX-mode .	(lambda () (set (make-variable-buffer-local 'TeX-electric-math)
-																(cons "\\(" "\\)"))))
-  ;; (LaTeX-mode . flyspell-buffer)
-
+  (LaTeX-mode . TeX-fold-mode)
+  (LaTeX-mode .	(lambda () (set (make-variable-buffer-local 'TeX-electric-math) (cons "\\(" "\\)"))))
   :custom
   (TeX-PDF-mode t)
   (TeX-master nil) ; All master files called "master".
@@ -684,13 +679,13 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   (TeX-parse-self t)
   (reftex-plug-into-AUCTeX t)
   (TeX-electric-sub-and-superscript t)
-	(LaTeX-electric-left-right-brace t)
+  (LaTeX-electric-left-right-brace t)
   (TeX-view-program-selection '((output-pdf "PDF Viewer")))
   (TeX-view-program-list '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -r -b -g %n %o %b")))
   (TeX-source-correlate-method-active 'synctex)
-	(font-latex-fontify-sectioning 'color)
+  (font-latex-fontify-sectioning 'color)
   (font-latex-fontify-script nil)
-	(LaTeX-math-abbrev-prefix "C-c 1")
+  (LaTeX-math-abbrev-prefix "C-c 1")
   :custom-face
   ;; (font-latex-math-face ((t (:foreground "pale violet red"))))
   (font-latex-subscript-face ((t nil)))
@@ -707,25 +702,26 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   :init
   (auctex-latexmk-setup)
   (add-to-list 'TeX-command-list '("Other" ""
-								                   TeX-run-command t t
-								                   :help "Run an arbitrary command"))
+                                   TeX-run-command t t
+								   :help "Run an arbitrary command"))
   (add-to-list 'TeX-command-list '("Clean" "TeX-clean"
-								                   TeX-run-function nil t
-								                   :help "Delete generated intermediate files"))
+                                   TeX-run-function nil t
+								   :help "Delete generated intermediate files"))
   (add-to-list 'TeX-command-list '("View" "%V"
-								                   TeX-run-discard-or-function t t
-								                   :help "Run Viewer"))
-  (add-to-list 'TeX-command-list '("Biber" "biber %(output-dir) %s" TeX-run-Biber nil (plain-TeX-mode LaTeX-mode)
-								                   :help "Run Biber"))
+                                   TeX-run-discard-or-function t t
+								   :help "Run Viewer"))
+  (add-to-list 'TeX-command-list '("Biber" "biber %(output-dir) %s"
+                                   TeX-run-Biber nil (plain-TeX-mode LaTeX-mode)
+								   :help "Run Biber"))
   (add-to-list 'TeX-command-list '("BibTeX" "bibtex %(O?aux)"
                                    TeX-run-BibTeX nil (plain-TeX-mode LaTeX-mode ConTeXt-mode)
-								                   :help "Run BibTeX"))
+								   :help "Run BibTeX"))
   (add-to-list 'TeX-command-list '("LaTeX" "%`%l%(mode)%' %T"
                                    TeX-run-TeX nil (LaTeX-mode)
-								                   :help "Run LaTeX"))
+								   :help "Run LaTeX"))
   (add-to-list 'TeX-command-list '("LatexMk" "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
-								                   TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode)
-								                   :help "Run LatexMk")))
+								   TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode)
+								   :help "Run LatexMk")))
 #+END_SRC
 
 ** lisp
@@ -1327,11 +1323,6 @@ https://github.com/s-kostyaev/ellama
 ;; (use-package eilac
 ;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/eilac/")))
 #+end_src
-
-
-
-
-
 
 #+begin_src emacs-lisp
 ;; (not (equal (region-beginning) (region-end)))
