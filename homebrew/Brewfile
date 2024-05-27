@@ -1,0 +1,22 @@
+# use with: brew bundle
+# https://github.com/Homebrew/homebrew-bundle
+
+# # # zsh
+brew "powerlevel10k"
+brew "zsh-autosuggestions"
+brew "zsh-completions"
+
+# # # emacs
+tap "railwaycat/emacsmacport"
+brew "railwaycat/emacsmacport/emacs-mac"
+
+# # emacs related
+brew "hunspell"
+# cask "font-juliamono"
+# cask "skim"
+
+# lsps
+# brew "python-lsp-server"
+
+# # # casks
+# cask "hammerspoon"
