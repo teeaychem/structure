@@ -358,10 +358,11 @@ padding
 
 ** ispell
 
+maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
+
 #+BEGIN_SRC emacs-lisp
-(setq ispell-program-name "hunspell" ; could be ispell
-      ispell-dictionary "en_GB"
-      )
+(setq ispell-program-name "hunspell"
+      ispell-dictionary "en_GB")
 (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
 ;; (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
 #+END_SRC
