@@ -510,7 +510,11 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (global-undo-tree-mode)
   :custom
-  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "undo-tree")))))
+  (undo-tree-visualizer-diff t)
+  (undo-tree-visualizer-timestamps t)
+  (undo-tree-auto-save-history t)
+  (undo-tree-enable-undo-in-region nil) ;; maybe issues, though unsure
+  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "undo_trees")))))
 #+END_SRC
 
 ** fix-word
