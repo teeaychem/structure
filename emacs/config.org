@@ -503,19 +503,61 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+END_SRC
 
-** undo tree
+** undo and redo
 
-#+BEGIN_SRC emacs-lisp
-(use-package undo-tree
-  :init
-  (global-undo-tree-mode)
-  :custom
-  (undo-tree-visualizer-diff t)
-  (undo-tree-visualizer-timestamps t)
-  (undo-tree-auto-save-history t)
-  (undo-tree-enable-undo-in-region nil) ;; maybe issues, though unsure
-  (undo-tree-history-directory-alist `(("." . ,(concat user-emacs-directory "undo_trees")))))
-#+END_SRC
+*** undo-fu
+
+#+begin_src emacs-lisp
+(use-package undo-fu
+  :config
+  (global-set-key (kbd "C-/") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-?") 'undo-fu-only-redo))
+#+end_src
+
+*** undo-fu-session
+
+#+begin_src emacs-lisp
+(use-package undo-fu-session
+  :config
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  (undo-fu-session-global-mode))
+#+end_src
+
+*** vundo
+
+#+begin_src emacs-lisp
+(use-package vundo
+  ;; :commands (vundo)
+  :vc (:fetcher github :repo casouri/vundo)
+
+  :config
+  ;; Take less on-screen space.
+  (setq vundo-compact-display nil)
+
+  (global-set-key (kbd "C-x u") 'vundo)
+
+  ;; Better contrasting highlight.
+  (custom-set-faces
+    '(vundo-node ((t (:foreground "#808080"))))
+    '(vundo-stem ((t (:foreground "#808080"))))
+    '(vundo-highlight ((t (:foreground "#FFFF00")))))
+
+  ;; Use `HJKL` VIM-like motion, also Home/End to jump around.
+  ;; (define-key vundo-mode-map (kbd "l") #'vundo-forward)
+  ;; (define-key vundo-mode-map (kbd "<right>") #'vundo-forward)
+  ;; (define-key vundo-mode-map (kbd "h") #'vundo-backward)
+  ;; (define-key vundo-mode-map (kbd "<left>") #'vundo-backward)
+  ;; (define-key vundo-mode-map (kbd "j") #'vundo-next)
+  ;; (define-key vundo-mode-map (kbd "<down>") #'vundo-next)
+  ;; (define-key vundo-mode-map (kbd "k") #'vundo-previous)
+  ;; (define-key vundo-mode-map (kbd "<up>") #'vundo-previous)
+  ;; (define-key vundo-mode-map (kbd "<home>") #'vundo-stem-root)
+  ;; (define-key vundo-mode-map (kbd "<end>") #'vundo-stem-end)
+  ;; (define-key vundo-mode-map (kbd "q") #'vundo-quit)
+  ;; (define-key vundo-mode-map (kbd "C-g") #'vundo-quit)
+  ;; (define-key vundo-mode-map (kbd "RET") #'vundo-confirm))
+)
+#+end_src
 
 ** fix-word
 
@@ -1107,7 +1149,7 @@ https://github.com/Qkessler/consult-project-extra
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can be used globally (M-/).  See also the customization variable `global-corfu-modes' to exclude certain modes.
   :bind
   (:map corfu-map
-	      ("RET" . nil) ;; Free the RET key for less intrusive behavior.
+	    ("RET" . nil) ;; Free the RET key for less intrusive behavior.
 	      ))
 #+END_SRC
 
@@ -1156,6 +1198,8 @@ https://github.com/Qkessler/consult-project-extra
 
 * eglot
 
+** base
+
 maybe: https://github.com/casouri/eldoc-box
 https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
@@ -1167,6 +1211,8 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
           c++-mode
           c++-ts-mode
           rustic-mode
+          rust-mode
+          rust-ts-mode
           python-mode
           python-ts-mode) . eglot-ensure)
   :bind (("C-c l c" . eglot-reconnect)
@@ -1180,17 +1226,19 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
   (eglot-highlight-symbol-face ((t (:bold t
                                     :italic t
                                     :underline t)))))
-
-
 #+END_SRC
+
 
 #+BEGIN_SRC emacs-lisp
 (with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) . ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+  (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
+                                        ("rust-analyzer"
+                                         ;; :initializationOptions (:check (:command "clippy"))
+                                         )))
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   (add-to-list 'eglot-server-programs '(python-base-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
-#+END_Src
+#+END_SRC
 
 #+begin_src emacs-lisp
 (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
@@ -1202,6 +1250,18 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
                      #'tempel-expand))))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+#+end_src
+
+** experimental
+
+for rust dev
+
+#+begin_src emacs-lisp
+(use-package eglot-x
+  :vc (:fetcher github :repo nemethf/eglot-x)
+  :after eglot
+  :config
+  (eglot-x-setup))
 #+end_src
 
 * treesit
