@@ -70,11 +70,11 @@ increase the amount of data which emacs reads from the process#
 ;; (when (fboundp 'mac-auto-operator-composition-mode) ;; when on emacs-mac
 ;;   (mac-auto-operator-composition-mode))   ;; enables font ligatures
 
-#+END_SRC
+#+end_src
 
 ** emacs
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package emacs
   :init
   ;; Add prompt indicator to `completing-read-multiple'. Display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
@@ -106,6 +106,8 @@ increase the amount of data which emacs reads from the process#
 
   (setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
         require-final-newline t)
+
+  (setq native-comp-async-report-warnings-errors nil)
 
   :custom
   (user-full-name "bsparkes")
@@ -146,9 +148,14 @@ From http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
       delete-old-versions t     ; don't ask about deleting old S versions
       version-control t         ; number backups
       vc-make-backup-files nil) ; backup version controlled files
-
-(setq-default delete-by-moving-to-trash t) ; trash instead of removing
 (setq create-lockfiles nil) ;; no need to create lockfiles
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :init
+  (setq-default trash-directory "~/.Trash/emacs")
+  (setq-default delete-by-moving-to-trash t))
 #+end_src
 
 *** locale
@@ -275,11 +282,11 @@ padding
     ;; corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
     )
-#+END_SRC
+#+end_src
 
 ** font
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (when (eq system-type 'darwin)
   (set-face-attribute 'default nil
 		                  :family "JuliaMono"
@@ -287,26 +294,26 @@ padding
 		                  ))
 (setq-default mac-allow-anti-aliasing nil)
 (setq inhibit-compacting-font-caches t)
-#+END_SRC
+#+end_src
 
 ** syntax highlighting
 
 - Enable syntax highlighting everywhere
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (require 'font-lock)
 (setq font-lock-maximum-decoration t)
 (global-font-lock-mode t)
 (global-hi-lock-mode nil)
 (setq jit-lock-contextually t
       jit-lock-stealth-verbose t)
-#+END_SRC
+#+end_src
 
 * internal
 
 ** skeletons
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq skeleton-pair t) ; enable pairing
 
 (defun quoted-parentheses (arg)
@@ -324,17 +331,17 @@ padding
 
 (global-set-key "(" 'quoted-parentheses)
 (global-set-key "[" 'quoted-brackets)
-#+END_SRC
+#+end_src
 
 ** electric pairs
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package elec-pair
   :config
 	(electric-pair-mode))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (defvar org-electric-pairs '((?/ . ?/)
 														 (?~ . ?~)) "electric pairs for org-mode")
 
@@ -343,9 +350,9 @@ padding
               electric-pair-text-pairs electric-pair-pairs))
 
 (add-hook 'org-mode-hook 'org-add-electric-pairs)
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
 
 (defun LaTeX-add-electric-pairs ()
@@ -354,29 +361,33 @@ padding
   )
 
 (add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
-#+END_SRC
+#+end_src
 
 ** ispell
 
 maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
-#+BEGIN_SRC emacs-lisp
-(setq ispell-program-name "hunspell"
-      ispell-dictionary "en_GB")
-(customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
-;; (customize-set-variable 'ispell-extra-args '("--sug-mode=ultra"))
-#+END_SRC
+#+begin_src emacs-lisp
+(use-package ispell
+  :if (executable-find "hunspell")
+  :init
+  (setq ispell-program-name "hunspell"
+        ispell-dictionary "en_GB")
+  (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
+  ;; :hook
+  ;; (prog-mode . flyspell-mode)
+  )
+#+end_src
 
-** fly(make/spell)
+** flymake
 
 #+begin_src emacs-lisp
 (use-package flymake
   :bind (:map flymake-mode-map
          ("C-c n" . flymake-goto-next-error)
-         ("C-c p" . flymake-goto-prev-error)))
-
-(add-hook 'prog-mode-hook #'flymake-mode)
-;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+         ("C-c p" . flymake-goto-prev-error))
+  :hook
+  (prog-mode . flymake-mode))
 #+end_src
 
 * external, etc.
@@ -394,13 +405,13 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 To see:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; (getenv "PATH")
-#+END_SRC
+#+end_src
 
 ** no-littering
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package no-littering
   :init
   (require 'recentf)
@@ -415,13 +426,13 @@ To see:
         kept-new-versions 6
         kept-old-versions 2
         version-control t))
-#+END_SRC
+#+end_src
 
 ** which-key
 
 shows command completions
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package which-key
   :demand t
   :custom
@@ -434,11 +445,11 @@ shows command completions
   (which-key-setup-minibuffer)
   (set-face-attribute
    'which-key-local-map-description-face nil :weight 'bold))
-#+END_SRC
+#+end_src
 
 ** rainbow delimiters
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package rainbow-delimiters
   :defer t
   :hook
@@ -452,19 +463,19 @@ shows command completions
   (rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
   (rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
   (rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))
-#+END_SRC
+#+end_src
 
 ** browse kill ring
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package browse-kill-ring)
-#+END_SRC
+#+end_src
 
 ** puni
 
 The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; (use-package puni \\n
 ;;   :defer t \\n
 ;;   :config \\n
@@ -490,18 +501,18 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 ;;   (term-mode #'puni-disable-puni-mode) \\n
 ;;   ;\;\(prog-mode #'puni-flyindent-mode) \\n
 ;;   ) \\n
-#+END_SRC
+#+end_src
 
 ** multiple cursors
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package multiple-cursors
   :bind (("C->" . mc/mark-next-like-this)
 	       ("C-<" . mc/mark-previous-like-this)
 	       ("C-c C->" . mc/mark-all-like-this)
 	       ("C-c C-SPC" . mc/edit-lines)
 	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
-#+END_SRC
+#+end_src
 
 ** undo and redo
 
@@ -561,12 +572,12 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 ** fix-word
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package fix-word
   :bind (("M-u" . #'fix-word-upcase)
 	       ("M-l" . #'fix-word-downcase)
 	       ("M-c" . #'fix-word-capitalize)))
-#+END_SRC
+#+end_src
 
 ** highlight indentation
 
@@ -574,7 +585,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   - Options are fill, column, and character
   - There's no way to get indentation on empty lines as of now
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package highlight-indent-guides
   :init
   (setq highlight-indent-guides-method 'character)
@@ -584,13 +595,13 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (highlight-indent-guides-auto-character-face-perc 80)
   :hook
   (prog-mode . highlight-indent-guides-mode))
-#+END_SRC
+#+end_src
 
 * git
 
 ** magit
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package magit
   :bind
   (("C-c g s" . magit-status)
@@ -602,11 +613,11 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
    ("C-c g r" . magit-refresh))
   :custom
   (magit-log-arguments '("--graph" "--decorate" "--color")))
-#+END_SRC
+#+end_src
 
 ** diff-hl
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package diff-hl
   :config
   (setq diff-hl-draw-borders t)
@@ -623,11 +634,11 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :hook
   ((magit-pre-refresh . diff-hl-magit-pre-refresh)
    (magit-post-refresh . diff-hl-magit-post-refresh)))
-#+END_SRC
+#+end_src
 
 * org mode
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package org
   :mode ("\\.org" . org-mode)
   :custom
@@ -677,12 +688,12 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   ;; :hook
   ;; (org-mode . toc-org-mode)
   )
-#+END_SRC
+#+end_src
 
 ** other org stuff
 
 - LaTeX in org
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq org-format-latex-options
       '(:foreground default
                     :background default
@@ -691,14 +702,14 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
                     :html-background "Transparent"
                     :html-scale 1.0
                     :matchers ("begin" "$1" "$$" "\\(" "\\[")))
-#+END_SRC
+#+end_src
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (setq org-agenda-files (file-expand-wildcards "~/Documents/Org/*.org")) ;; Include all org files from a directory into the agenda
                                                                         ;; Multiple directories can be added, like: (setq org-agenda-files (quote ("~/agenda/work" "~/agenda/todo")))
 (setq org-log-done 'time ;; Auto add time and closing note to done
       org-log-done 'note)
-#+END_SRC
+#+end_src
 
 * languages
 
@@ -706,7 +717,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customize~, but this is only for after latex is loaded.
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package tex
   :mode ("\\.tex\\'" . LaTeX-mode)
   :defer t
@@ -737,14 +748,14 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   ;; (font-latex-math-face ((t (:foreground "pale violet red"))))
   (font-latex-subscript-face ((t nil)))
   (font-latex-superscript-face ((t nil))))
-#+END_SRC
+#+end_src
 
 - use Skim as default pdf viewer
   - Skim's displayline is used for forward search (from .tex to .pdf)
   - option -r relaods the file; option -b highlights the current line; option -g opens Skim in the background
   - For this to work, it seems one needs no spaces in the file name
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package auctex-latexmk
   :init
   (auctex-latexmk-setup)
@@ -769,22 +780,22 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   (add-to-list 'TeX-command-list '("LatexMk" "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
 								   TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode)
 								   :help "Run LatexMk")))
-#+END_SRC
+#+end_src
 
 ** lisp
 
 *** racket
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
 (add-to-list 'org-src-lang-modes '("racket" . racket))
 (org-babel-do-load-languages 'org-babel-load-languages
                              '((racket . t)))
-#+END_SRC
+#+end_src
 
 ** python
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package python
   :defer t
   :config
@@ -792,15 +803,15 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
                 indent-tabs-mode nil
                 tab-width 4
                 python-indent-offset 4))
-#+END_SRC
+#+end_src
 
 pip3 install autopep8
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package py-autopep8
   :defer t
   :hook ((python-mode) . py-autopep8-mode))
-#+END_SRC
+#+end_src
 
 
 install: homebrew
@@ -854,7 +865,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 ** C/pp
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package clang-format
   :defer t
   :bind
@@ -862,11 +873,11 @@ https://robert.kra.hn/posts/rust-emacs-setup/
    ("C-c u" . clang-format-buffer))
   :init
   (setq clang-format-style-option "llvm"))
-#+END_SRC
+#+end_src
 
 ** markdown
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package markdown-mode
   :mode (("/README\\(?:\\.md\\)?\\'" . gfm-mode)
          ("\\.m[k]d\\'" . gfm-mode))
@@ -875,34 +886,34 @@ https://robert.kra.hn/posts/rust-emacs-setup/
         markdown-header-scaling t)
   (setq-default
    markdown-enable-math t))
-#+END_SRC
+#+end_src
 
 ** lua
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package lua-mode
   :custom
   (lua-indent-level 2))
-#+END_SRC
+#+end_src
 
 * completion
 
 ** orderless
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package orderless
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
   ;; (completion-category-overrides '((file (styles partial-completion))))
   )
-#+END_SRC
+#+end_src
 
 ** vertico
 
 vertico for minibuffer completions
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package vertico
   :init
   (vertico-mode)
@@ -910,13 +921,13 @@ vertico for minibuffer completions
   (setq vertico-count 40) ;; Show more candidates
   (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-#+END_SRC
+#+end_src
 
 ** marginalia
 
 adds marginalia to the minibuffer completions
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package marginalia
   :init
   (marginalia-mode)
@@ -925,13 +936,13 @@ adds marginalia to the minibuffer completions
   :custom
   (marginalia-max-relative-age 0)
   (marginalia-align 'right))
-#+END_SRC
+#+end_src
 
 ** consult
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 ;; (use-package consult-flycheck)
-#+END_SRC
+#+end_src
 
 *** binds
 
@@ -995,7 +1006,7 @@ adds marginalia to the minibuffer completions
 
 *** main
 
-#+BEGIN_SRC emacs-lisp :results silent :noweb yes
+#+begin_src emacs-lisp :results silent :noweb yes
 ;; Example configuration for Consult
 (use-package consult
   <<consult-binds>>
@@ -1032,7 +1043,7 @@ adds marginalia to the minibuffer completions
   ;; Optionally configure the narrowing key. Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; "C-+"
   )
-#+END_SRC
+#+end_src
 
 *** macro
 
@@ -1119,16 +1130,16 @@ These buffers can be seen by using space
 
 https://github.com/Qkessler/consult-project-extra
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package consult-project-extra
   :bind
   (("C-c p f" . consult-project-extra-find)
    ("C-c p o" . consult-project-extra-find-other-window)))
-#+END_SRC
+#+end_src
 
 ** corfu
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package corfu
   :init
   (global-corfu-mode)
@@ -1150,12 +1161,16 @@ https://github.com/Qkessler/consult-project-extra
   :bind
   (:map corfu-map
 	    ("RET" . nil) ;; Free the RET key for less intrusive behavior.
-	      ))
-#+END_SRC
+        ("C-<return>" . corfu-insert) ;;
+        ("M-_" . corfu-info-documentation) ;;
+        ;; ("C-SPC" . corfu-insert-separator) ;;
+	    )
+  )
+#+end_src
 
 ** cape
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package cape
   ;; Bind dedicated completion commands
   ;; Alternative prefix keys: C-c p, M-p, M-+, ...
@@ -1194,7 +1209,7 @@ https://github.com/Qkessler/consult-project-extra
   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
   )
-#+END_SRC
+#+end_src
 
 * eglot
 
@@ -1203,9 +1218,13 @@ https://github.com/Qkessler/consult-project-extra
 maybe: https://github.com/casouri/eldoc-box
 https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package eglot
   :defer t
+  :init
+  (setq eglot-autoshutdown t)
+  (setq eldoc-echo-area-prefer-doc-buffer nil
+        eldoc-echo-area-use-multiline-p t)
   :hook ((c-mode
           c-ts-mode
           c++-mode
@@ -1226,10 +1245,9 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
   (eglot-highlight-symbol-face ((t (:bold t
                                     :italic t
                                     :underline t)))))
-#+END_SRC
+#+end_src
 
-
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rust-analyzer"
@@ -1238,7 +1256,7 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   (add-to-list 'eglot-server-programs '(python-base-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
-#+END_SRC
+#+end_src
 
 #+begin_src emacs-lisp
 (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
@@ -1246,8 +1264,9 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 (defun my/eglot-capf ()
   (setq-local completion-at-point-functions
               (list (cape-capf-super
+                     #'tempel-expand
                      #'eglot-completion-at-point
-                     #'tempel-expand))))
+                     ))))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 #+end_src
@@ -1269,18 +1288,18 @@ for rust dev
 https://github.com/renzmann/treesit-auto
 https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
 (use-package treesit-auto
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (treesit-auto-add-to-auto-mode-alist 'all)
+  ;; (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-#+END_SRC
+#+end_src
 
 #+begin_src emacs-lisp
 (setq clingo-tsauto-config
@@ -1300,7 +1319,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 ** tempel
 
-#+BEGIN_SRC emacs-lisp
+#+begin_srcSPC emacs-lisp
 (use-package tempel
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
          ("M-*" . tempel-insert))
@@ -1324,7 +1343,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
     prog-mode
     text-mode) . tempel-setup-capf)
 )
-#+END_SRC
+#+end_src
 
 * menu
 

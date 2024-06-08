@@ -6,7 +6,6 @@
 (setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
 (setq use-package-always-ensure t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 
 ;; save custom things to separate file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
