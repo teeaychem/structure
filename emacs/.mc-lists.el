@@ -26,14 +26,8 @@
         TeX-next-error
         TeX-view
         backward-page
-        beginning-of-visual-line
         cdlatex-pbb
-        comment-line
-        fill-paragraph
-        forward-sentence
-        helm-M-x
         keyboard-escape-quit
-        kill-region
         mac-mwheel-scroll
         mouse-minor-mode-menu
         mouse-save-then-kill
