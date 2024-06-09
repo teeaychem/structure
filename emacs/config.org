@@ -125,6 +125,13 @@ increase the amount of data which emacs reads from the process#
   )
 #+end_src
 
+*** etc
+
+#+begin_src emacs-lisp
+(push ".DS_store" completion-ignored-extensions)
+
+#+end_src
+
 *** saving & backups
 
 #+begin_src emacs-lisp
@@ -310,6 +317,8 @@ padding
 #+end_src
 
 * internal
+
+** modifications
 
 ** skeletons
 
@@ -825,18 +834,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 (use-package rust-mode
   :mode "\\.rs\\'"
   :init
-  (setq rust-format-on-save t)
-  :bind
-  (:map rust-mode-map
-        ("C-c r" . rust-run)
-        ("C-c c" . rust-compile)
-        ("C-c t" . rust-test)))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package rustic
-	:custom
-  (rustic-analyzer-command '("rustup" "run" "stable" "rust-analyzer")))
+  (setq rust-format-on-save t))
 #+end_src
 
 ** ASP
@@ -854,9 +852,9 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 #+begin_src emacs-lisp
 (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/"))
 
-(use-package clingo-asp-mode
-  :mode ("\\.lp\\'" "\\.las\\'")
-  :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
+;; (use-package clingo-asp-mode
+;;   :mode ("\\.lp\\'" "\\.las\\'")
+;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
 
 (use-package clingo-asp-ts-mode
   :mode ("\\.lp\\'" "\\.las\\'")
@@ -940,10 +938,6 @@ adds marginalia to the minibuffer completions
 
 ** consult
 
-#+begin_src emacs-lisp
-;; (use-package consult-flycheck)
-#+end_src
-
 *** binds
 
 #+name: consult-binds
@@ -983,9 +977,10 @@ adds marginalia to the minibuffer completions
  ;; M-s bindings in `search-map'
  ("M-s d" . consult-find)                  ;; Alternative: consult-fd
  ("M-s c" . consult-locate)
- ("M-s g" . consult-grep)
- ("M-s G" . consult-git-grep)
+ ("M-s G" . consult-grep)
+ ("M-s g" . consult-git-grep)
  ("M-s r" . consult-ripgrep)
+ ("C-S-s" . consult-line)
  ("M-s s" . consult-line)
  ("M-s L" . consult-line-multi)
  ("M-s k" . consult-keep-lines)
@@ -1276,11 +1271,11 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 for rust dev
 
 #+begin_src emacs-lisp
-(use-package eglot-x
-  :vc (:fetcher github :repo nemethf/eglot-x)
-  :after eglot
-  :config
-  (eglot-x-setup))
+;; (use-package eglot-x
+;;   :vc (:fetcher github :repo nemethf/eglot-x)
+;;   :after eglot
+;;   :config
+;;   (eglot-x-setup))
 #+end_src
 
 * treesit
@@ -1319,7 +1314,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
 ** tempel
 
-#+begin_srcSPC emacs-lisp
+#+begin_src emacs-lisp
 (use-package tempel
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
          ("M-*" . tempel-insert))
