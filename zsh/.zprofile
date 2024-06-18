@@ -35,7 +35,7 @@ export CLINGO_LIBRARY_PATH=/opt/homebrew/opt/clingo/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLINGO_LIBRARY_PATH
 
 # python
-export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME
+export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python_cache
 
 # hunspell
 export DICPATH="$XDG_CONFIG_HOME/hunspell/dictionaries"

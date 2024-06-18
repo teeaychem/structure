@@ -6,9 +6,11 @@
  '(custom-safe-themes
    '("64045b3416d83e5eac0718e236b445b2b3af02ff5bcd228e9178088352344a92" "c7a926ad0e1ca4272c90fce2e1ffa7760494083356f6bb6d72481b879afce1f2" default))
  '(package-selected-packages
-   '(undo-fu-session undo-fu vundo eglot-x vc-use-package eglot-booster tempel which-key vertico treesit-auto rainbow-delimiters py-autopep8 pasp-mode orderless no-littering multiple-cursors marginalia magit lua-mode highlight-indent-guides fix-word exec-path-from-shell doom-themes diff-hl corfu consult-project-extra clang-format cape browse-kill-ring auctex-latexmk))
+   '(eglot-booster clingo-ts-mode faceup use-package-ensure-system-package bind-key eglot eldoc erc flymake idlwave jsonrpc org project soap-client tramp use-package verilog-mode xref undo-fu-session undo-fu vundo vc-use-package tempel which-key vertico treesit-auto rainbow-delimiters py-autopep8 pasp-mode orderless no-littering multiple-cursors marginalia magit lua-mode highlight-indent-guides fix-word exec-path-from-shell doom-themes diff-hl corfu consult-project-extra clang-format cape browse-kill-ring auctex-latexmk))
  '(package-vc-selected-packages
-   '((vundo :vc-backend Git :url "https://github.com/casouri/vundo")
+   '((eglot-booster :vc-backend Git :url "https://github.com/jdtsmith/eglot-booster")
+     (clingo-ts-mode :vc-backend Git :url "https://github.com/teeaychem/clingo-ts-mode")
+     (vundo :vc-backend Git :url "https://github.com/casouri/vundo")
      (eglot-x :vc-backend Git :url "https://github.com/nemethf/eglot-x")
      (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package")))
  '(tool-bar-mode nil))

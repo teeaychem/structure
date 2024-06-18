@@ -7,6 +7,8 @@
 (setq use-package-always-ensure t)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
+(setq vc-follow-symlinks t) ;; always open the file a symlink points to
+
 ;; save custom things to separate file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
