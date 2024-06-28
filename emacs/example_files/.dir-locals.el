@@ -10,4 +10,5 @@
                            :pylint (:enabled :json-false)
                            :mccabe
                            (:enabled :json-false)))))
+     (pyvenv-workon . "./.venv/")
      (indent-tabs-mode . nil))))

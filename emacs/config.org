@@ -814,23 +814,20 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 (use-package python
   :defer t
   :config
-  (setq-default fill-column 1024
-                indent-tabs-mode nil
-                tab-width 4
-                python-indent-offset 4))
+  (setq-default indent-tabs-mode nil
+                python-indent-offset 4
+                python-indent-guess-indent-offset-verbose nil)
+)
 #+end_src
-
-pip3 install autopep8
-
-#+begin_src emacs-lisp
-(use-package py-autopep8
-  :defer t
-  :hook ((python-mode) . py-autopep8-mode))
-#+end_src
-
 
 install: homebrew
 if fails to work, might be due to some inaccessible file in a buffer
+
+** pyvenv
+
+#+begin_src emacs-lisp
+(use-package pyvenv)
+#+end_src
 
 ** rust
 
@@ -846,21 +843,17 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 ** ASP
 
 #+begin_src emacs-lisp
-(use-package clingo-ts-mode
+(use-package clingo-asp-mode
   :mode "\\.lp\\'"
-  :vc (:fetcher github :repo teeaychem/clingo-ts-mode))
+  :vc (:fetcher github :repo teeaychem/clingo-asp-mode))
 #+end_src
 
 #+begin_src emacs-lisp
 ;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/"))
 
 ;; ;; (use-package clingo-asp-mode
-;; ;;   :mode ("\\.lp\\'" "\\.las\\'")
+;; ;;   :mode ("\\.lp\\'")
 ;; ;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
-
-;; (use-package clingo-asp-ts-mode
-;;   :mode ("\\.lp\\'" "\\.las\\'")
-;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
 #+end_src
 
 ** C/pp

@@ -120,7 +120,7 @@ function venv-up() {
 zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'l:|=* r:|=*'
 zstyle ':completion:*:functions' ignored-patterns '_*'
-zstyle :compinstall filename '/Users/sparkes/.config/zsh/.zshrc'
+zstyle :compinstall filename '~/.config/zsh/.zshrc'
 
 if type brew &>/dev/null; then
     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH

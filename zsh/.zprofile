@@ -39,3 +39,6 @@ export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python_cache
 
 # hunspell
 export DICPATH="$XDG_CONFIG_HOME/hunspell/dictionaries"
+
+#m4
+export PATH="/opt/homebrew/opt/m4/bin:$PATH"
