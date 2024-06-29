@@ -1231,7 +1231,6 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
           c-ts-mode
           c++-mode
           c++-ts-mode
-          rustic-mode
           rust-mode
           rust-ts-mode
           python-mode
@@ -1256,8 +1255,9 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rust-analyzer"
-                                         ;; :initializationOptions (:check (:command "clippy"))
-                                         )))
+                                         :initializationOptions (:check (:command "clippy")
+                                                                 :diagnostics (:disabled ["unlinked-file"
+                                                                                          "dead_code"])))))
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   (add-to-list 'eglot-server-programs '(python-base-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
