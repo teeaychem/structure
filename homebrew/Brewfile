@@ -7,8 +7,10 @@ brew "zsh-autosuggestions"
 brew "zsh-completions"
 
 # # # emacs
-tap "railwaycat/emacsmacport"
-brew "railwaycat/emacsmacport/emacs-mac"
+# tap "railwaycat/emacsmacport"
+# brew "railwaycat/emacsmacport/emacs-mac"
+brew tap d12frosted/emacs-plus
+brew install emacs-plus --with-dbus --with-xwidgets --with-imagemagick  --with-native-comp
 
 # # emacs related
 brew "hunspell"
