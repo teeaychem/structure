@@ -841,10 +841,16 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 install: homebrew
 if fails to work, might be due to some inaccessible file in a buffer
 
-** pyvenv
-
 #+begin_src emacs-lisp
-(use-package pyvenv)
+(use-package pet
+  :config
+  (add-hook 'python-base-mode-hook 'pet-mode -10)
+  (add-hook 'python-base-mode-hook
+            (lambda ()
+              (setq-local python-shell-interpreter (pet-executable-find "python3")
+                          python-shell-virtualenv-root (pet-virtualenv-root))
+              (pet-eglot-setup)
+              (eglot-ensure))))
 #+end_src
 
 ** rust
