@@ -849,8 +849,7 @@ if fails to work, might be due to some inaccessible file in a buffer
             (lambda ()
               (setq-local python-shell-interpreter (pet-executable-find "python3")
                           python-shell-virtualenv-root (pet-virtualenv-root))
-              (pet-eglot-setup)
-              (eglot-ensure))))
+              (pet-eglot-setup))))
 #+end_src
 
 ** rust
@@ -1135,7 +1134,6 @@ From: https://github.com/minad/consult/wiki#hide-all-sources-except-normal-buffe
 
 **** regex to ignore matching buffers
 
-
 *** consult-project-extra
 
 https://github.com/Qkessler/consult-project-extra
@@ -1281,7 +1279,6 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
                                                                  :diagnostics (:disabled ["unlinked-file"
                                                                                           "dead_code"])))))
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
-  (add-to-list 'eglot-server-programs '(python-base-mode . ("pylsp"))) ;; https://github.com/python-lsp/python-lsp-server
   )
 #+end_src
 

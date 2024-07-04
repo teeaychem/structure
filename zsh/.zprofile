@@ -42,3 +42,7 @@ export DICPATH="$XDG_CONFIG_HOME/hunspell/dictionaries"
 
 #m4
 export PATH="/opt/homebrew/opt/m4/bin:$PATH"
+
+if [ -f ~/.config/zsh/.profile_local ]; then
+    source ~/.config/zsh/.profile_local
+fi
