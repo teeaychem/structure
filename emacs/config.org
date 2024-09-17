@@ -126,7 +126,7 @@ increase the amount of data which emacs reads from the process#
 
   (setq native-comp-async-report-warnings-errors nil)
 
-  (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
+  ;; (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
 
   :custom
   (user-full-name "bsparkes")
@@ -394,20 +394,24 @@ padding
 (add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
 #+end_src
 
-** ispell
+** COMMENT ispell
 
 maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
-(use-package ispell
-  :if (executable-find "hunspell")
-  :init
-  (setq ispell-program-name "hunspell"
-        ispell-dictionary "en_GB")
-  (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
-  ;; :hook
-  ;; (prog-mode . flyspell-mode)
-  )
+  (use-package ispell
+    :if (executable-find "hunspell")
+    :init
+    (setq ispell-program-name "hunspell"
+          ispell-dictionary "en_GB")
+    (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
+    (add-to-list
+ 'ispell-local-dictionary-alist
+ '(("gb" "[[:alpha:]]" "[^[:alpha]]" "[0-9']" t
+    ("-d" "en_GB") nil utf-8)))
+    ;; :hook
+    ;; (prog-mode . flyspell-mode)
+    )
 #+end_src
 
 ** flymake
@@ -417,8 +421,9 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :bind (:map flymake-mode-map
          ("C-c n" . flymake-goto-next-error)
          ("C-c p" . flymake-goto-prev-error))
-  :hook
-  (prog-mode . flymake-mode))
+  ;; :hook
+  ;; (prog-mode . flymake-mode)
+  )
 #+end_src
 
 * external, etc.
@@ -669,7 +674,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
    (magit-post-refresh . diff-hl-magit-post-refresh)))
 #+end_src
 
-* org mode
+* org
 
 #+begin_src emacs-lisp
 (use-package org
@@ -722,8 +727,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   ;; (org-mode . toc-org-mode)
   )
 #+end_src
-
-** other org stuff
 
 - LaTeX in org
 #+begin_src emacs-lisp
@@ -820,10 +823,37 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 *** racket
 
 #+begin_src emacs-lisp
-(add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
-(add-to-list 'org-src-lang-modes '("racket" . racket))
-(org-babel-do-load-languages 'org-babel-load-languages
-                             '((racket . t)))
+;; (add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
+;; (add-to-list 'org-src-lang-modes '("racket" . racket))
+;; (org-babel-do-load-languages 'org-babel-load-languages
+;;                              '((racket . t)))
+
+;; (use-package ob-racket
+;;   :vc (:fetcher github :repo hasu/emacs-ob-racket)
+;;   :after org
+;;   :config
+;;   (add-hook 'ob-racket-pre-runtime-library-load-hook
+;; 	      #'ob-racket-raco-make-runtime-library)
+;;   )
+#+end_src
+
+** OCaml
+
+#+begin_src emacs-lisp
+(use-package tuareg
+  :ensure t
+  :mode (("\\.ocamlinit\\'" . tuareg-mode)))
+
+(use-package dune
+  :ensure t)
+
+(use-package utop
+  :ensure t
+  :config
+  (add-hook 'tuareg-mode-hook #'utop-minor-mode)
+  (setq utop-command "opam exec -- utop -emacs")
+  ;; (setq utop-command "opam exec -- dune utop . -- -emacs")
+  )
 #+end_src
 
 ** python
@@ -1219,9 +1249,11 @@ https://github.com/Qkessler/consult-project-extra
   )
 #+end_src
 
-* eglot
+* lsp
 
-** base
+** COMMENT eglot
+
+*** base
 
 #+begin_src emacs-lisp
 (defun my/eglot-capf ()
@@ -1229,44 +1261,42 @@ https://github.com/Qkessler/consult-project-extra
               (list (cape-capf-super
                      #'tempel-expand
                      #'eglot-completion-at-point
-                     #'cape-file
-                     ))))
+                     #'cape-file))))
 #+end_src
 
 maybe: https://github.com/casouri/eldoc-box
-https://github.com/nemethf/eglot-x#rust-analyzer-extensions
+
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :defer t
   :init
-  (setq eglot-autoshutdown t)
   (setq eldoc-echo-area-prefer-doc-buffer nil
         eldoc-echo-area-use-multiline-p t)
 
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-  :hook ((c-mode
-          c-ts-mode
-          c++-mode
-          c++-ts-mode
-          rust-mode
-          rust-ts-mode
-          python-mode
-          python-ts-mode) . eglot-ensure)
+  ;; :hook ((…-mode) . eglot-ensure)
   :bind (("C-c l c" . eglot-reconnect)
          ("C-c l d" . flymake-show-buffer-diagnostics)
          ("C-c l f f" . eglot-format)
          ("C-c l f b" . eglot-format-buffer)
          ("C-c l l" . eglot)
          ("C-c l r n" . eglot-rename)
-         ("C-c l s" . eglot-shutdown))
+         ("C-c l s" . eglot-shutdown)
+         ("C-c l t" . #'eldoc-print-current-symbol-info))
   :custom-face
   (eglot-highlight-symbol-face ((t (:bold t
                                     :italic t
                                     :underline t))))
-
   :hook
-  (eglot-managed-mode . #'my/eglot-capf ))
+  (eglot-managed-mode . #'my/eglot-capf)
+  ;; :custom
+  ;; (eglot-autoshutdown t)
+  ;; (eglot-ignored-server-capabilities
+  ;;  '(:hoverProvider
+  ;;    :documentHighlightProvider
+  ;;    :colorProvider
+  ;;    :foldingRangeProvider))
+  )
 
 (add-to-consult-hide-filter "\*EGLOT")
 #+end_src
@@ -1274,25 +1304,15 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 #+begin_src emacs-lisp
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
-                                        ("rust-analyzer"
-                                         :initializationOptions (:check (:command "clippy")
-                                                                 :diagnostics (:disabled ["unlinked-file"
-                                                                                          "dead_code"])))))
+                                        ("rustup" "run" "stable" "rust-analyzer"
+                                         :initializationOptions (:check (:command "clippy")))))
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   )
 #+end_src
 
-** booster
+*** misc
 
-#+begin_src emacs-lisp
-;; (use-package eglot-booster
-;;   :after eglot
-;;   :config (eglot-booster-mode)
-;;   :vc (:fetcher github :repo jdtsmith/eglot-booster))
-#+end_src
-
-** experimental
-
+https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 for rust dev
 
 #+begin_src emacs-lisp
@@ -1301,6 +1321,66 @@ for rust dev
 ;;   :after eglot
 ;;   :config
 ;;   (eglot-x-setup))
+#+end_src
+
+for expansion
+
+#+begin_src emacs-lisp
+(use-package eglot-tempel
+  :preface (eglot-tempel-mode)
+  :init
+  (eglot-tempel-mode t))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package eglot-booster
+;;   :after eglot
+;;   :config (eglot-booster-mode)
+;;   :vc (:fetcher github :repo jdtsmith/eglot-booster))
+#+end_src
+
+** lsp
+
+#+begin_src emacs-lisp
+(remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
+
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :custom
+   (lsp-diagnostics-provider :flymake)
+  (lsp-enable-suggest-server-download nil)
+  (lsp-enable-folding nil)
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-modeline-code-actions-mode t)
+  (lsp-modeline-code-actions-segments '(count))
+  (lsp-inlay-hints-mode t)
+  (lsp-inlay-hint-enable t)
+  :hook (((rust-mode rust-ts-mode) . lsp)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+  ;; :bind (("C-c l d" . lsp-describe-thing-at-point)
+  ;;        ("C-c l f b" . lsp-format-buffer)
+  ;;        ("C-c l r n" . lsp-rename)
+  ;;        ("C-c l r a" . lsp-execute-code-action))
+  :custom-face
+  (lsp-face-highlight-textual ((t (:bold t
+                                    :italic t
+                                    :underline t
+                                    :background nil))))
+  :commands lsp)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package lsp-snippet
+  :vc (:fetcher github :repo svaante/lsp-snippet)
+  :config
+  (when (featurep 'lsp-mode) (lsp-snippet-tempel-lsp-mode-init)) ;; Initialize lsp-snippet -> tempel in lsp-mode
+  (when (featurep 'eglot) (lsp-snippet-tempel-eglot-init)) ;; Initialize lsp-snippet -> tempel in eglot
+  (lsp-snippet-tempel-lsp-mode-init))
+
+;; to ensure lsp-mode attempts completions see: https://github.com/svaante/lsp-snippet/issues/6
+(defun yas-minor-mode () 'nil)
 #+end_src
 
 * treesit
