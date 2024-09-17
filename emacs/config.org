@@ -134,7 +134,7 @@ increase the amount of data which emacs reads from the process#
 
   :bind
   (("C-z" . ignore)
-   ("C-x k" . kill-this-buffer)
+   ("C-x k" . kill-current-buffer)
    ("C-x K" . kill-buffer)
    ("RET" . newline-and-indent) ;; go to indentation on new line
    ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
@@ -407,7 +407,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
     (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
     (add-to-list
  'ispell-local-dictionary-alist
- '(("gb" "[[:alpha:]]" "[^[:alpha]]" "[0-9']" t
+ '(("gb" "[[:alpha:]]" "[^[:alpha]]" "[0-9']"
     ("-d" "en_GB") nil utf-8)))
     ;; :hook
     ;; (prog-mode . flyspell-mode)
