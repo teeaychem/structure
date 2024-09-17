@@ -68,14 +68,6 @@ increase the amount of data which emacs reads from the process#
 
 * general
 
-** maybe temporary
-
-#+begin_src emacs-lisp
-(unless (package-installed-p 'vc-use-package)
-  (package-vc-install "https://github.com/slotThe/vc-use-package"))
-(require 'vc-use-package)
-#+end_src
-
 ** mac
 
 #+begin_src emacs-lisp
@@ -575,7 +567,8 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package vundo
   ;; :commands (vundo)
-  :vc (:fetcher github :repo casouri/vundo)
+  :vc (:url "https://github.com/casouri/vundo"
+       :rev newest)
 
   :config
   ;; Take less on-screen space.
@@ -906,7 +899,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :ensure t)
 #+end_src
 
-** ASP
+** COMMENT ASP
 
 #+begin_src emacs-lisp
 (use-package clingo-asp-mode
@@ -962,8 +955,9 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 #+begin_src emacs-lisp
 (use-package orderless
   :custom
-  (completion-styles '(orderless basic))
+  (completion-styles '(orderless partial-completion basic))
   (completion-category-defaults nil)
+  (completion-category-overrides nil)
   ;; (completion-category-overrides '((file (styles partial-completion))))
   )
 #+end_src
@@ -1347,8 +1341,20 @@ for expansion
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
+
+  (defun my/orderless-dispatch-flex-first (_pattern index _total)
+    (and (eq index 0) 'orderless-flex))
+
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))
+    ;; Optionally configure the first word as flex filtered.
+    (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+    ;; Optionally configure the cape-capf-buster.
+    (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point))))
   :custom
-   (lsp-diagnostics-provider :flymake)
+  (lsp-completion-provider :none) ;; (corfu)
+  (lsp-diagnostics-provider :flymake)
   (lsp-enable-suggest-server-download nil)
   (lsp-enable-folding nil)
   (lsp-headerline-breadcrumb-enable nil)
@@ -1358,7 +1364,8 @@ for expansion
   (lsp-inlay-hint-enable t)
   :hook (((rust-mode rust-ts-mode) . lsp)
          ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration))
+         (lsp-mode . lsp-enable-which-key-integration)
+         (lsp-completion-mode . my/lsp-mode-setup-completion))
   ;; :bind (("C-c l d" . lsp-describe-thing-at-point)
   ;;        ("C-c l f b" . lsp-format-buffer)
   ;;        ("C-c l r n" . lsp-rename)
@@ -1373,7 +1380,8 @@ for expansion
 
 #+begin_src emacs-lisp
 (use-package lsp-snippet
-  :vc (:fetcher github :repo svaante/lsp-snippet)
+  :vc (:url "https://github.com/svaante/lsp-snippet"
+       :rev :newest)
   :config
   (when (featurep 'lsp-mode) (lsp-snippet-tempel-lsp-mode-init)) ;; Initialize lsp-snippet -> tempel in lsp-mode
   (when (featurep 'eglot) (lsp-snippet-tempel-eglot-init)) ;; Initialize lsp-snippet -> tempel in eglot
