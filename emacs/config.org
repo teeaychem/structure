@@ -138,13 +138,6 @@ increase the amount of data which emacs reads from the process#
   )
 #+end_src
 
-*** etc
-
-#+begin_src emacs-lisp
-(push ".DS_store" completion-ignored-extensions)
-
-#+end_src
-
 *** saving & backups
 
 #+begin_src emacs-lisp
@@ -209,7 +202,7 @@ https://robbmann.io/emacsd/
 (global-set-key (kbd "C-c r") #'sparkes/find-recent-file)
 #+end_src
 
-* visual stuff
+* visual
 
 ** display
 
@@ -283,26 +276,6 @@ padding
       split-width-threshold nil)
 #+end_src
 
-** themes
-
-#+begin_src emacs-lisp :results silent
-  (use-package doom-themes
-    :config
-    ;; global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-rouge t) ;; rouge laserwave spacegrey fairy-floss peacock snazzy ir-black     outrun-electric
-
-    ;; enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    ;; or for treemacs users
-    ;; (setq doom-themes-treemacs-theme "doom-spacegrey")
-    ;; (doom-themes-treemacs-config)
-    ;; corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config)
-    )
-#+end_src
-
 ** font
 
 #+begin_src emacs-lisp
@@ -330,31 +303,27 @@ padding
       jit-lock-stealth-verbose t)
 #+end_src
 
-* internal
+** themes
 
-** modifications
+#+begin_src emacs-lisp :results silent
+  (use-package doom-themes
+    :config
+    ;; global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-rouge t) ;; rouge laserwave spacegrey fairy-floss peacock snazzy ir-black     outrun-electric
 
-** skeletons
-
-#+begin_src emacs-lisp
-(setq skeleton-pair t) ; enable pairing
-
-(defun quoted-parentheses (arg)
-  (interactive "P")
-  (if (looking-back "\\\\")
-      (skeleton-insert '(nil "(" _ "\\)") nil)
-    (skeleton-pair-insert-maybe arg))
-  )
-
-(defun quoted-brackets (arg)
-  (interactive "P")
-  (if (looking-back "\\\\")
-      (skeleton-insert '(nil "[" _ "\\]") nil)
-    (skeleton-pair-insert-maybe arg)))
-
-(global-set-key "(" 'quoted-parentheses)
-(global-set-key "[" 'quoted-brackets)
+    ;; enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+    ;; or for treemacs users
+    ;; (setq doom-themes-treemacs-theme "doom-spacegrey")
+    ;; (doom-themes-treemacs-config)
+    ;; corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config)
+    )
 #+end_src
+
+* internal
 
 ** electric pairs
 
@@ -384,6 +353,28 @@ padding
   )
 
 (add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
+#+end_src
+
+** skeletons
+
+#+begin_src emacs-lisp
+(setq skeleton-pair t) ; enable pairing
+
+(defun quoted-parentheses (arg)
+  (interactive "P")
+  (if (looking-back "\\\\")
+      (skeleton-insert '(nil "(" _ "\\)") nil)
+    (skeleton-pair-insert-maybe arg))
+  )
+
+(defun quoted-brackets (arg)
+  (interactive "P")
+  (if (looking-back "\\\\")
+      (skeleton-insert '(nil "[" _ "\\]") nil)
+    (skeleton-pair-insert-maybe arg)))
+
+(global-set-key "(" 'quoted-parentheses)
+(global-set-key "[" 'quoted-brackets)
 #+end_src
 
 ** COMMENT ispell
@@ -418,7 +409,32 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   )
 #+end_src
 
+** which-key
+
+shows command completions
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :demand t
+  :custom
+  (which-key-sort-order 'which-key-prefix-then-key-order)
+  :init
+  (setq which-key-idle-delay 0.1
+        which-key-max-display-columns nil)
+  :config
+  (which-key-mode t)
+  (which-key-setup-minibuffer)
+  (set-face-attribute
+   'which-key-local-map-description-face nil :weight 'bold))
+#+end_src
+
 * external, etc.
+
+** browse kill ring
+
+#+begin_src emacs-lisp
+(use-package browse-kill-ring)
+#+end_src
 
 ** exec-path-from-shell
 
@@ -435,6 +451,44 @@ To see:
 
 #+begin_src emacs-lisp
 ;; (getenv "PATH")
+#+end_src
+
+** fix-word
+
+#+begin_src emacs-lisp
+(use-package fix-word
+  :bind (("M-u" . #'fix-word-upcase)
+	       ("M-l" . #'fix-word-downcase)
+	       ("M-c" . #'fix-word-capitalize)))
+#+end_src
+
+** highlight indentation
+
+- To highlight indentations
+  - Options are fill, column, and character
+  - There's no way to get indentation on empty lines as of now
+
+#+begin_src emacs-lisp
+(use-package highlight-indent-guides
+  :init
+  (setq highlight-indent-guides-method 'character)
+  :custom
+  (highlight-indent-guides-auto-odd-face-perc 75)
+  (highlight-indent-guides-auto-even-face-perc 75)
+  (highlight-indent-guides-auto-character-face-perc 80)
+  :hook
+  (prog-mode . highlight-indent-guides-mode))
+#+end_src
+
+** multiple cursors
+
+#+begin_src emacs-lisp
+(use-package multiple-cursors
+  :bind (("C->" . mc/mark-next-like-this)
+	       ("C-<" . mc/mark-previous-like-this)
+	       ("C-c C->" . mc/mark-all-like-this)
+	       ("C-c C-SPC" . mc/edit-lines)
+	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 
 ** no-littering
@@ -456,23 +510,36 @@ To see:
         version-control t))
 #+end_src
 
-** which-key
+** COMMENT puni
 
-shows command completions
+The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
-(use-package which-key
-  :demand t
-  :custom
-  (which-key-sort-order 'which-key-prefix-then-key-order)
-  :init
-  (setq which-key-idle-delay 0.1
-        which-key-max-display-columns nil)
-  :config
-  (which-key-mode t)
-  (which-key-setup-minibuffer)
-  (set-face-attribute
-   'which-key-local-map-description-face nil :weight 'bold))
+(use-package puni \\n
+  :defer t \\n
+  :config \\n
+  (puni-global-mode) \\n
+  (setcdr puni-mode-map nil) \\n
+  :bind \\n
+  (:map puni-mode-map \\n
+        ("DEL" . puni-backward-delete-char) \\n
+        ("C-d" . puni-forward-delete-char) \\n
+        ("M-d" . puni-forward-kill-word) \\n
+        ("M-DEL" . puni-backward-kill-word) \\n
+        ("C-k" . puni-kill-line) \\n
+        ("C-u" . puni-backward-kill-line) \\n
+        ("C-h" . puni-force-delete) \\n
+        ("C-M-f" . puni-forward-sexp) \\n
+        ("C-M-b" . puni-backward-sexp) \\n
+        ("C-M-a" . puni-beginning-of-sexp) \\n
+        ("C-M-e" . puni-end-of-sexp) \\n
+        ) \\n
+  :config \\n
+  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil) \\n
+  :hook \\n
+  (term-mode #'puni-disable-puni-mode) \\n
+  ;\;\(prog-mode #'puni-flyindent-mode) \\n
+  ) \\n
 #+end_src
 
 ** rainbow delimiters
@@ -491,55 +558,6 @@ shows command completions
   (rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
   (rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
   (rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))
-#+end_src
-
-** browse kill ring
-
-#+begin_src emacs-lisp
-(use-package browse-kill-ring)
-#+end_src
-
-** puni
-
-The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
-
-#+begin_src emacs-lisp
-;; (use-package puni \\n
-;;   :defer t \\n
-;;   :config \\n
-;;   (puni-global-mode) \\n
-;;   (setcdr puni-mode-map nil) \\n
-;;   :bind \\n
-;;   (:map puni-mode-map \\n
-;;         ("DEL" . puni-backward-delete-char) \\n
-;;         ("C-d" . puni-forward-delete-char) \\n
-;;         ("M-d" . puni-forward-kill-word) \\n
-;;         ("M-DEL" . puni-backward-kill-word) \\n
-;;         ("C-k" . puni-kill-line) \\n
-;;         ("C-u" . puni-backward-kill-line) \\n
-;;         ("C-h" . puni-force-delete) \\n
-;;         ("C-M-f" . puni-forward-sexp) \\n
-;;         ("C-M-b" . puni-backward-sexp) \\n
-;;         ("C-M-a" . puni-beginning-of-sexp) \\n
-;;         ("C-M-e" . puni-end-of-sexp) \\n
-;;         ) \\n
-;;   :config \\n
-;;   (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil) \\n
-;;   :hook \\n
-;;   (term-mode #'puni-disable-puni-mode) \\n
-;;   ;\;\(prog-mode #'puni-flyindent-mode) \\n
-;;   ) \\n
-#+end_src
-
-** multiple cursors
-
-#+begin_src emacs-lisp
-(use-package multiple-cursors
-  :bind (("C->" . mc/mark-next-like-this)
-	       ("C-<" . mc/mark-previous-like-this)
-	       ("C-c C->" . mc/mark-all-like-this)
-	       ("C-c C-SPC" . mc/edit-lines)
-	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 
 ** undo and redo
@@ -599,52 +617,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 )
 #+end_src
 
-** fix-word
-
-#+begin_src emacs-lisp
-(use-package fix-word
-  :bind (("M-u" . #'fix-word-upcase)
-	       ("M-l" . #'fix-word-downcase)
-	       ("M-c" . #'fix-word-capitalize)))
-#+end_src
-
-** highlight indentation
-
-- To highlight indentations
-  - Options are fill, column, and character
-  - There's no way to get indentation on empty lines as of now
-
-#+begin_src emacs-lisp
-(use-package highlight-indent-guides
-  :init
-  (setq highlight-indent-guides-method 'character)
-  :custom
-  (highlight-indent-guides-auto-odd-face-perc 75)
-  (highlight-indent-guides-auto-even-face-perc 75)
-  (highlight-indent-guides-auto-character-face-perc 80)
-  :hook
-  (prog-mode . highlight-indent-guides-mode))
-#+end_src
-
 * git
-
-** magit
-
-#+begin_src emacs-lisp
-(use-package magit
-  :bind
-  (("C-c g s" . magit-status)
-   ("C-c g g" . magit-status)
-   ("C-c g S" . magit-status-here)
-   ("C-c g b" . magit-blame)
-   ("C-c g l" . magit-log)
-   ("C-c g d" . magit-diff)
-   ("C-c g r" . magit-refresh))
-  :custom
-  (magit-log-arguments '("--graph" "--decorate" "--color")))
-
-(add-to-consult-hide-filter "magit")
-#+end_src
 
 ** diff-hl
 
@@ -665,6 +638,24 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :hook
   ((magit-pre-refresh . diff-hl-magit-pre-refresh)
    (magit-post-refresh . diff-hl-magit-post-refresh)))
+#+end_src
+
+** magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :bind
+  (("C-c g s" . magit-status)
+   ("C-c g g" . magit-status)
+   ("C-c g S" . magit-status-here)
+   ("C-c g b" . magit-blame)
+   ("C-c g l" . magit-log)
+   ("C-c g d" . magit-diff)
+   ("C-c g r" . magit-refresh))
+  :custom
+  (magit-log-arguments '("--graph" "--decorate" "--color")))
+
+(add-to-consult-hide-filter "magit")
 #+end_src
 
 * org
@@ -741,6 +732,34 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+end_src
 
 * languages
+
+** COMMENT ASP
+
+#+begin_src emacs-lisp
+(use-package clingo-asp-mode
+  :mode "\\.lp\\'"
+  :vc (:fetcher github :repo teeaychem/clingo-asp-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/"))
+
+;; (use-package clingo-asp-mode
+;;   :mode ("\\.lp\\'")
+;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
+#+end_src
+
+** C/pp
+
+#+begin_src emacs-lisp
+(use-package clang-format
+  :defer t
+  :bind
+  (("C-c i" . clang-format-region)
+   ("C-c u" . clang-format-buffer))
+  :init
+  (setq clang-format-style-option "llvm"))
+#+end_src
 
 ** LaTeX
 
@@ -830,6 +849,27 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 ;;   )
 #+end_src
 
+** lua
+
+#+begin_src emacs-lisp
+(use-package lua-mode
+  :custom
+  (lua-indent-level 4))
+#+end_src
+
+** markdown
+
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :mode (("/README\\(?:\\.md\\)?\\'" . gfm-mode)
+         ("\\.m[k]d\\'" . gfm-mode))
+  :config
+  (setq markdown-fontify-code-blocks-natively t
+        markdown-header-scaling t)
+  (setq-default
+   markdown-enable-math t))
+#+end_src
+
 ** OCaml
 
 #+begin_src emacs-lisp
@@ -899,96 +939,49 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :ensure t)
 #+end_src
 
-** COMMENT ASP
-
-#+begin_src emacs-lisp
-(use-package clingo-asp-mode
-  :mode "\\.lp\\'"
-  :vc (:fetcher github :repo teeaychem/clingo-asp-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/"))
-
-;; (use-package clingo-asp-mode
-;;   :mode ("\\.lp\\'")
-;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/clingo-asp-mode/")))
-#+end_src
-
-** C/pp
-
-#+begin_src emacs-lisp
-(use-package clang-format
-  :defer t
-  :bind
-  (("C-c i" . clang-format-region)
-   ("C-c u" . clang-format-buffer))
-  :init
-  (setq clang-format-style-option "llvm"))
-#+end_src
-
-** markdown
-
-#+begin_src emacs-lisp
-(use-package markdown-mode
-  :mode (("/README\\(?:\\.md\\)?\\'" . gfm-mode)
-         ("\\.m[k]d\\'" . gfm-mode))
-  :config
-  (setq markdown-fontify-code-blocks-natively t
-        markdown-header-scaling t)
-  (setq-default
-   markdown-enable-math t))
-#+end_src
-
-** lua
-
-#+begin_src emacs-lisp
-(use-package lua-mode
-  :custom
-  (lua-indent-level 2))
-#+end_src
-
 * completion
 
-** orderless
+** cape
 
 #+begin_src emacs-lisp
-(use-package orderless
-  :custom
-  (completion-styles '(orderless partial-completion basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides nil)
-  ;; (completion-category-overrides '((file (styles partial-completion))))
+(use-package cape
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ;; ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-elisp-symbol)
+         ("C-c p e" . cape-elisp-block)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p :" . cape-emoji)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-&sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+  ;;(add-to-list 'completion-at-point-functions #'cape-history)
+  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)
   )
-#+end_src
-
-** vertico
-
-vertico for minibuffer completions
-
-#+begin_src emacs-lisp
-(use-package vertico
-  :init
-  (vertico-mode)
-  ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
-  (setq vertico-count 40) ;; Show more candidates
-  (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-#+end_src
-
-** marginalia
-
-adds marginalia to the minibuffer completions
-
-#+begin_src emacs-lisp
-(use-package marginalia
-  :init
-  (marginalia-mode)
-  :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
-  :custom
-  (marginalia-max-relative-age 0)
-  (marginalia-align 'right))
 #+end_src
 
 ** consult
@@ -1200,47 +1193,51 @@ https://github.com/Qkessler/consult-project-extra
   )
 #+end_src
 
-** cape
+** marginalia
+
+adds marginalia to the minibuffer completions
 
 #+begin_src emacs-lisp
-(use-package cape
-  ;; Bind dedicated completion commands
-  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
-  :bind (("C-c p p" . completion-at-point) ;; capf
-         ("C-c p t" . complete-tag)        ;; etags
-         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c p h" . cape-history)
-         ;; ("C-c p f" . cape-file)
-         ("C-c p k" . cape-keyword)
-         ("C-c p s" . cape-elisp-symbol)
-         ("C-c p e" . cape-elisp-block)
-         ("C-c p a" . cape-abbrev)
-         ("C-c p l" . cape-line)
-         ("C-c p w" . cape-dict)
-         ("C-c p :" . cape-emoji)
-         ("C-c p \\" . cape-tex)
-         ("C-c p _" . cape-tex)
-         ("C-c p ^" . cape-tex)
-         ("C-c p &" . cape-&sgml)
-         ("C-c p r" . cape-rfc1345))
+(use-package marginalia
   :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
-  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+  (marginalia-mode)
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
+  :custom
+  (marginalia-max-relative-age 0)
+  (marginalia-align 'right))
+#+end_src
+
+** orderless
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :custom
+  (completion-styles '(orderless partial-completion basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides nil)
+  ;; (completion-category-overrides '((file (styles partial-completion))))
   )
+#+end_src
+
+** vertico
+
+vertico for minibuffer completions
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :init
+  (vertico-mode)
+  ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
+  (setq vertico-count 40) ;; Show more candidates
+  (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
+  (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+#+end_src
+
+** misc
+
+#+begin_src emacs-lisp
+(push ".DS_store" completion-ignored-extensions)
 #+end_src
 
 * lsp
@@ -1333,7 +1330,7 @@ for expansion
 ;;   :vc (:fetcher github :repo jdtsmith/eglot-booster))
 #+end_src
 
-** lsp
+** lsp-mode
 
 #+begin_src emacs-lisp
 (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
