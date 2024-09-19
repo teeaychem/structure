@@ -1272,8 +1272,6 @@ maybe: https://github.com/casouri/eldoc-box
 
 #+begin_src emacs-lisp
 (use-package eglot
-    :vc (eglot :url "https://elpa.gnu.org/devel/eglot.html"
-               :rev :newest)
   :init
   (setq eldoc-echo-area-prefer-doc-buffer nil
         eldoc-echo-area-use-multiline-p t)
@@ -1329,11 +1327,12 @@ https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 for rust dev
 
 #+begin_src emacs-lisp
-;; (use-package eglot-x
-;;   :vc (:fetcher github :repo nemethf/eglot-x)
-;;   :after eglot
-;;   :config
-;;   (eglot-x-setup))
+(use-package eglot-x
+  :vc (eglot-x :url "https://github.com/nemethf/eglot-x"
+               :rev :newest)
+  :after eglot
+  :config
+  (eglot-x-setup))
 #+end_src
 
 for expansion
