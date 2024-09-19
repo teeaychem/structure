@@ -10,6 +10,14 @@ https://github.com/wilfred/helpful
 https://github.com/alexander-miller/treemacs
 https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://editorconfig.org
 
+* temp
+
+#+begin_src emacs-lisp
+(unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package)
+#+end_src
+
 * local macros
 
 Macro to add the same regex to a collection of consult filters.
@@ -440,6 +448,7 @@ shows command completions
 
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
+  :pin melpa-stable
   :if (memq window-system '(mac ns x darwin))
   :demand
   :config
@@ -457,6 +466,7 @@ To see:
 
 #+begin_src emacs-lisp
 (use-package fix-word
+  :pin melpa-stable
   :bind (("M-u" . #'fix-word-upcase)
 	       ("M-l" . #'fix-word-downcase)
 	       ("M-c" . #'fix-word-capitalize)))
@@ -546,7 +556,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
-  :defer t
   :hook
   (prog-mode . rainbow-delimiters-mode)
   :custom-face ;; https://ericscrivner.me/2015/06/better-emacs-rainbow-delimiters-color-scheme/
@@ -585,8 +594,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package vundo
   ;; :commands (vundo)
-  :vc (:url "https://github.com/casouri/vundo"
-       :rev newest)
+  ;; :vc (:url "https://github.com/casouri/vundo" :rev newest)
 
   :config
   ;; Take less on-screen space.
@@ -1185,11 +1193,11 @@ https://github.com/Qkessler/consult-project-extra
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can be used globally (M-/).  See also the customization variable `global-corfu-modes' to exclude certain modes.
   :bind
   (:map corfu-map
-	    ("RET" . nil) ;; Free the RET key for less intrusive behavior.
+	("RET" . nil) ;; Free the RET key for less intrusive behavior.
         ("C-<return>" . corfu-insert) ;;
         ("M-_" . corfu-info-documentation) ;;
         ;; ("C-SPC" . corfu-insert-separator) ;;
-	    )
+	)
   )
 #+end_src
 
@@ -1242,24 +1250,30 @@ vertico for minibuffer completions
 
 * lsp
 
-** COMMENT eglot
+#+begin_src emacs-lisp
+;; (use-package lsp-snippet
+;;   :vc (lsp-snippet :url "https://github.com/svaante/lsp-snippet"
+;;                    :rev :newest)
+;;   :config
+;;   (when (featurep 'lsp-mode) (lsp-snippet-tempel-lsp-mode-init)) ;; Initialize lsp-snippet -> tempel in lsp-mode
+;;   (when (featurep 'eglot) (lsp-snippet-tempel-eglot-init)) ;; Initialize lsp-snippet -> tempel in eglot
+;;   (lsp-snippet-tempel-lsp-mode-init))
+
+;; ;; to ensure lsp-mode attempts completions see: https://github.com/svaante/lsp-snippet/issues/6
+;; (defun yas-minor-mode () 'nil)
+#+end_src
+
+** eglot
 
 *** base
-
-#+begin_src emacs-lisp
-(defun my/eglot-capf ()
-  (setq-local completion-at-point-functions
-              (list (cape-capf-super
-                     #'tempel-expand
-                     #'eglot-completion-at-point
-                     #'cape-file))))
-#+end_src
 
 maybe: https://github.com/casouri/eldoc-box
 
 
 #+begin_src emacs-lisp
 (use-package eglot
+    :vc (eglot :url "https://elpa.gnu.org/devel/eglot.html"
+               :rev :newest)
   :init
   (setq eldoc-echo-area-prefer-doc-buffer nil
         eldoc-echo-area-use-multiline-p t)
@@ -1278,8 +1292,8 @@ maybe: https://github.com/casouri/eldoc-box
   (eglot-highlight-symbol-face ((t (:bold t
                                     :italic t
                                     :underline t))))
-  :hook
-  (eglot-managed-mode . #'my/eglot-capf)
+  ;; :hook
+  ;; (eglot-managed-mode . #'my/eglot-capf)
   ;; :custom
   ;; (eglot-autoshutdown t)
   ;; (eglot-ignored-server-capabilities
@@ -1289,7 +1303,15 @@ maybe: https://github.com/casouri/eldoc-box
   ;;    :foldingRangeProvider))
   )
 
-(add-to-consult-hide-filter "\*EGLOT")
+(defun my/eglot-capf ()
+  (setq-local completion-at-point-functions
+              (list (cape-capf-super
+                     #'eglot-completion-at-point
+                     #'tempel-expand
+                     #'cape-file))))
+
+(add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+;; (add-to-consult-hide-filter "\*EGLOT")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1330,7 +1352,7 @@ for expansion
 ;;   :vc (:fetcher github :repo jdtsmith/eglot-booster))
 #+end_src
 
-** lsp-mode
+** COMMENT lsp-mode
 
 #+begin_src emacs-lisp
 (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
@@ -1373,19 +1395,6 @@ for expansion
                                     :underline t
                                     :background nil))))
   :commands lsp)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package lsp-snippet
-  :vc (:url "https://github.com/svaante/lsp-snippet"
-       :rev :newest)
-  :config
-  (when (featurep 'lsp-mode) (lsp-snippet-tempel-lsp-mode-init)) ;; Initialize lsp-snippet -> tempel in lsp-mode
-  (when (featurep 'eglot) (lsp-snippet-tempel-eglot-init)) ;; Initialize lsp-snippet -> tempel in eglot
-  (lsp-snippet-tempel-lsp-mode-init))
-
-;; to ensure lsp-mode attempts completions see: https://github.com/svaante/lsp-snippet/issues/6
-(defun yas-minor-mode () 'nil)
 #+end_src
 
 * treesit
