@@ -14,21 +14,51 @@ source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
 # locale
-export LC_ALL=en_GB.UTF-8
+# export LC_ALL=en_GB.UTF-8
+
+# options
+
+# # misc
+
+# # history
+
+HISTORY_IGNORE="(ls|cd|pwd)*"
+
+# # # no duplication
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_FCNTL_LOCK
+
+setopt EXTENDED_HISTORY # additional info
+
+# # # corrections
+setopt CORRECT
+setopt CORRECT_ALL
 
 # # # keys
 
 set -o emacs
 
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+autoload select-word-style
+select-word-style normal
+
 bindkey '^I'   complete-word       # tab          | complete
 bindkey '^[[Z' autosuggest-accept  # shift + tab  | autosuggest
 
-bindkey "\e\e[D" emacs-backward-word  # | option + <-
-bindkey "^[[1;5D" emacs-backward-word # | ctl + <-
-bindkey "\e\e[C" emacs-forward-word   # | option + ->
-bindkey "^[[1;5C" emacs-forward-word  # | ctl + ->
+bindkey "\e\e[D" backward-word  # | option + <-
+bindkey "^[[1;5D" backward-word # | ctl + <-
+bindkey "\e\e[C" forward-word   # | option + ->
+bindkey "^[[1;5C" forward-word  # | ctl + ->
 
 # # # aliases # # #
+
+# misc
+alias dir='ls -aFhl'
 
 # homebrew
 alias bu='brew upgrade'
