@@ -3,6 +3,8 @@
 ;;; Code:
 
 (require 'package)
+(require 'use-package)
+
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu-devel" . "https://elpa.gnu.org/devel/") t)

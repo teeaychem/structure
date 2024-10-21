@@ -11,4 +11,16 @@
                            :mccabe
                            (:enabled :json-false)))))
      (pyvenv-workon . "./.venv/")
-     (indent-tabs-mode . nil))))
+     (indent-tabs-mode . nil)))
+ (rust-ts-mode
+  .((eglot-workspace-configuration
+     . (:rust-analyzer
+        ( :procMacro ( :attributes (:enable t)
+                       :enable t)
+          :cargo ( :buildScripts (:enable t)
+                   :features "all")
+          :diagnostics ( :disabled ["unresolved-proc-macro"
+                                    "unresolved-macro-call"]))))))
+
+
+ )
