@@ -1,7 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
 	name =teeaychem
-	email=<>
+	email=bsparkes@stanford.edu
 [filter "lfs"]
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
