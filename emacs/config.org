@@ -92,39 +92,40 @@ increase the amount of data which emacs reads from the process#
   (defun crm-indicator (args) (cons (format "[CRM%s] %s" (replace-regexp-in-string "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" "" crm-separator) (car args)) (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-  (setq minibuffer-prompt-properties '(read-only t
-                                       cursor-intangible t
-                                       face minibuffer-prompt)) ;; Do not allow the cursor in the minibuffer prompt
-
   ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
   ;; Vertico commands are hidden in normal buffers. Corfu commands are hidden, since they are not supposed to be used via M-x.
   (setq read-extended-command-predicate #'command-completion-default-include-p)
   (setq enable-recursive-minibuffers t)
   (setq tab-always-indent 'complete) ;; Enable indentation+completion using the TAB key. `completion-at-point' is often bound to M-TAB.
 
-  (setq auto-save-interval 200) ;; autosave often
+
 
   (global-auto-revert-mode t) ; for reloading bib files, etc.
   (desktop-save-mode)
   (save-place-mode t)
 
   (setq-default indent-tabs-mode nil
-				        tab-width 2)
-  (setq echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
-  (setq sentence-end-double-space nil)
+				tab-width 4)
+
   (delete-selection-mode t) ;; delete selected text by typing
   (global-subword-mode t)
 
-  (setq indicate-empty-lines t ;; indicate empty lines at end of a buffer
-        require-final-newline t)
-
   (setq native-comp-async-report-warnings-errors nil)
-
   ;; (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
 
   :custom
   (user-full-name "bsparkes")
   (user-mail-address "bsparkes@alumni.stanford.edu")
+  (indicate-empty-lines t)
+  (require-final-newline t)
+  (echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
+  (sentence-end-double-space nil)
+
+  (auto-save-interval 200) ;; autosave often
+
+  (minibuffer-prompt-properties '(read-only t
+                                  cursor-intangible t
+                                  face minibuffer-prompt)) ;; Do not allow the cursor in the minibuffer prompt
 
   :bind
   (("C-z" . ignore)
@@ -136,41 +137,40 @@ increase the amount of data which emacs reads from the process#
    ("<mouse-3>" . context-menu-open))
 
   :hook
-  (before-save . delete-trailing-whitespace)
-  )
+  (before-save . delete-trailing-whitespace))
 #+end_src
 
 *** saving & backups
 
-#+begin_src emacs-lisp
-(setq savehist-file  (concat user-emacs-directory "var/savehist"))
-(setq savehist-additional-variables
-      '(buffer-name-history
-        compile-command
-        extended-command-history
-        file-name-history
-        kill-ring))
-(savehist-mode t)
-#+end_src
-
-From http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
-
-#+begin_src emacs-lisp
-(setq backup-directory-alist `(("." . ,(concat user-emacs-directory "var/backups"))) ;; change backup location
-      backup-by-copying t       ; don't clobber symlinks
-      kept-new-versions 10      ; keep 10 latest versions
-      kept-old-versions 0       ; don't bother with old versions
-      delete-old-versions t     ; don't ask about deleting old S versions
-      version-control t         ; number backups
-      vc-make-backup-files nil) ; backup version controlled files
-(setq create-lockfiles nil) ;; no need to create lockfiles
-#+end_src
+Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+begin_src emacs-lisp
 (use-package emacs
   :init
+  (savehist-mode t)
+
   (setq-default trash-directory "~/.Trash/emacs")
-  (setq-default delete-by-moving-to-trash t))
+  (setq-default delete-by-moving-to-trash t)
+
+  :custom
+  (savehist-file  (concat user-emacs-directory "var/savehist"))
+  (savehist-additional-variables
+        '(buffer-name-history
+          compile-command
+          extended-command-history
+          file-name-history
+          kill-ring))
+
+  (backup-directory-alist `(("." . ,(concat user-emacs-directory "var/backups"))) ;; change backup location
+                          backup-by-copying t       ; don't clobber symlinks
+                          kept-new-versions 10      ; keep 10 latest versions
+                          kept-old-versions 0       ; don't bother with old versions
+                          delete-old-versions t     ; don't ask about deleting old S versions
+                          version-control t         ; number backups
+                          vc-make-backup-files nil) ; backup version controlled files
+
+  (create-lockfiles nil) ;; no need to create lockfiles
+)
 #+end_src
 
 *** locale
@@ -209,71 +209,61 @@ https://robbmann.io/emacsd/
 ** display
 
 #+begin_src emacs-lisp
-(customize-set-variable 'ns-pop-up-frames nil)
-#+end_src
+(use-package emacs
+  :init
+  (setq-default fill-column 1024)
+  (setq-default line-spacing 2)
+  (set-default 'truncate-lines nil)
 
-#+begin_src emacs-lisp
-(customize-set-variable 'uniquify-buffer-name-style 'forward) ; unique buffer names
+  (defalias 'yes-or-no-p 'y-or-n-p)
 
-(customize-set-variable 'line-number-mode t) ; show line-number in the mode line
-(customize-set-variable 'column-number-mode t) ; show column-number in the mode line
+  (setq-default indicate-empty-lines t)
+  (when (not indicate-empty-lines) (toggle-indicate-empty-lines))
+  (global-visual-line-mode t)
 
-(setq-default fill-column 1024)
-(set-default 'truncate-lines nil)
-(customize-set-variable 'auto-fill-mode t) ;; wrap lines automatically
-#+end_src
+  ;; (setq-default left-margin-width 1
+  ;;               right-margin-width 1)
+  ;; (set-window-buffer nil (current-buffer))
+  (add-to-list 'default-frame-alist '(internal-border-width . 4))
+  (set-frame-parameter nil 'internal-border-width 4)
 
-customise to extend to new frames
+  :custom
+  (uniquify-buffer-name-style 'forward) ; unique buffer names
 
-#+begin_src emacs-lisp
-(customize-set-variable 'scroll-bar-mode nil)
-(customize-set-variable 'horizontal-scroll-bar-mode nil)
-#+end_src
+  (line-number-mode t) ; show line-number in the mode line
+  (column-number-mode t) ; show column-number in the mode line
 
-#+begin_src emacs-lisp
-(customize-set-variable 'tool-bar-mode nil)
-(customize-set-variable 'menu-bar-mode nil)
+  (auto-fill-mode t) ;; wrap lines automatically
 
-(customize-set-variable 'tool-bar-border 0)
-(customize-set-variable 'tool-bar-images-pixel-height 6)
-(customize-set-variable 'tool-bar-style 'text) ;; text, image
-#+end_src
+  (scroll-bar-mode nil)
+  (horizontal-scroll-bar-mode nil)
 
-#+begin_src emacs-lisp
-(customize-set-variable 'tooltip-mode nil)
-(customize-set-variable 'use-dialog-box nil)
-(customize-set-variable 'tooltip-use-echo-area t) ;; have emacs use the echo area for everything
-#+end_src
+  (tool-bar-mode nil)
+  (menu-bar-mode nil)
 
-#+begin_src emacs-lisp
-(defalias 'yes-or-no-p 'y-or-n-p)
-(setq visible-bell t)
-(setq-default indicate-empty-lines t)
-(when (not indicate-empty-lines) (toggle-indicate-empty-lines))
-(global-visual-line-mode t)
-(setq-default line-spacing 2)
-(setq truncate-string-ellipsis "…")
-(setq scroll-preserve-screen-position t)
-#+end_src
+  (tool-bar-border 0)
+  (tool-bar-images-pixel-height 6)
+  (tool-bar-style 'text) ;; text, image
 
-#+begin_src emacs-lisp
-;; (setq-default left-margin-width 1
-;;               right-margin-width 1)
-;; (set-window-buffer nil (current-buffer))
-(add-to-list 'default-frame-alist '(internal-border-width . 4))
-(set-frame-parameter nil 'internal-border-width 4)
-#+end_src
+  (tooltip-mode nil)
+  (use-dialog-box nil)
+  (tooltip-use-echo-area t) ;; have emacs use the echo area for everything
 
-#+begin_src emacs-lisp
-(setq mouse-wheel-follow-mouse 't
-      mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+  (truncate-string-ellipsis "…")
 
-(setq cursor-in-non-selected-windows t  ; hide the cursor in inactive windows
-      ;; initial-scratch-message nil       ; empty scratch buffer
-      help-window-select t)              ; select help window so it's easy to quit it with 'q')
+  (cursor-in-non-selected-windows t)  ; hide the cursor in inactive windows
+  (help-window-select t)              ; select help window so it's easy to quit it with 'q')
 
-(setq split-height-threshold 0 ;; When split is automatic, always split windows vertically
-      split-width-threshold nil)
+  (visible-bell t)
+
+  (scroll-preserve-screen-position t)
+
+  (mouse-wheel-follow-mouse 't)
+  ;; (mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+  (split-height-threshold 0) ;; When split is automatic, always split windows vertically
+  (split-width-threshold nil)
+  )
 #+end_src
 
 ** font
@@ -282,10 +272,10 @@ customise to extend to new frames
 (when (eq system-type 'darwin)
   (set-face-attribute 'default nil
                       :family "JuliaMono"
-                      :height 120))
+                      :height 120)
 (setq-default mac-allow-anti-aliasing t)
 (setq inhibit-compacting-font-caches t)
-(customize-set-variable 'ns-use-thin-smoothing t)
+(customize-set-variable 'ns-use-thin-smoothing t))
 #+end_src
 
 ** syntax highlighting
@@ -293,12 +283,16 @@ customise to extend to new frames
 - Enable syntax highlighting everywhere
 
 #+begin_src emacs-lisp
-(require 'font-lock)
-(setq font-lock-maximum-decoration t)
-(global-font-lock-mode t)
-(global-hi-lock-mode nil)
-(setq jit-lock-contextually t
-      jit-lock-stealth-verbose t)
+(use-package emacs
+  :init
+  (global-font-lock-mode t)
+  (global-hi-lock-mode nil)
+
+  :custom
+  (font-lock-maximum-decoration t)
+
+  (jit-lock-contextually t)
+  (jit-lock-stealth-verbose t))
 #+end_src
 
 ** themes
@@ -322,6 +316,19 @@ customise to extend to new frames
     )
 #+end_src
 
+** frames
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :custom
+  (ns-pop-up-frames nil)
+
+  :bind (("C-c w <left>" . windmove-left)
+         ("C-c w <right>" . windmove-right)
+         ("C-c w <up>" . windmove-up)
+         ("C-c w <down>" . windmove-down)))
+#+end_src
+
 * internal
 
 ** electric pairs
@@ -330,27 +337,6 @@ customise to extend to new frames
 (use-package emacs
   :config
   (electric-pair-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(defvar org-electric-pairs '((?/ . ?/)
-                             (?~ . ?~)) "electric pairs for org-mode")
-
-(defun org-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs)
-              electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'org-mode-hook 'org-add-electric-pairs)
-#+end_src
-
-#+begin_src emacs-lisp
-(defvar LaTeX-electric-pairs '((?` . ?')) "Electric pairs for LaTeX-mode.")
-
-(defun LaTeX-add-electric-pairs ()
-  (setq-local electric-pair-pairs (append electric-pair-pairs LaTeX-electric-pairs)
-              electric-pair-text-pairs electric-pair-pairs))
-
-(add-hook 'LaTeX-mode-hook 'LaTeX-add-electric-pairs)
 #+end_src
 
 ** skeletons
@@ -374,21 +360,22 @@ customise to extend to new frames
 (global-set-key "[" 'quoted-brackets)
 #+end_src
 
-** COMMENT ispell
+** ispell
 
 maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
   (use-package ispell
-    :if (executable-find "hunspell")
-    :init
-    (setq ispell-program-name "hunspell"
-          ispell-dictionary "en_GB")
-    (customize-set-variable 'ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
+    :after exec-path-from-shell
+    ;; :if (executable-find "hunspell")
+    :custom
     (add-to-list
- 'ispell-local-dictionary-alist
- '(("gb" "[[:alpha:]]" "[^[:alpha]]" "[0-9']"
-    ("-d" "en_GB") nil utf-8)))
+     'ispell-hunspell-dictionary-alist
+     '(("en_GB" "[[:alpha:]]" "[^[:alpha]]" "[0-9']"
+        nil nil utf-8)))
+    (ispell-program-name "hunspell")
+    (ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
+    (ispell-dictionary "en_GB")
     ;; :hook
     ;; (prog-mode . flyspell-mode)
     )
@@ -422,8 +409,8 @@ shows command completions
   :custom
   (which-key-sort-order 'which-key-prefix-then-key-order)
   :init
-  (setq which-key-idle-delay 0.1
-        which-key-max-display-columns nil)
+  (setq which-key-idle-delay 0.1)
+  (setq which-key-max-display-columns nil)
   :config
   (which-key-mode t)
   (which-key-setup-minibuffer)
@@ -445,9 +432,10 @@ shows command completions
   :pin melpa-stable
   :if (memq window-system '(mac ns x darwin))
   :demand
-  :config
+  :init
   (setq exec-path-from-shell-arguments '("-l"))
-  (exec-path-from-shell-initialize))
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "DICPATH"))
 #+end_src
 
 To see:
@@ -474,9 +462,8 @@ To see:
 
 #+begin_src emacs-lisp
 (use-package highlight-indent-guides
-  :init
-  (setq highlight-indent-guides-method 'character)
   :custom
+  (highlight-indent-guides-method 'character)
   (highlight-indent-guides-auto-odd-face-perc 75)
   (highlight-indent-guides-auto-even-face-perc 75)
   (highlight-indent-guides-auto-character-face-perc 80)
@@ -490,10 +477,10 @@ To see:
 (use-package multiple-cursors
   :pin melpa-stable
   :bind (("C->" . mc/mark-next-like-this)
-	       ("C-<" . mc/mark-previous-like-this)
-	       ("C-c C->" . mc/mark-all-like-this)
-	       ("C-c C-SPC" . mc/edit-lines)
-	       ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
+	     ("C-<" . mc/mark-previous-like-this)
+	     ("C-c C->" . mc/mark-all-like-this)
+	     ("C-c C-SPC" . mc/edit-lines)
+	     ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 
 ** no-littering
@@ -503,12 +490,11 @@ To see:
   :pin melpa-stable
   :init
   (require 'recentf)
-  (require 'no-littering)
-  (add-to-list 'recentf-exclude no-littering-var-directory)
-  (add-to-list 'recentf-exclude no-littering-etc-directory)
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
   :config
+  (add-to-list 'recentf-exclude no-littering-var-directory)
+  (add-to-list 'recentf-exclude no-littering-etc-directory)
   (setq create-lockfiles nil
         delete-old-versions t
         kept-new-versions 6
@@ -572,6 +558,10 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
 (use-package undo-fu
+  :init
+  (setq undo-limit 67108864) ; 64mb.
+  (setq undo-strong-limit 100663296) ; 96mb.
+  (setq undo-outer-limit 1006632960) ; 960mb.
   :config
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-?") 'undo-fu-only-redo))
@@ -590,9 +580,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
 (use-package vundo
-  ;; :commands (vundo)
-  ;; :vc (:url "https://github.com/casouri/vundo" :rev newest)
-
   :config
   (setq vundo-compact-display nil) ;; Take less on-screen space.
   (global-set-key (kbd "C-x u") 'vundo)
@@ -602,13 +589,9 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
     '(vundo-highlight ((t (:foreground "#FFFF00")))))
 
   ;; Use `HJKL` VIM-like motion, also Home/End to jump around.
-  ;; (define-key vundo-mode-map (kbd "l") #'vundo-forward)
-  ;; (define-key vundo-mode-map (kbd "<right>") #'vundo-forward)
   ;; (define-key vundo-mode-map (kbd "h") #'vundo-backward)
   ;; (define-key vundo-mode-map (kbd "<left>") #'vundo-backward)
-  ;; (define-key vundo-mode-map (kbd "j") #'vundo-next)
   ;; (define-key vundo-mode-map (kbd "<down>") #'vundo-next)
-  ;; (define-key vundo-mode-map (kbd "k") #'vundo-previous)
   ;; (define-key vundo-mode-map (kbd "<up>") #'vundo-previous)
   ;; (define-key vundo-mode-map (kbd "<home>") #'vundo-stem-root)
   ;; (define-key vundo-mode-map (kbd "<end>") #'vundo-stem-end)
@@ -625,8 +608,9 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package diff-hl
   :pin melpa-stable
-  :config
+  :init
   (setq diff-hl-draw-borders t)
+  :config
   (face-spec-set 'diff-hl-insert `((((background light)) :background ,(face-attribute 'default :background))
                                    (t :background ,(face-attribute 'default :background))))
   (face-spec-set 'diff-hl-delete `((((background light)) :background ,(face-attribute 'default :background))
@@ -660,12 +644,10 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (add-to-consult-hide-filter "magit")
 #+end_src
 
-*** magit-todos
-
 #+begin_src emacs-lisp
 (use-package magit-todos
   :after magit
-  :config (magit-todos-mode 1))
+  :config (magit-todos-mode t))
 #+end_src
 
 * org
@@ -827,8 +809,6 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 
 ** lisp
 
-*** racket
-
 #+begin_src emacs-lisp
 ;; (add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
 ;; (add-to-list 'org-src-lang-modes '("racket" . racket))
@@ -897,8 +877,7 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   :config
   (setq-default indent-tabs-mode nil
                 python-indent-offset 4
-                python-indent-guess-indent-offset-verbose nil)
-)
+                python-indent-guess-indent-offset-verbose nil))
 #+end_src
 
 install: homebrew
@@ -1285,7 +1264,6 @@ maybe: https://github.com/casouri/eldoc-box
   (eglot-extend-to-xref t)
   ;; (eglot-confirm-server-edits t)
 
-
   ;; :hook ((…-mode) . eglot-ensure)
   :bind (("C-c l a" . eglot-code-actions)
          ("C-c l c" . eglot-reconnect)
@@ -1326,11 +1304,10 @@ maybe: https://github.com/casouri/eldoc-box
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'eglot
+  ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rustup" "run" "stable" "rust-analyzer"
-                                         :initializationOptions (:check (:command "clippy")))))
-  ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
-  )
+                                         :initializationOptions (:check (:command "clippy"))))))
 #+end_src
 
 *** misc
