@@ -1,10 +1,5 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# ruby
-PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-GEMSDIR=$(gem environment gemdir)/bin
-PATH=$GEMSDIR:$PATH
-
 # BEGIN opam configuration
 # This is useful if you're using opam as it adds:
 #   - the correct directories to the PATH
