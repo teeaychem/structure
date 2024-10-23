@@ -73,14 +73,14 @@ increase the amount of data which emacs reads from the process#
 ** mac
 
 #+begin_src emacs-lisp
-(when (eq system-type 'darwin)
-  (use-package emacs
-    :custom
-    (mac-command-modifier 'meta)
-    (mac-option-modifier 'option)
-    (mac-right-option-modifier 'left)
-    (mac-control-modifier 'control)
-    (mac-pass-command-to-system t)))
+(use-package emacs
+  :if (memq system-type '(mac ns darwin))
+  :custom
+  (mac-command-modifier 'meta)
+  (mac-option-modifier 'option)
+  (mac-right-option-modifier 'left)
+  (mac-control-modifier 'control)
+  (mac-pass-command-to-system t))
 #+end_src
 
 ** emacs
@@ -96,16 +96,14 @@ increase the amount of data which emacs reads from the process#
   ;; Vertico commands are hidden in normal buffers. Corfu commands are hidden, since they are not supposed to be used via M-x.
   (setq read-extended-command-predicate #'command-completion-default-include-p)
   (setq enable-recursive-minibuffers t)
-  (setq tab-always-indent 'complete) ;; Enable indentation+completion using the TAB key. `completion-at-point' is often bound to M-TAB.
-
-
+  (setq tab-always-indent 'complete) ;; Enable indentation+completion using the TAB key.
 
   (global-auto-revert-mode t) ; for reloading bib files, etc.
   (desktop-save-mode)
   (save-place-mode t)
 
-  (setq-default indent-tabs-mode nil
-				tab-width 4)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
 
   (delete-selection-mode t) ;; delete selected text by typing
   (global-subword-mode t)
@@ -269,33 +267,27 @@ https://robbmann.io/emacsd/
 ** font
 
 #+begin_src emacs-lisp
-(when (eq system-type 'darwin)
+(use-package emacs
+  :if (memq system-type '(mac ns darwin))
+  :init
   (set-face-attribute 'default nil
                       :family "JuliaMono"
                       :height 120)
-(setq-default mac-allow-anti-aliasing t)
-(setq inhibit-compacting-font-caches t)
-(customize-set-variable 'ns-use-thin-smoothing t))
-#+end_src
+  (setq-default mac-allow-anti-aliasing t)
+  (setq inhibit-compacting-font-caches t)
 
-** syntax highlighting
-
-- Enable syntax highlighting everywhere
-
-#+begin_src emacs-lisp
-(use-package emacs
-  :init
   (global-font-lock-mode t)
   (global-hi-lock-mode nil)
 
   :custom
-  (font-lock-maximum-decoration t)
+  (ns-use-thin-smoothing t)
 
+  (font-lock-maximum-decoration t)
   (jit-lock-contextually t)
   (jit-lock-stealth-verbose t))
 #+end_src
 
-** themes
+** Themes
 
 #+begin_src emacs-lisp :results silent
   (use-package doom-themes
@@ -444,16 +436,6 @@ To see:
 ;; (getenv "PATH")
 #+end_src
 
-** fix-word
-
-#+begin_src emacs-lisp
-(use-package fix-word
-  :pin melpa-stable
-  :bind (("M-u" . #'fix-word-upcase)
-	       ("M-l" . #'fix-word-downcase)
-	       ("M-c" . #'fix-word-capitalize)))
-#+end_src
-
 ** highlight indentation
 
 - To highlight indentations
@@ -554,8 +536,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 ** undo and redo
 
-*** undo-fu
-
 #+begin_src emacs-lisp
 (use-package undo-fu
   :init
@@ -567,16 +547,13 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (global-set-key (kbd "C-?") 'undo-fu-only-redo))
 #+end_src
 
-*** undo-fu-session
-
 #+begin_src emacs-lisp
 (use-package undo-fu-session
+  :init
+  (undo-fu-session-global-mode)
   :config
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
-  (undo-fu-session-global-mode))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 #+end_src
-
-*** vundo
 
 #+begin_src emacs-lisp
 (use-package vundo
@@ -588,7 +565,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
     '(vundo-stem ((t (:foreground "#808080"))))
     '(vundo-highlight ((t (:foreground "#FFFF00")))))
 
-  ;; Use `HJKL` VIM-like motion, also Home/End to jump around.
   ;; (define-key vundo-mode-map (kbd "h") #'vundo-backward)
   ;; (define-key vundo-mode-map (kbd "<left>") #'vundo-backward)
   ;; (define-key vundo-mode-map (kbd "<down>") #'vundo-next)
@@ -702,10 +678,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
                                  (python . t)
                                  ;; (rust . t)
                                  (scheme . t)
-                                 ))
-  ;; :hook
-  ;; (org-mode . toc-org-mode)
-  )
+                                 )))
 #+end_src
 
 * languages
@@ -740,8 +713,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 ** LaTeX
 
-Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customize~, but this is only for after latex is loaded.
-
 #+begin_src emacs-lisp
 (use-package tex
   :mode ("\\.tex\\'" . LaTeX-mode)
@@ -752,10 +723,8 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
   (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . flyspell-mode)
-  (LaTeX-mode . TeX-fold-mode)
   (LaTeX-mode .	(lambda () (set (make-variable-buffer-local 'TeX-electric-math) (cons "\\(" "\\)"))))
   :custom
-  (TeX-PDF-mode t)
   (TeX-master nil) ; All master files called "master".
   (TeX-auto-save t)
   (TeX-save-query nil)
@@ -784,44 +753,16 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 (use-package auctex-latexmk
   :init
   (auctex-latexmk-setup)
-  (add-to-list 'TeX-command-list '("Other" ""
-                                   TeX-run-command t t
-                                   :help "Run an arbitrary command"))
-  (add-to-list 'TeX-command-list '("Clean" "TeX-clean"
-                                   TeX-run-function nil t
-                                   :help "Delete generated intermediate files"))
-  (add-to-list 'TeX-command-list '("View" "%V"
-                                   TeX-run-discard-or-function t t
-                                   :help "Run Viewer"))
+  (add-to-list 'TeX-command-list '("Other" "" TeX-run-command t t :help "Run an arbitrary command"))
+  (add-to-list 'TeX-command-list '("Clean" "TeX-clean" TeX-run-function nil t :help "Delete generated intermediate files"))
+  (add-to-list 'TeX-command-list '("View" "%V" TeX-run-discard-or-function t t :help "Run Viewer"))
   (add-to-list 'TeX-command-list '("Biber" "biber %(output-dir) %s"
-                                   TeX-run-Biber nil (plain-TeX-mode LaTeX-mode)
-                                   :help "Run Biber"))
+                                   TeX-run-Biber nil (plain-TeX-mode LaTeX-mode) :help "Run Biber"))
   (add-to-list 'TeX-command-list '("BibTeX" "bibtex %(O?aux)"
-                                   TeX-run-BibTeX nil (plain-TeX-mode LaTeX-mode ConTeXt-mode)
-                                   :help "Run BibTeX"))
-  (add-to-list 'TeX-command-list '("LaTeX" "%`%l%(mode)%' %T"
-                                   TeX-run-TeX nil (LaTeX-mode)
-                                   :help "Run LaTeX"))
+                                   TeX-run-BibTeX nil (plain-TeX-mode LaTeX-mode ConTeXt-mode) :help "Run BibTeX"))
+  (add-to-list 'TeX-command-list '("LaTeX" "%`%l%(mode)%' %T" TeX-run-TeX nil (LaTeX-mode) :help "Run LaTeX"))
   (add-to-list 'TeX-command-list '("LatexMk" "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
-                                   TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode)
-                                   :help "Run LatexMk")))
-#+end_src
-
-** lisp
-
-#+begin_src emacs-lisp
-;; (add-to-list 'load-path (concat user-emacs-directory "local-packages/emacs-ob-racket/"))
-;; (add-to-list 'org-src-lang-modes '("racket" . racket))
-;; (org-babel-do-load-languages 'org-babel-load-languages
-;;                              '((racket . t)))
-
-;; (use-package ob-racket
-;;   :vc (:fetcher github :repo hasu/emacs-ob-racket)
-;;   :after org
-;;   :config
-;;   (add-hook 'ob-racket-pre-runtime-library-load-hook
-;; 	      #'ob-racket-raco-make-runtime-library)
-;;   )
+                                   TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode) :help "Run LatexMk")))
 #+end_src
 
 ** lua
@@ -875,13 +816,10 @@ Note, the docstring requires setting ~LaTeX-math-abbrev-prefix~ by ~M-x customiz
 (use-package python
   :defer t
   :config
-  (setq-default indent-tabs-mode nil
-                python-indent-offset 4
-                python-indent-guess-indent-offset-verbose nil))
+  (setq-default indent-tabs-mode nil)
+  (setq-default python-indent-offset 4)
+  (setq-default python-indent-guess-indent-offset-verbose nil))
 #+end_src
-
-install: homebrew
-if fails to work, might be due to some inaccessible file in a buffer
 
 #+begin_src emacs-lisp
 (use-package pet
@@ -944,7 +882,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
          ("C-c p \\" . cape-tex)
          ("C-c p _" . cape-tex)
          ("C-c p ^" . cape-tex)
-         ("C-c p &" . cape-&sgml)
          ("C-c p r" . cape-rfc1345))
   :init
   ;; Add to the global default value of `completion-at-point-functions' which is
@@ -968,7 +905,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 ** consult
 
-*** binds
+*** ‹binds
 
 #+name: consult-binds
 #+begin_src emacs-lisp :results silent :tangle no
@@ -1229,25 +1166,9 @@ vertico for minibuffer completions
 
 * lsp
 
-#+begin_src emacs-lisp
-;; (use-package lsp-snippet
-;;   :vc (lsp-snippet :url "https://github.com/svaante/lsp-snippet"
-;;                    :rev :newest)
-;;   :config
-;;   (when (featurep 'lsp-mode) (lsp-snippet-tempel-lsp-mode-init)) ;; Initialize lsp-snippet -> tempel in lsp-mode
-;;   (when (featurep 'eglot) (lsp-snippet-tempel-eglot-init)) ;; Initialize lsp-snippet -> tempel in eglot
-;;   (lsp-snippet-tempel-lsp-mode-init))
-
-;; ;; to ensure lsp-mode attempts completions see: https://github.com/svaante/lsp-snippet/issues/6
-;; (defun yas-minor-mode () 'nil)
-#+end_src
-
 ** eglot
 
-*** base
-
 maybe: https://github.com/casouri/eldoc-box
-
 
 #+begin_src emacs-lisp
 (use-package eglot
@@ -1282,13 +1203,6 @@ maybe: https://github.com/casouri/eldoc-box
                                     :underline t))))
   ;; :hook
   ;; (eglot-managed-mode . #'my/eglot-capf)
-  ;; :custom
-  ;; (eglot-autoshutdown t)
-  ;; (eglot-ignored-server-capabilities
-  ;;  '(:hoverProvider
-  ;;    :documentHighlightProvider
-  ;;    :colorProvider
-  ;;    :foldingRangeProvider))
   )
 
 (defun my/eglot-capf ()
@@ -1387,61 +1301,6 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
     prog-mode
     text-mode) . tempel-setup-capf)
 )
-#+end_src
-
-* COMMENT menu
-
-** transpose sexp for/backward
-
-http://yummymelon.com/devnull/moving-text-elegantly-in-emacs.html
-
-#+begin_src emacs-lisp
-(easy-menu-define cc/transpose-menu nil
-  "Keymap for Transpose submenu"
-  '("Transpose"
-    :visible (not buffer-read-only)
-    ["Characters" transpose-chars
-     :help "Interchange characters around point, moving forward one character."]
-    ["Words" transpose-words
-     :help "Interchange words around point, leaving point at end of them."]
-    ["Lines" transpose-lines
-     :help "Exchange current line and previous line, leaving point after both."]
-    ["Sentences" transpose-sentences
-     :help "Interchange the current sentence with the next one."]
-    ["Paragraphs" transpose-paragraphs
-     :help "Interchange the current paragraph with the next one."]
-    ["Regions" transpose-regions
-     :help "region STARTR1 to ENDR1 with STARTR2 to ENDR2."]
-    ["Balanced Expressions (sexps)" transpose-sexps
-     :help "Like C-t (‘transpose-chars’), but applies to balanced \
-expressions (sexps)."]))
-
-(easy-menu-define cc/move-text-menu nil
-  "Keymap for Move Text submenu"
-  '("Move Text"
-    :visible (not buffer-read-only)
-    ["Word Forward" cc/move-word-forward
-     :help "Move word to the right of point forward one word."]
-    ["Word Backward" cc/move-word-backward
-     :help "Move word to the right of point backward one word."]
-    ["Sentence Forward" cc/move-sentence-forward
-     :help "Move sentence to the right of point forward one sentence."]
-    ["Sentence Backward" cc/move-sentence-backward
-     :help "Move sentence to the right of point backward one sentence."]
-    ["Balanced Expression (sexp) Forward" cc/move-sexp-forward
-     :help "Move balanced expression (sexp) to the right of point forward \
-one sexp."]
-    ["Balanced Expression (sexp) Backward" cc/move-sexp-backward
-     :help "Move balanced expression (sexp) to the right of point backward \
-one sexp."]))
-#+end_src
-
-#+begin_src emacs-lisp
-(easy-menu-add-item (lookup-key global-map [menu-bar edit]) nil
-                    cc/transpose-menu "Fill")
-
-(easy-menu-add-item (lookup-key global-map [menu-bar edit]) nil
-                    cc/move-text-menu "Fill")
 #+end_src
 
 * LLM

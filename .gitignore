@@ -3,6 +3,7 @@
 emacs/.emacs.desktop
 emacs/.org-id-locations
 emacs/config.el
+emacs/custom.el
 emacs/elpa/*
 emacs/etc/*
 emacs/etc/*
