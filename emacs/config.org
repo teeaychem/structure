@@ -12,19 +12,6 @@ https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://ed
 
 * temp
 
-* local macros
-
-Macro to add the same regex to a collection of consult filters.
-These buffers can be seen by using space
-
-#+begin_src emacs-lisp :results silent
-(defmacro add-to-consult-hide-filter (regex)
-  `(progn
-     (with-eval-after-load 'consult
-       (add-to-list 'recentf-exclude ,(format "%s" regex))
-       (add-to-list 'consult-buffer-filter ,(format "%s" regex)))))
-#+end_src
-
 * startup
 
 from https://github.com/howardabrams/dot-files/blob/master/emacs.org
@@ -287,22 +274,19 @@ https://robbmann.io/emacsd/
   (jit-lock-stealth-verbose t))
 #+end_src
 
-** Themes
+** themes
 
 #+begin_src emacs-lisp :results silent
   (use-package doom-themes
     :pin melpa
     :config
-    ;; global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-rouge t) ;; rouge laserwave spacegrey fairy-floss peacock snazzy ir-black     outrun-electric
+    (setq doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+    (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-rouge t)
+    ;; (load-theme 'doom-zenburn t)
 
     ;; enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
-    ;; or for treemacs users
-    ;; (setq doom-themes-treemacs-theme "doom-spacegrey")
-    ;; (doom-themes-treemacs-config)
     ;; corrects (and improves) org-mode's native fontification.
     ;; (doom-themes-org-config)
     )
@@ -617,13 +601,18 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :custom
   (magit-log-arguments '("--graph" "--decorate" "--color")))
 
-(add-to-consult-hide-filter "magit")
+
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package magit-todos
   :after magit
   :config (magit-todos-mode t))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package magit-delta
+  :hook (magit-mode . magit-delta-mode))
 #+end_src
 
 * org
@@ -659,7 +648,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (org-log-done 'time) ;; Auto add time and closing note to done
   (org-log-done 'note)
   ;; :hook
-  ;; (org-mode . org-indent-mode)
   ;; (org-mode . flyspell-mode)
   ;; (org-mode . flyspell-buffer)
 
@@ -668,17 +656,12 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (add-to-list 'org-structure-template-alist '("ss" . "src sh"))
   (add-to-list 'org-structure-template-alist '("sp" . "src python"))
   (org-babel-do-load-languages 'org-babel-load-languages
-                               '((C . t)
-                                 (dot . t)
+                               '((dot . t)
                                  (emacs-lisp . t)
-                                 (js . t)
                                  (latex . t)
                                  (lisp . t)
                                  (org . t)
-                                 (python . t)
-                                 ;; (rust . t)
-                                 (scheme . t)
-                                 )))
+                                 (scheme . t))))
 #+end_src
 
 * languages
@@ -843,7 +826,9 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :mode "\\.rs\\'"
   :init
   (setq rust-mode-treesitter-derive t)
-  (setq rust-format-on-save nil))
+  (setq rust-format-on-save nil)
+  ;; (setq rust-ts-flymake-command '("cargo" "clippy"))
+  )
 #+end_src
 
 
@@ -905,65 +890,19 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 ** consult
 
-*** ‹binds
+*** local macros
 
-#+name: consult-binds
-#+begin_src emacs-lisp :results silent :tangle no
-:bind (;; Replace bindings. Lazily loaded due by `use-package'.
- ;; C-c bindings in `mode-specific-map'
- ("C-c M-x" . consult-mode-command)
- ("C-c h" . consult-history)
- ("C-c k" . consult-kmacro)
- ("C-c m" . consult-man)
- ("C-c i" . consult-info)
- ([remap Info-search] . consult-info)
- ;; C-x bindings in `ctl-x-map'
- ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
- ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
- ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
- ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
- ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
- ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
- ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
- ;; Custom M-# bindings for fast register access
- ("M-#" . consult-register-load)
- ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
- ("C-M-#" . consult-register)
- ;; Other custom bindings
- ("M-y" . consult-yank-pop)                ;; orig. yank-pop
- ;; M-g bindings in `goto-map'
- ("M-g e" . consult-compile-error)
- ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
- ("M-g g" . consult-goto-line)             ;; orig. goto-line
- ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
- ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
- ("M-g m" . consult-mark)
- ("M-g k" . consult-global-mark)
- ("M-g i" . consult-imenu)
- ("M-g I" . consult-imenu-multi)
- ;; M-s bindings in `search-map'
- ("M-s d" . consult-find)                  ;; Alternative: consult-fd
- ("M-s c" . consult-locate)
- ("M-s G" . consult-grep)
- ("M-s g" . consult-git-grep)
- ("M-s r" . consult-ripgrep)
- ("C-S-s" . consult-line)
- ("M-s s" . consult-line)
- ("M-s L" . consult-line-multi)
- ("M-s k" . consult-keep-lines)
- ("M-s u" . consult-focus-lines)
- ;; Isearch integration
- ("M-s e" . consult-isearch-history)
- :map isearch-mode-map
- ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
- ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
- ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
- ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
- ;; Minibuffer history
- :map minibuffer-local-map
- ("M-s" . consult-history)                 ;; orig. next-matching-history-element
- ("M-r" . consult-history)                 ;; orig. previous-matching-history-element
- )
+Macro to add the same regex to a collection of consult filters.
+These buffers can be seen by using space
+
+#+begin_src emacs-lisp :results silent
+  (defmacro add-to-consult-hide-filter (regex)
+    `(progn
+       (with-eval-after-load 'consult
+         (add-to-list 'recentf-exclude ,(format "%s" regex))
+         (add-to-list 'consult-buffer-filter ,(format "%s" regex)))))
+
+  (add-to-consult-hide-filter "magit")
 #+end_src
 
 *** main
@@ -972,22 +911,75 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 ;; Example configuration for Consult
 (use-package consult
   :pin melpa
-  <<consult-binds>>
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h" . consult-history)
+         ("C-c k" . consult-kmacro)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings in `goto-map'
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings in `search-map'
+         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+         ("M-s c" . consult-locate)
+         ("M-s G" . consult-grep)
+         ("M-s g" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("C-S-s" . consult-line)
+         ("M-s s" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history)                 ;; orig. previous-matching-history-element
+         )
   ;; Enable automatic preview at point in the *Completions* buffer. This is relevant when you use the default completion UI.
   :hook
   (completion-list-mode . consult-preview-at-point-mode)
   :init
 
   ;; Configure the register formatting. This improves the register preview for `consult-register', `consult-register-load', `consult-register-store' and the Emacs built-ins.
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+  (setq register-preview-delay 0.5)
+  (setq register-preview-function #'consult-register-format)
 
   ;; Tweak the register preview window. This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
 
   ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+  (setq xref-show-xrefs-function #'consult-xref)
+  (setq xref-show-definitions-function #'consult-xref)
 
   :config ;; Configure other variables and modes in the :config section, after lazily loading the package.
 
@@ -1003,9 +995,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
 
-  ;; Optionally configure the narrowing key. Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; "C-+"
-  )
+  (setq consult-narrow-key "<"))
 #+end_src
 
 *** macro
@@ -1164,9 +1154,7 @@ vertico for minibuffer completions
 (push ".DS_store" completion-ignored-extensions)
 #+end_src
 
-* lsp
-
-** eglot
+* eglot
 
 maybe: https://github.com/casouri/eldoc-box
 
@@ -1174,22 +1162,22 @@ maybe: https://github.com/casouri/eldoc-box
 (use-package eglot
   :pin gnu-devel
   :init
-  (setq eldoc-echo-area-prefer-doc-buffer nil
-        eldoc-echo-area-use-multiline-p t)
-
-  ;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
-  ;; (setq completion-at-point-functions (list (cape-capf-buster (cape-capf-debug #'eglot-completion-at-point))))
+  (setq eldoc-echo-area-prefer-doc-buffer nil)
+  (setq eldoc-echo-area-use-multiline-p t)
 
   :custom
   (eglot-report-progress nil)
   (eglot-extend-to-xref t)
   ;; (eglot-confirm-server-edits t)
 
+  :config
+  ;; (add-to-list 'eglot-stay-out-of 'flymake)
+
   ;; :hook ((…-mode) . eglot-ensure)
   :bind (("C-c l a" . eglot-code-actions)
          ("C-c l c" . eglot-reconnect)
-         ("C-c l b d" . flymake-show-buffer-diagnostics)
-         ("C-c l b e" . eldoc-doc-buffer)
+         ("C-c l d" . flymake-show-buffer-diagnostics)
+         ("C-c l e" . eldoc-doc-buffer)
          ("C-c l f f" . eglot-format)
          ("C-c l f b" . eglot-format-buffer)
          ("C-c l i" . eglot-find-implementation)
@@ -1247,13 +1235,6 @@ for expansion
   (eglot-tempel-mode t))
 #+end_src
 
-#+begin_src emacs-lisp
-;; (use-package eglot-booster
-;;   :after eglot
-;;   :config (eglot-booster-mode)
-;;   :vc (:fetcher github :repo jdtsmith/eglot-booster))
-#+end_src
-
 * treesit
 
 https://github.com/renzmann/treesit-auto
@@ -1303,7 +1284,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 )
 #+end_src
 
-* LLM
+* COMMENT LLM
 
 https://github.com/ahyatt/llmz1z
 https://github.com/s-kostyaev/ellama

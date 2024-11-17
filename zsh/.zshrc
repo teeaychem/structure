@@ -37,8 +37,8 @@ setopt HIST_FCNTL_LOCK
 setopt EXTENDED_HISTORY # additional info
 
 # # # corrections
-setopt CORRECT
-setopt CORRECT_ALL
+# setopt CORRECT
+# setopt CORRECT_ALL
 
 # # # keys
 
