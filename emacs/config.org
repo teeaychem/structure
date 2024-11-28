@@ -161,8 +161,8 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 *** locale
 
 #+begin_src emacs-lisp
-(set-locale-environment "en_gb.utf-8")
-(setenv "lang" "en_gb.utf-8")
+;; (set-locale-environment "en_gb.utf-8")
+;; (setenv "lang" "en_gb.utf-8")
 
 (prefer-coding-system       'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -799,7 +799,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package python
   :defer t
   :config
-  (setq-default indent-tabs-mode nil)
   (setq-default python-indent-offset 4)
   (setq-default python-indent-guess-indent-offset-verbose nil))
 #+end_src
@@ -1209,7 +1208,8 @@ maybe: https://github.com/casouri/eldoc-box
   ;; (add-to-list 'eglot-server-programs '(LaTeX-mode . ("TexLab")))
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rustup" "run" "stable" "rust-analyzer"
-                                         :initializationOptions (:check (:command "clippy"))))))
+                                         :initializationOptions (:check (:command "clippy")))))
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd"))))
 #+end_src
 
 *** misc

@@ -13,7 +13,15 @@ fi
 # llvm / clang, etc.
 if [[ $(uname) == "Darwin" ]]; then
     export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+    LDFLAGS="-L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
+    LDFLAGS="-L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
 fi
+
+# export CC := clang
+# export CXX := $(CC)++
+
+export VCPKG_ROOT=$HOME/.vcpkg
+export PATH="$VCPKG_ROOT:$PATH"
 
 # less
 export LESSHISTFILE="$XDG_STATE_HOME"/less/history

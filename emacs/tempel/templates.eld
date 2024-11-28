@@ -139,9 +139,16 @@ latex-mode
 
 c++-mode
 
-(\. "->")
-
+(dr "->")
 (cout "cout << " p " << endl;")
+(amain "
+using namespace std;
+
+int main(int argc, char **argv) {"
+p
+"
+return 0;
+}")
 
 org-mode
 
