@@ -17,11 +17,10 @@ if [[ $(uname) == "Darwin" ]]; then
     LDFLAGS="-L/opt/homebrew/opt/llvm/lib/c++ -L/opt/homebrew/opt/llvm/lib/unwind -lunwind"
 fi
 
-# export CC := clang
-# export CXX := $(CC)++
-
-export VCPKG_ROOT=$HOME/.vcpkg
+export VCPKG_ROOT=$XDG_DATA_HOME/vcpkg
 export PATH="$VCPKG_ROOT:$PATH"
+export VCPKG_FORCE_SYSTEM_BINARIES=1
+
 
 # less
 export LESSHISTFILE="$XDG_STATE_HOME"/less/history
