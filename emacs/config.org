@@ -473,31 +473,31 @@ To see:
 The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
-(use-package puni \\n
-  :defer t \\n
-  :config \\n
-  (puni-global-mode) \\n
-  (setcdr puni-mode-map nil) \\n
-  :bind \\n
-  (:map puni-mode-map \\n
-        ("DEL" . puni-backward-delete-char) \\n
-        ("C-d" . puni-forward-delete-char) \\n
-        ("M-d" . puni-forward-kill-word) \\n
-        ("M-DEL" . puni-backward-kill-word) \\n
-        ("C-k" . puni-kill-line) \\n
-        ("C-u" . puni-backward-kill-line) \\n
-        ("C-h" . puni-force-delete) \\n
-        ("C-M-f" . puni-forward-sexp) \\n
-        ("C-M-b" . puni-backward-sexp) \\n
-        ("C-M-a" . puni-beginning-of-sexp) \\n
-        ("C-M-e" . puni-end-of-sexp) \\n
-        ) \\n
-  :config \\n
-  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil) \\n
-  :hook \\n
-  (term-mode #'puni-disable-puni-mode) \\n
-  ;\;\(prog-mode #'puni-flyindent-mode) \\n
-  ) \\n
+(use-package puni
+  :defer t
+  :config
+  (puni-global-mode)
+  (setcdr puni-mode-map nil)
+  :bind
+  (:map puni-mode-map
+        ("DEL" . puni-backward-delete-char)
+        ("C-d" . puni-forward-delete-char)
+        ("M-d" . puni-forward-kill-word)
+        ("M-DEL" . puni-backward-kill-word)
+        ("C-k" . puni-kill-line)
+        ("C-u" . puni-backward-kill-line)
+        ("C-h" . puni-force-delete)
+        ("C-M-f" . puni-forward-sexp)
+        ("C-M-b" . puni-backward-sexp)
+        ("C-M-a" . puni-beginning-of-sexp)
+        ("C-M-e" . puni-end-of-sexp)
+        )
+  :config
+  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
+  :hook
+  (term-mode #'puni-disable-puni-mode)
+  ;\;\(prog-mode #'puni-flyindent-mode)
+  )
 #+end_src
 
 ** rainbow delimiters
@@ -694,6 +694,12 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (setq clang-format-style-option "llvm"))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package cmake-mode
+  :defer t
+  :mode ("CMakeLists.txt" . cmake-mode))
+#+end_src
+
 ** LaTeX
 
 #+begin_src emacs-lisp
@@ -839,6 +845,13 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+begin_src emacs-lisp
 (use-package toml-mode
+  :defer t)
+#+end_src
+
+** z3
+
+#+begin_src emacs-lisp
+(use-package boogie-friends
   :defer t)
 #+end_src
 
@@ -1147,6 +1160,46 @@ vertico for minibuffer completions
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
 #+end_src
 
+** COMMENT embark
+
+#+begin_src emacs-lisp
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t ; only need to install it, embark loads it after consult if found
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
 ** misc
 
 #+begin_src emacs-lisp
@@ -1209,7 +1262,9 @@ maybe: https://github.com/casouri/eldoc-box
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rustup" "run" "stable" "rust-analyzer"
                                          :initializationOptions (:check (:command "clippy")))))
-  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd"))))
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
+  )
 #+end_src
 
 *** misc

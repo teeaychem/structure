@@ -142,6 +142,8 @@ c++-mode
 (dr "->")
 (cout "cout << " p " << endl;")
 (amain "
+#include <vector>
+
 using namespace std;
 
 int main(int argc, char **argv) {"
