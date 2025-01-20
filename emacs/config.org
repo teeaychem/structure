@@ -98,6 +98,9 @@ increase the amount of data which emacs reads from the process#
   (setq native-comp-async-report-warnings-errors nil)
   ;; (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
 
+  (define-key key-translation-map (kbd "M-¥") (kbd "("))
+  (define-key key-translation-map (kbd "M-[") (kbd "("))
+
   :custom
   (user-full-name "bsparkes")
   (user-mail-address "bsparkes@alumni.stanford.edu")
