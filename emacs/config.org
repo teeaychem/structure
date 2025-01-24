@@ -200,7 +200,6 @@ https://robbmann.io/emacsd/
 (use-package emacs
   :init
   (setq-default fill-column 1024)
-  (setq-default line-spacing 2)
   (set-default 'truncate-lines nil)
 
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -261,8 +260,9 @@ https://robbmann.io/emacsd/
   :if (memq system-type '(mac ns darwin))
   :init
   (set-face-attribute 'default nil
-                      :family "JuliaMono"
-                      :height 120)
+                      :family "M+1Code Nerd Font Mono"; "JuliaMono"
+                      :height 140)
+  (setq-default line-spacing 1)
   (setq-default mac-allow-anti-aliasing t)
   (setq inhibit-compacting-font-caches t)
 

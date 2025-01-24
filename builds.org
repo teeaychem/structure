@@ -1,0 +1,13 @@
+* emacs
+
+#+begin_src
+./configure --with-imagemagick --with-tree-sitter --with-pgtk --with-native-compilation
+#+end_src
+
+* cvc5
+
+#+begin_src
+./configure.sh --python-bindings --auto-download --cocoa --gpl
+#+end_src
+
+https://cvc5.github.io/docs/latest/api/python/python.html
