@@ -1,5 +1,6 @@
 -*- mode: org -*-
 #+startup: overview content
+# #+PROPERTY: header-args :results silent
 
 * to investigate
 
@@ -52,7 +53,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 increase the amount of data which emacs reads from the process#
 
 #+begin_src emacs-lisp
-(setq read-process-output-max (* 3 1024 1024))
+(setq read-process-output-max (* 4 1024 1024))
 #+end_src
 
 * general
@@ -255,12 +256,12 @@ https://robbmann.io/emacsd/
 
 ** font
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
 (use-package emacs
   :if (memq system-type '(mac ns darwin))
   :init
   (set-face-attribute 'default nil
-                      :family "M+1Code Nerd Font Mono"; "JuliaMono"
+                      :family "M+1Code Nerd Font Mono"; "Maple Mono NF" "JuliaMono"
                       :height 140)
   (setq-default line-spacing 1)
   (setq-default mac-allow-anti-aliasing t)
@@ -274,7 +275,8 @@ https://robbmann.io/emacsd/
 
   (font-lock-maximum-decoration t)
   (jit-lock-contextually t)
-  (jit-lock-stealth-verbose t))
+  (jit-lock-stealth-verbose t)
+)
 #+end_src
 
 ** themes
@@ -367,15 +369,37 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :bind (:map flymake-mode-map
               ("C-c f n" . flymake-goto-next-error)
               ("C-c f p" . flymake-goto-prev-error)
-              ("C-c n" . (lambda (&optional N INTERACTIVE)
+              ("C-c f e n" . (lambda (&optional N INTERACTIVE)
                              (interactive (list 1 t))
                              (flymake-goto-next-error N '(error) INTERACTIVE)))
-              ("C-c p" . (lambda (&optional N INTERACTIVE)
+              ("C-c f e p" . (lambda (&optional N INTERACTIVE)
                              (interactive (list 1 t))
                              (flymake-goto-previous-error N '(error) INTERACTIVE))))
   ;; :hook
   ;; (prog-mode . flymake-mode)
   )
+#+end_src
+
+** flycheck
+
+#+begin_src emacs-lisp
+(use-package flycheck
+  :ensure
+  :bind (:map flycheck-mode-map
+              ("C-c e n" . flycheck-next-error)
+              ("C-c e p" . flycheck-prev-error)
+  )
+)
+#+end_src
+
+*** rust
+
+#+begin_src emacs-lisp
+(use-package flycheck-rust
+  :after flycheck
+  :hook
+  (flycheck-mode . flycheck-rust-setup)
+)
 #+end_src
 
 ** which-key
@@ -526,13 +550,14 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package undo-fu
   :init
-  (setq undo-limit 67108864) ; 64mb.
-  (setq undo-strong-limit 100663296) ; 96mb.
-  (setq undo-outer-limit 1006632960) ; 960mb.
+  (setq undo-limit (* 64 1024 1024)) ; 64mb.
+  (setq undo-strong-limit (* 96 1024 1024)) ; 96mb.
+  (setq undo-outer-limit (* 960 1024 1024)) ; 960mb.
   :config
   (global-set-key (kbd "C-/") 'undo-fu-only-undo)
   (global-set-key (kbd "C-?") 'undo-fu-only-redo))
 #+end_src
+
 
 #+begin_src emacs-lisp
 (use-package undo-fu-session
@@ -603,8 +628,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
    ("C-c g r" . magit-refresh))
   :custom
   (magit-log-arguments '("--graph" "--decorate" "--color")))
-
-
 #+end_src
 
 #+begin_src emacs-lisp
@@ -650,6 +673,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
   (org-log-done 'time) ;; Auto add time and closing note to done
   (org-log-done 'note)
+
   ;; :hook
   ;; (org-mode . flyspell-mode)
   ;; (org-mode . flyspell-buffer)
@@ -691,8 +715,8 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package clang-format
   :defer t
   :bind
-  (("C-c i" . clang-format-region)
-   ("C-c u" . clang-format-buffer))
+  (("C-c f r" . clang-format-region)
+   ("C-c f b" . clang-format-buffer))
   :init
   (setq clang-format-style-option "llvm"))
 #+end_src
@@ -755,6 +779,17 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   (add-to-list 'TeX-command-list '("LaTeX" "%`%l%(mode)%' %T" TeX-run-TeX nil (LaTeX-mode) :help "Run LaTeX"))
   (add-to-list 'TeX-command-list '("LatexMk" "latexmk %(-PDF)%S%(mode) %(file-line-error) %(extraopts) %t"
                                    TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode) :help "Run LatexMk")))
+#+end_src
+
+** COMMENT lean
+
+#+begin_src emacs-lisp
+(use-package lean4-mode
+  :commands lean4-mode
+  :vc (:url "https://github.com/leanprover-community/lean4-mode.git"
+       :rev :last-release
+       )
+  :mode "\\.lean\\'")
 #+end_src
 
 ** lua
@@ -835,23 +870,25 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   :init
   (setq rust-mode-treesitter-derive t)
   (setq rust-format-on-save nil)
-  ;; (setq rust-ts-flymake-command '("cargo" "clippy"))
-  )
+  (setq rust-ts-flymake-command '("cargo" "clippy"))
+  :config
+  (rust-indent-offset 4)
+)
 #+end_src
 
 
 #+begin_src emacs-lisp
 (use-package cargo
   :diminish cargo-minor-mode
-  :hook (rust-mode . cargo-minor-mode))
+  :hook (rust-mode . cargo-minor-mode)
+)
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package toml-mode
-  :defer t)
+(use-package toml-mode :defer t)
 #+end_src
 
-** z3
+** COMMENT z3
 
 #+begin_src emacs-lisp
 (use-package boogie-friends
@@ -923,7 +960,6 @@ These buffers can be seen by using space
 *** main
 
 #+begin_src emacs-lisp :results silent :noweb yes
-;; Example configuration for Consult
 (use-package consult
   :pin melpa
   :bind (;; C-c bindings in `mode-specific-map'
@@ -1098,6 +1134,7 @@ https://github.com/Qkessler/consult-project-extra
   :custom
   (corfu-cycle nil)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Automatically display popups wherever available
+  (corfu-auto-delay 0.1)
   (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
@@ -1163,7 +1200,7 @@ vertico for minibuffer completions
   (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
 #+end_src
 
-** COMMENT embark
+** embark
 
 #+begin_src emacs-lisp
 (use-package embark
@@ -1203,13 +1240,13 @@ vertico for minibuffer completions
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
-** misc
+** ignored extensions
 
 #+begin_src emacs-lisp
 (push ".DS_store" completion-ignored-extensions)
 #+end_src
 
-* eglot
+* COMMENT eglot
 
 maybe: https://github.com/casouri/eldoc-box
 
@@ -1223,6 +1260,7 @@ maybe: https://github.com/casouri/eldoc-box
   :custom
   (eglot-report-progress nil)
   (eglot-extend-to-xref t)
+  (corfu-preview-current nil)
   ;; (eglot-confirm-server-edits t)
 
   :config
@@ -1267,10 +1305,21 @@ maybe: https://github.com/casouri/eldoc-box
                                          :initializationOptions (:check (:command "clippy")))))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
+  ;; (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
   )
 #+end_src
 
-*** misc
+** eglot-booster
+
+#+begin_src emacs-lisp
+(use-package eglot-booster
+    :vc (eglot-booster :url "https://github.com/jdtsmith/eglot-booster"
+                       :rev :newest)
+	:after eglot
+	:config	(eglot-booster-mode))
+#+end_src
+
+** eglot-x
 
 https://github.com/nemethf/eglot-x#rust-analyzer-extensions
 for rust dev
@@ -1284,13 +1333,112 @@ for rust dev
   (eglot-x-setup))
 #+end_src
 
-for expansion
+** eglot-tempel
 
 #+begin_src emacs-lisp
 (use-package eglot-tempel
+  :after eglot
   :preface (eglot-tempel-mode)
   :init
   (eglot-tempel-mode t))
+#+end_src
+
+* lsp-mode
+
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :pin melpa
+  :commands lsp
+
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+
+  :custom
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+
+  (lsp-completion-provider :none)
+  (lsp-modeline-diagnostics-scope :file)
+  (lsp-modeline-code-actions-enable nil)
+  (lsp-auto-execute-action nil)
+  (lsp-eldoc-render-all nil)
+  (lsp-treemacs-sync-mode 1)
+  (lsp-inlay-hint-enable t)
+  (lsp-keep-workspace-alive nil)
+  (lsp-headerline-breadcrumb-enable nil)
+
+  ;; Rust things
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-rust-analyzer-diagnostics-disabled ["inactive-code"])
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+
+  :custom-face
+  (lsp-face-highlight-textual ((t (:foreground unspecified :background unspecified :bold t :italic t :underline t))))
+  (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
+  (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
+  (lsp-inlay-hint-face ((t (:height 0.8))))
+
+  :hook (((rust-mode rust-ts-mode) . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
+
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package lsp-snippet-tempel
+  :vc (lsp-snippet-tempel :url "https://github.com/svaante/lsp-snippet"
+               :rev :newest)
+  :after lsp-mode
+  :config
+  (when (featurep 'lsp-mode)
+    (lsp-snippet-tempel-lsp-mode-init))
+)
+#+end_src
+
+** booster
+
+#+begin_src emacs-lisp
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+            (setcar orig-result command-from-exec-path))
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+end_src
+
+** lsp-treemacs
+
+#+begin_src emacs-lisp
+(use-package lsp-treemacs
+  :after lsp-mode
+  (lsp-treemacs-sync-mode t))
 #+end_src
 
 * treesit
@@ -1310,11 +1458,10 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+(add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
 #+end_src
 
-* text expansion
-
-** tempel
+* tempel
 
 #+begin_src emacs-lisp
 (use-package tempel
@@ -1340,28 +1487,4 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
     prog-mode
     text-mode) . tempel-setup-capf)
 )
-#+end_src
-
-* COMMENT LLM
-
-https://github.com/ahyatt/llmz1z
-https://github.com/s-kostyaev/ellama
-
-#+begin_src emacs-lisp
-;; (use-package ellama
-;;   :init
-;;   ;; setup key bindings
-;;   (setopt ellama-keymap-prefix "C-c e")
-;;   ;; language you want ellama to translate to
-;;   (setopt ellama-language "English")
-;;   (require 'llm-llamacpp)
-;;   (setopt ellama-provider
-;; 		      (make-llm-llamacpp)))
-#+end_src
-
-#+begin_src emacs-lisp
-;; (add-to-list 'load-path (concat user-emacs-directory "../../projects/emacs/eilac/"))
-
-;; (use-package eilac
-;;   :load-path (lambda() (concat user-emacs-directory "../../projects/emacs/eilac/")))
 #+end_src
