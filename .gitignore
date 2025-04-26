@@ -1,5 +1,7 @@
 **.DS_Store
 
+cache/
+
 emacs/.emacs.desktop
 emacs/.org-id-locations
 emacs/config.el
@@ -14,8 +16,16 @@ emacs/savehist
 emacs/tree-sitter/*
 emacs/undo-tree/*
 emacs/var/*
+emacs/eln-cache/**
+emacs/srecode-map.el
+
+navidrome.toml
 
 npm/*
+
+swi-prolog/dir-history/
+
+tree-sitter/
 
 zsh/.zcompdump
 zsh/.zsh_history
