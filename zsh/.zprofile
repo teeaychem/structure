@@ -54,7 +54,10 @@ fi
 export PYTHONPYCACHEPREFIX=$XDG_CACHE_HOME/python_cache
 
 # hunspell
-export DICPATH="$STRUCTURE_HOME/hunspell/dictionaries"
+export DICPATH="$XDG_CONFIG_HOME/hunspell/dictionaries"
+
+# docker
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
 
 #m4
 if [[ $(uname) == "Darwin" ]]; then
@@ -64,3 +67,6 @@ fi
 if [ -f ~/.config/zsh/.profile_local ]; then
     source ~/.config/zsh/.profile_local
 fi
+
+# pipx
+export PATH="$PATH:$HOME/.local/bin"

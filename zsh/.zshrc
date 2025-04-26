@@ -152,3 +152,12 @@ if [[ $(uname) == "Darwin" ]]; then
 fi
 
 eval "$(starship init zsh)"
+
+# Created by `pipx` on 2025-02-22 13:25:58
+export PATH="$PATH:/Users/sparkes/.local/bin"
+
+# fzf
+source <(fzf --zsh)
+
+# zoxide
+eval "$(zoxide init zsh)"
