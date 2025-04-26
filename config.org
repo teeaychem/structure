@@ -1,10 +1,22 @@
-* emacs
+* os settings
+
+** ns
+
+#+begin_src
+defaults -currentHost write -g AppleFontSmoothing -int 0
+#+end_src
+
+
+
+* build configs
+
+** emacs
 
 #+begin_src
 ./configure --with-imagemagick --with-tree-sitter --with-pgtk --with-native-compilation
 #+end_src
 
-* cvc5
+** cvc5
 
 #+begin_src
 ./configure.sh --static --best --gpl --no-cryptominisat --no-glpk --python-bindings --cocoa
