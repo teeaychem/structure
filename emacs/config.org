@@ -116,17 +116,23 @@ increase the amount of data which emacs reads from the process#
                                   cursor-intangible t
                                   face minibuffer-prompt)) ;; Do not allow the cursor in the minibuffer prompt
 
+  :hook
+  (before-save . delete-trailing-whitespace))
+#+end_src
+
+*** binds
+
+#+begin_src emacs-lisp
+(use-package emacs
   :bind
   (("C-z" . ignore)
+   ("C-K" . (lambda (arg) (interactive "p") (delete-region (point) (line-end-position))))
    ("C-x k" . kill-current-buffer)
    ("C-x K" . kill-buffer)
    ("RET" . newline-and-indent) ;; go to indentation on new line
    ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
    ("<mouse-2>" . ignore) ;; figure out what to do with middle button…
-   ("<mouse-3>" . context-menu-open))
-
-  :hook
-  (before-save . delete-trailing-whitespace))
+   ("<mouse-3>" . context-menu-open)))
 #+end_src
 
 *** saving & backups
@@ -781,17 +787,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
                                    TeX-run-latexmk nil (plain-TeX-mode LaTeX-mode) :help "Run LatexMk")))
 #+end_src
 
-** COMMENT lean
-
-#+begin_src emacs-lisp
-(use-package lean4-mode
-  :commands lean4-mode
-  :vc (:url "https://github.com/leanprover-community/lean4-mode.git"
-       :rev :last-release
-       )
-  :mode "\\.lean\\'")
-#+end_src
-
 ** lua
 
 #+begin_src emacs-lisp
@@ -871,8 +866,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
   (setq rust-mode-treesitter-derive t)
   (setq rust-format-on-save nil)
   (setq rust-ts-flymake-command '("cargo" "clippy"))
-  :config
-  (rust-indent-offset 4)
 )
 #+end_src
 
