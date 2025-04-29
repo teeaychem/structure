@@ -1,3 +1,7 @@
+local ce = hs.loadSpoon('ControlEscape')
+ce.cancel_delay_seconds = 0.00125
+ce:start()
+
 local left_square_bracket = 42
 local right_square_bracket = 30
 
@@ -43,6 +47,11 @@ eisuuU = hs.eventtap.new({ hs.eventtap.event.types.keyUp },
    end
  end
 ):start()
+
+hs.hotkey.bind({"cmd"}, 30, function() hs.eventtap.keyStroke({"shift"}, "8", 10) end)
+hs.hotkey.bind({"cmd"}, 42, function() hs.eventtap.keyStroke({"shift"}, "9", 10) end)
+
+-- hs.hotkey.bind({'cmd'}, "[", hs.eventtap.keyStroke({"shift"}, "8"), nil, hs.eventtap.keyStroke({"shift"}, "8"))
 
 
 -- Use to figure out key
