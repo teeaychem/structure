@@ -10,8 +10,9 @@
 (add-to-list 'package-archives '("gnu-devel" . "https://elpa.gnu.org/devel/") t)
 
 (setq package-archive-priorities
-      '(("melpa-stable" . 1)
-        ("melpa" . 0)
+      '(
+        ("melpa" . 1)
+        ("melpa-stable" . 0)
         ("gnu-devel" . -1)))
 
 ;; save custom things to separate file, and also load before doing anything else with packages as it contains a useful list
