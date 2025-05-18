@@ -70,3 +70,8 @@ fi
 
 # pipx
 export PATH="$PATH:$HOME/.local/bin"
+
+# fzf
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+alias fzfp=$'fzf --style full --preview \'fzf-preview.sh {}\' --bind \'focus:transform-header:file --brief {}\''
+# alias fzfp='fzf --style full'
