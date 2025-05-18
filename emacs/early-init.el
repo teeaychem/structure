@@ -1,3 +1,18 @@
+;;; early-init.el -*- lexical-binding: t; -*-
+
+(setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
+
+(setq load-prefer-newer t)
+
+(setq gc-cons-threshold (* 32 1024 1024))
+(run-with-idle-timer 2.0 t 'garbage-collect)
+(setq garbage-collection-messages nil)
+
+(setq read-process-output-max (* 2 1024 1024))
+
+(setq inhibit-compacting-font-caches t)
+
+
 ;; https://github.com/d12frosted/homebrew-emacs-plus/issues/323
 (defun homebrew-gcc-paths ()
   "Return GCC library paths from Homebrew installations.
@@ -53,3 +68,5 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 
 ;; lsp-mode
 (setenv "LSP_USE_PLISTS" "true")
+
+(advice-add 'display-startup-echo-area-message :override #'ignore)
