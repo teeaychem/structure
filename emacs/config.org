@@ -1,5 +1,5 @@
 -*- mode: org -*-
-#+startup: overview content
+# #+startup: overview content
 #+PROPERTY: header-args :results silent
 
 * to investigate
@@ -22,8 +22,7 @@ https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://ed
 from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+begin_src emacs-lisp
-  (setq debug-on-error t)
-  ;; (emacs-init-time)
+(setq debug-on-error nil)
 #+end_src
 
 * general
@@ -38,7 +37,8 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (mac-option-modifier 'option)
   (mac-right-option-modifier 'left)
   (mac-control-modifier 'control)
-  (mac-pass-command-to-system t))
+  (mac-pass-command-to-system t)
+  (setq-default trash-directory "~/.Trash/emacs"))
 #+end_src
 
 ** emacs
@@ -61,20 +61,15 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (save-place-mode t)
 
   (setq-default indent-tabs-mode nil)
-  (setq-default tab-width 4)
 
-  ;; (delete-selection-mode t) ;; delete selected text by typing
+
 
   (setq native-comp-async-report-warnings-errors nil)
   (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
 
-  (define-key key-translation-map (kbd "M-¥") (kbd "("))
-  (define-key key-translation-map (kbd "M-[") (kbd "("))
-
   :custom
   (user-full-name "bsparkes")
   (user-mail-address "bsparkes@alumni.stanford.edu")
-  (indicate-empty-lines t)
   (require-final-newline t)
   (echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
   (sentence-end-double-space nil)
@@ -84,9 +79,32 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (minibuffer-prompt-properties '(read-only t
                                   cursor-intangible t
                                   face minibuffer-prompt)) ;; Do not allow the cursor in the minibuffer prompt
+)
+#+end_src
 
-  :hook
-  (before-save . delete-trailing-whitespace))
+*** kill / delete
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :init
+  (delete-selection-mode t) ;; delete selected text by typing
+  
+  (defun foward-delete-word (arg) (interactive "p")
+    (delete-region (point) (progn (forward-word arg) (point))))
+  
+  (defun backward-delete-word (arg) (interactive "p")
+    (delete-region (point) (progn (backward-word arg) (point))))
+
+  (defun forward-delete-line (arg) (interactive "p")
+    (delete-region (point) (progn (end-of-line) (point))))
+
+  (defun backward-delete-word (arg) (interactive "p")
+    (delete-region (point) (progn (backward-word arg) (point))))
+
+  :bind (("M-DEL" . backward-delete-word)
+         ("C-k" . forward-delete-line)
+         ("C-x k" . kill-current-buffer)
+         ("C-x K" . kill-buffer)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -95,20 +113,15 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   :diminish)
 #+end_src
 
-*** binds
+*** misc binds
 
 #+begin_src emacs-lisp
 (use-package emacs
   :bind
-  (("C-z" . ignore)
-   ("C-K" . (lambda (arg) (interactive "p") (delete-region (point) (line-end-position))))
-   ("C-x k" . kill-current-buffer)
-   ("C-x K" . kill-buffer)
-   ("RET" . newline-and-indent) ;; go to indentation on new line
-   ("<S-down-mouse-1>" . mouse-save-then-kill) ;; remove buffer-face on shift click
+  (("C-z" . ignore)   
+   ("RET" . newline-and-indent)
    ("<mouse-2>" . ignore) ;; figure out what to do with middle button…
-   ("<mouse-3>" . context-menu-open)
-   ))
+   ("<mouse-3>" . context-menu-open)))
 #+end_src
 
 *** saving & backups
@@ -119,18 +132,16 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 (use-package emacs
   :init
   (savehist-mode t)
-
-  (setq-default trash-directory "~/.Trash/emacs")
   (setq-default delete-by-moving-to-trash t)
 
   :custom
   (savehist-file  (concat user-emacs-directory "var/savehist"))
   (savehist-additional-variables
-        '(buffer-name-history
-          compile-command
-          extended-command-history
-          file-name-history
-          kill-ring))
+   '(buffer-name-history
+     compile-command
+     extended-command-history
+     file-name-history
+     kill-ring))
 
   (backup-directory-alist `(("." . ,(concat user-emacs-directory "var/backups"))) ;; change backup location
                           backup-by-copying t       ; don't clobber symlinks
@@ -139,15 +150,12 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
                           delete-old-versions t     ; don't ask about deleting old S versions
                           version-control t         ; number backups
                           vc-make-backup-files nil) ; backup version controlled files
-)
+  )
 #+end_src
 
 *** locale
 
 #+begin_src emacs-lisp
-;; (set-locale-environment "en_gb.utf-8")
-;; (setenv "lang" "en_gb.utf-8")
-
 (prefer-coding-system       'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -170,7 +178,7 @@ https://robbmann.io/emacsd/
   (interactive)
   (find-file (completing-read "Find recent file: " recentf-list nil t)))
 
-(global-set-key (kbd "C-c r") #'sparkes/find-recent-file)
+(global-set-key (kbd "C-c g f") #'sparkes/find-recent-file)
 #+end_src
 
 * visual
@@ -180,19 +188,11 @@ https://robbmann.io/emacsd/
 #+begin_src emacs-lisp
 (use-package emacs
   :init
-  (setq-default fill-column 1024)
-  (set-default 'truncate-lines nil)
-
   (defalias 'yes-or-no-p 'y-or-n-p)
 
+  (setq-default fill-column 1024)
   (setq-default indicate-empty-lines t)
-  (when (not indicate-empty-lines) (toggle-indicate-empty-lines))
-  (global-visual-line-mode t)
 
-  ;; (setq-default left-margin-width 1
-  ;;               right-margin-width 1)
-  ;; (set-window-buffer nil (current-buffer))
-  (add-to-list 'default-frame-alist '(internal-border-width . 4))
   (set-frame-parameter nil 'internal-border-width 4)
 
   :custom
@@ -206,34 +206,26 @@ https://robbmann.io/emacsd/
   (scroll-bar-mode nil)
   (horizontal-scroll-bar-mode nil)
 
-  (tool-bar-mode nil)
   (menu-bar-mode nil)
 
-  (tool-bar-border 0)
-  (tool-bar-images-pixel-height 6)
-  (tool-bar-style 'text) ;; text, image
+  (tool-bar-mode nil)
 
   (tooltip-mode nil)
   (use-dialog-box nil)
-  (tooltip-use-echo-area t) ;; have emacs use the echo area for everything
 
   (truncate-string-ellipsis "…")
 
   (cursor-in-non-selected-windows t)  ; hide the cursor in inactive windows
   (help-window-select t)              ; select help window so it's easy to quit it with 'q')
 
-  (visible-bell t)
-
   (scroll-preserve-screen-position t)
 
   (mouse-wheel-follow-mouse 't)
-  ;; (mouse-wheel-scroll-amount '(1 ((shift) . 1)))
 
   (split-height-threshold 0) ;; When split is automatic, always split windows vertically
   (split-width-threshold nil)
 
-  (warning-minimum-level :error)
-  )
+  (warning-minimum-level :error))
 #+end_src
 
 ** font
@@ -244,7 +236,7 @@ https://robbmann.io/emacsd/
   :init
   (set-face-attribute 'default nil
                       :family "M+1Code Nerd Font Mono"; "Maple Mono NF" "JuliaMono"
-                      :height 145)
+                      :height 150)
   (setq-default line-spacing 1)
   (setq-default mac-allow-anti-aliasing t)
 
@@ -252,12 +244,10 @@ https://robbmann.io/emacsd/
   (global-hi-lock-mode nil)
 
   :custom
-  (ns-use-thin-smoothing nil)
+  (ns-use-thin-smoothing t)
 
   (font-lock-maximum-decoration t)
-  (jit-lock-contextually t)
-  (jit-lock-stealth-verbose t)
-)
+  (jit-lock-stealth-verbose t))
 #+end_src
 
 ** themes
@@ -266,21 +256,19 @@ https://robbmann.io/emacsd/
 
 #+begin_src emacs-lisp :results silent
   (use-package doom-themes
-    :pin melpa
     :init
-    (setq doom-themes-enable-bold t)   ; if nil, bold is universally disabled
-    (setq doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (setq doom-themes-enable-bold t)
+    (setq doom-themes-enable-italic t)
+    
     :config
-    (load-theme 'doom-rouge t)
+    (load-theme 'doom-molokai t)
 
-    ;; (load-theme 'doom-monokai-machine t)
-    ;; (load-theme 'doom-one-light t)
+    (doom-themes-visual-bell-config) ;; enable flashing mode-line on errors
+    (doom-themes-org-config) ;; corrects (and improves) org-mode's native fontification.
 
-    ;; enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    ;; corrects (and improves) org-mode's native fontification.
-    ;; (doom-themes-org-config)
-    )
+    :custom
+    (doom-molokai-brighter-comments t)
+    (doom-molokai-brighter-modeline t))
 #+end_src
 
 ** frames
@@ -310,11 +298,17 @@ https://robbmann.io/emacsd/
 (use-package eldoc
   :init
   (global-eldoc-mode)
+
+  ;; Try to ensure flymake errors come before any other eldoc messages
+  (defun eldoc-promote-flymake ()
+    (setq eldoc-documentation-functions
+          (cons #'flymake-eldoc-function
+                (remove #'flymake-eldoc-function eldoc-documentation-functions))))
+  
   :custom
-  (eldoc-echo-area-prefer-doc-buffer nil)
+  (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-echo-area-use-multiline-p 1)
-  (eldoc-documentation-strategy #'eldoc-documentation-compose)
-  )
+  (eldoc-documentation-strategy #'eldoc-documentation-compose))
 #+end_src
 
 ** skeletons
@@ -343,61 +337,63 @@ https://robbmann.io/emacsd/
 maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
-  (use-package ispell
-    :after exec-path-from-shell
-    ;; :if (executable-find "hunspell")
-    :custom
-    (add-to-list
-     'ispell-hunspell-dictionary-alist
-     '(("en_GB" "[[:alpha:]]" "[^[:alpha]]" "[0-9']"
-        nil nil utf-8)))
-    (ispell-program-name "hunspell")
-    (ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
-    (ispell-dictionary "en_GB")
-    ;; :hook
-    ;; (prog-mode . flyspell-mode)
-    )
+(use-package ispell
+  :after exec-path-from-shell
+  :if (executable-find "hunspell")
+  :custom
+  (add-to-list
+   'ispell-hunspell-dictionary-alist
+   '(("en_GB" "[[:alpha:]]" "[^[:alpha]]" "[0-9']"
+      nil nil utf-8)))
+  (ispell-program-name "hunspell")
+  (ispell-personal-dictionary (concat (getenv "DICPATH") "/hunspell_personal"))
+  (ispell-dictionary "en_GB")
+  ;; :hook
+  ;; (prog-mode . flyspell-mode)
+  )
 #+end_src
 
 ** flymake
 
 #+begin_src emacs-lisp :result silent
-  (use-package flymake
-    :init
-    (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+(use-package flymake
+  :init
+  (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+  (setq rust-ts-flymake-command '("cargo" "check" "-"))
 
-    :bind (:map flymake-mode-map
-                ("C-c e e" . flymake-goto-next-error)
-                ("C-c e a" . flymake-goto-prev-error)
-                ("C-c e r e" . (lambda (&optional N INTERACTIVE)
-                               (interactive (list 1 t))
-                               (flymake-goto-next-error N '(error) INTERACTIVE)))
-                ("C-c e r a" . (lambda (&optional N INTERACTIVE)
-                               (interactive (list 1 t))
-                               (flymake-goto-previous-error N '(error) INTERACTIVE))))
-    :custom
-    (flymake-margin-indicator-position 'right-margin)
-    (flymake-fringe-indicator-position 'right-fringe)
-    (flymake-wrap-around t)
+  (defun flymake-next-error-error (&optional N INTERACTIVE)
+    (interactive (list 1 t))
+    (flymake-goto-next-error N '(error) INTERACTIVE))
 
+  (defun flymake-prev-error-error (&optional N INTERACTIVE)
+    (interactive (list 1 t))
+    (flymake-goto-prev-error N '(error) INTERACTIVE))
 
-    ;; :hook
-    ;; (prog-mode . flymake-mode)
-    )
+  :bind (:map flymake-mode-map
+              ("C-c e e" . flymake-goto-next-error)
+              ("C-c e a" . flymake-goto-prev-error)
+              ("C-c e r e" . flymake-next-error-error)
+              ("C-c e r a" . flymake-prev-error-error))
+  :custom
+  (flymake-margin-indicator-position 'right-margin)
+  (flymake-fringe-indicator-position 'right-fringe)
+  (flymake-wrap-around t)
+
+  ;; :hook
+  ;; (prog-mode . flymake-mode)
+  )
 #+end_src
 
 ** which-key
-
-shows command completions
 
 #+begin_src emacs-lisp
 (use-package which-key
   :demand t
   :custom
   (which-key-sort-order 'which-key-prefix-then-key-order)
-  :init
-  (setq which-key-idle-delay 1.0)
-  (setq which-key-max-display-columns nil)
+  :custom
+  (which-key-idle-delay 1.0)
+  (which-key-max-display-columns nil)
   :config
   (which-key-mode t)
   (which-key-setup-minibuffer)
@@ -410,21 +406,23 @@ shows command completions
 
 #+begin_src emacs-lisp
 (use-package apheleia
+  :init
+  (setq-default apheleia-inhibit t)
+  (setq-default apheleia-global-mode nil)
+
+  :custom
+  (apheleia-mode-hook nil)
 
   :config
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-isort ruff))
   (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-isort ruff))
 
   (setf (alist-get 'clang-format apheleia-formatters) '("clang-format" "-style=llvm" "-assume-filename"
-                     (or (apheleia-formatters-local-buffer-file-name)
-                         (apheleia-formatters-mode-extension)
-                         ".c")))
+                                                        (or (apheleia-formatters-local-buffer-file-name)
+                                                            (apheleia-formatters-mode-extension)
+                                                            ".c")))
 
-
-  (apheleia-global-mode nil)
-
-  :bind
-  (("C-c f a" . apheleia-format-buffer)))
+  :bind (("C-c f a" . apheleia-format-buffer)))
 #+end_src
 
 ** browse kill ring
@@ -447,8 +445,6 @@ shows command completions
   (add-to-list 'exec-path-from-shell-variables "LSP_USE_PLISTS"))
 #+end_src
 
-To see:
-
 #+begin_src emacs-lisp
 ;; (getenv "PATH")
 #+end_src
@@ -466,15 +462,11 @@ To see:
   :custom
   (flycheck-indication-mode 'right-fringe)
   (flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list))
-#+end_src
 
-#+begin_src emacs-lisp
 (use-package flycheck-rust
   :after flycheck
-  :pin melpa
   :hook
-  (flycheck-mode . flycheck-rust-setup)
-)
+  (flycheck-mode . flycheck-rust-setup))
 #+end_src
 
 ** fzf
@@ -519,10 +511,10 @@ To see:
 (use-package multiple-cursors
   :pin melpa-stable
   :bind (("C->" . mc/mark-next-like-this)
-	     ("C-<" . mc/mark-previous-like-this)
-	     ("C-c C->" . mc/mark-all-like-this)
-	     ("C-c C-SPC" . mc/edit-lines)
-	     ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
+	 ("C-<" . mc/mark-previous-like-this)
+	 ("C-c C->" . mc/mark-all-like-this)
+	 ("C-c C-SPC" . mc/edit-lines)
+	 ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 
 ** no-littering
@@ -544,55 +536,12 @@ To see:
         version-control t))
 #+end_src
 
-** COMMENT puni-
-
-The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
-
-#+begin_src emacs-lisp
-(use-package puni
-  :defer t
-  :config
-  (puni-global-mode)
-  (setcdr puni-mode-map nil)
-  :bind
-  (:map puni-mode-map
-        ("DEL" . puni-backward-delete-char)
-        ("C-d" . puni-forward-delete-char)
-        ("M-d" . puni-forward-kill-word)
-        ("M-DEL" . puni-backward-kill-word)
-        ("C-k" . puni-kill-line)
-        ("C-u" . puni-backward-kill-line)
-        ("C-h" . puni-force-delete)
-        ("C-M-f" . puni-forward-sexp)
-        ("C-M-b" . puni-backward-sexp)
-        ("C-M-a" . puni-beginning-of-sexp)
-        ("C-M-e" . puni-end-of-sexp)
-        )
-  :config
-  (setq puni--debug t puni-confirm-when-delete-unbalanced-active-region nil)
-  :hook
-  (term-mode #'puni-disable-puni-mode)
-  ;\;\(prog-mode #'puni-flyindent-mode)
-  )
-#+end_src
-
 ** rainbow delimiters
 
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
-  :pin melpa-stable
   :hook
-  (prog-mode . rainbow-delimiters-mode)
-  ;; :custom-face ;; https://ericscrivner.me/2015/06/better-emacs-rainbow-delimiters-color-scheme/
-  ;; (rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
-  ;; (rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
-  ;; (rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
-  ;; (rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
-  ;; (rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
-  ;; (rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
-  ;; (rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
-  ;; (rainbow-delimiters-depth-8-face ((t (:foreground "sienna1"))))
-  )
+  (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 ** undo and redo
@@ -619,12 +568,8 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package vundo
   :config
-  (setq vundo-compact-display nil) ;; Take less on-screen space.
+  (setq vundo-compact-display t) ;; Take less on-screen space.
   (global-set-key (kbd "C-x u") 'vundo)
-  (custom-set-faces ;; Better contrasting highlight.
-    '(vundo-node ((t (:foreground "#808080"))))
-    '(vundo-stem ((t (:foreground "#808080"))))
-    '(vundo-highlight ((t (:foreground "#FFFF00")))))
 
   ;; (define-key vundo-mode-map (kbd "h") #'vundo-backward)
   ;; (define-key vundo-mode-map (kbd "<left>") #'vundo-backward)
@@ -644,7 +589,6 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
 (use-package diff-hl
-  :pin melpa-stable
   :init
   (setq diff-hl-draw-borders t)
   :config
@@ -666,15 +610,13 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp :results silent
 (use-package magit
-  :pin melpa-stable
-  :bind
-  (("C-c v s" . magit-status)
-   ("C-c v g" . magit-status)
-   ("C-c v S" . magit-status-here)
-   ("C-c v b" . magit-blame)
-   ("C-c v l" . magit-log)
-   ("C-c v d" . magit-diff)
-   ("C-c v r" . magit-refresh))
+  :bind (("C-c v s" . magit-status)
+         ("C-c v g" . magit-status)
+         ("C-c v S" . magit-status-here)
+         ("C-c v b" . magit-blame)
+         ("C-c v l" . magit-log)
+         ("C-c v d" . magit-diff)
+         ("C-c v r" . magit-refresh))
   :custom
   (magit-log-arguments '("--graph" "--decorate" "--color")))
 #+end_src
@@ -696,6 +638,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 (use-package org
   :defer t
   :mode ("\\.org" . org-mode)
+
   :custom
   (org-directory "~/Documents/Org")
   (org-agenda-files (file-expand-wildcards "~/Documents/Org/*.org")) ;; Include all org files from a directory into the agenda.
@@ -724,9 +667,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
   :config
   (org-babel-do-load-languages 'org-babel-load-languages
-                               '((dot . t)
-                                 (emacs-lisp . t)
-                                 (lisp . t)
+                               '((emacs-lisp . t)                                 
                                  (org . t)
                                  (scheme . t))))
 #+end_src
@@ -795,7 +736,7 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
   :init
   (auctex-latexmk-setup)
   (add-to-list 'TeX-command-list '("Other" "" TeX-run-command t t :help "Run an arbitrary command"))
-  (add-to-list 'TeX-command-list '("Clean" "TeX-clean" TeX-run-function nil t :help "Delete generated intermediate files"))
+  (add-to-list 'TeX-command-list '("Clean" "TeX-clean" TeX-run-function nil t :help "Delete intermediate files"))
   (add-to-list 'TeX-command-list '("View" "%V" TeX-run-discard-or-function t t :help "Run Viewer"))
   (add-to-list 'TeX-command-list '("Biber" "biber %(output-dir) %s"
                                    TeX-run-Biber nil (plain-TeX-mode LaTeX-mode) :help "Run Biber"))
@@ -834,16 +775,13 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 #+begin_src emacs-lisp
 (use-package tuareg
   :defer t
-  :pin melpa-stable
   :mode (("\\.ocamlinit\\'" . tuareg-mode)))
 
 (use-package dune
-  :defer t
-  :pin melpa-stable)
+  :defer t)
 
 (use-package utop
   :defer t
-  :pin melpa-stable
   :config
   (add-hook 'tuareg-mode-hook #'utop-minor-mode)
   (setq utop-command "opam exec -- utop -emacs")
@@ -863,14 +801,18 @@ The default `puni-mode-map' respects emacs. We don't, so clear and rewrite it.
 
 #+begin_src emacs-lisp
 (use-package pet
-  :pin melpa-stable
+  :init
+  (defun python-local-setup ()
+    (setq-local python-shell-interpreter (pet-executable-find "python"))
+    (setq-local python-shell-virtualenv-root (pet-virtualenv-root)))
+
+  :custom
+  (python-shell-interpreter "python")
+
   :config
   (add-hook 'python-base-mode-hook 'pet-mode -10)
-  (add-hook 'python-base-mode-hook
-            (lambda ()
-              (setq-local python-shell-interpreter (pet-executable-find "python3")
-                          python-shell-virtualenv-root (pet-virtualenv-root))
-              (pet-eglot-setup))))
+  
+  :hook ((python-base-mode . 'python-local-setup)))
 #+end_src
 
 ** rust
@@ -879,25 +821,23 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+begin_src emacs-lisp
 (use-package rust-mode
-  :pin melpa
   :mode "\\.rs\\'"
   :init
   (setq rust-mode-treesitter-derive t)
-  (setq rust-format-on-save nil)
-  (setq rust-ts-flymake-command '("cargo" "check"))
-)
+  (setq rust-format-on-save nil))
 #+end_src
 
 
 #+begin_src emacs-lisp
 (use-package cargo
   :diminish cargo-minor-mode
-  :hook (rust-mode . cargo-minor-mode)
-)
+  :hook (rust-mode . cargo-minor-mode))
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package toml-mode :defer t)
+(use-package toml-mode
+  :defer t
+  :mode "\\.toml\\'")
 #+end_src
 
 * completion
@@ -906,9 +846,6 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+begin_src emacs-lisp
 (use-package cape
-  :pin melpa
-  ;; Bind dedicated completion commands
-  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
   :bind (("C-c p p" . completion-at-point) ;; capf
          ("C-c p t" . complete-tag)        ;; etags
          ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
@@ -946,22 +883,21 @@ Macro to add the same regex to a collection of consult filters.
 These buffers can be seen by using space
 
 #+begin_src emacs-lisp :results silent
-  (defmacro add-to-consult-hide-filter (regex)
-    `(progn
-       (with-eval-after-load 'consult
-         (add-to-list 'recentf-exclude ,(format "%s" regex))
-         (add-to-list 'consult-buffer-filter ,(format "%s" regex)))))
+(defmacro add-to-consult-hide-filter (regex)
+  `(progn
+     (with-eval-after-load 'consult
+       (add-to-list 'recentf-exclude ,(format "%s" regex))
+       (add-to-list 'consult-buffer-filter ,(format "%s" regex)))))
 
-  (add-to-consult-hide-filter "magit")
+(add-to-consult-hide-filter "magit")
 #+end_src
 
 *** main
 
 #+begin_src emacs-lisp :results silent :noweb yes
 (use-package consult
-  :pin melpa
   :bind (;; C-c bindings in `mode-specific-map'
-         ("C-c M-x" . consult-mode-command)
+         ("C-c c m" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
@@ -975,31 +911,30 @@ These buffers can be seen by using space
          ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
          ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
          ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
+         ("C-c r l" . consult-register-load)
+         ("C-c r s" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-c r x" . consult-register)
          ;; Other custom bindings
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings in `goto-map'
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("C-c g e" . consult-compile-error)
          ("C-c e c" . consult-flymake)
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
+         ("C-c g g" . consult-goto-line)             ;; orig. goto-line
+         ("C-c g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("C-c g m" . consult-mark)
+         ("C-c g k" . consult-global-mark)
+         ("C-c g i" . consult-imenu)
+         ("C-c g I" . consult-imenu-multi)
          ;; M-s bindings in `search-map'
-         ("M-s d" . consult-find)                  ;; Alternative: consult-fd
-         ("M-s c" . consult-locate)
-         ("M-s G" . consult-grep)
-         ("M-s g" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s s" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
+         ("C-c s d" . consult-find)                  ;; Alternative: consult-fd
+         ("C-c s c" . consult-locate)
+         ("C-c s G" . consult-grep)
+         ("C-c s g" . consult-git-grep)
+         ("C-c s r" . consult-ripgrep)
+         ("C-c s s" . consult-line)
+         ("C-c s L" . consult-line-multi)
+         ("C-c s k" . consult-keep-lines)
+         ("C-c s u" . consult-focus-lines)
          ;; Isearch integration
          ("M-s e" . consult-isearch-history)
          :map isearch-mode-map
@@ -1033,7 +968,6 @@ These buffers can be seen by using space
   ;; Optionally configure preview. The default value is 'any, such that any key triggers the preview.
   ;; (setq consult-preview-key 'any)
   ;; (setq consult-preview-key "M-.")
-  ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
   ;; For some commands and buffer sources it is useful to configure the :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
    consult-theme :preview-key '(:debounce 0.2 any)
@@ -1064,21 +998,21 @@ Macro based off https://github.com/minad/consult#multiple-sources
 (with-eval-after-load 'consult
   (defmacro consult-filter-macro (name mode nrw)
     `(progn
-      (defvar ,(intern (format "+consult-%s-filter" name))
-        (list
-         :hidden   t
-         :name     ,(format "%s" name)
-         :category 'buffer
-         :narrow   ,nrw
-         :face     'consult-buffer
-         :history  'buffer-name-history
-         :state    #'consult--buffer-state
-         :items    (lambda ()
-                     (consult--buffer-query
-                      :mode ,mode
-                      :exclude (cl-set-difference consult-buffer-filter ,(intern (format "+consult-%s-filter" name)))
-                      :as #'buffer-name))))
-      (add-to-list 'consult-buffer-sources ',(intern (format "+consult-%s-filter" name)) 'append))))
+       (defvar ,(intern (format "+consult-%s-filter" name))
+         (list
+          :hidden   t
+          :name     ,(format "%s" name)
+          :category 'buffer
+          :narrow   ,nrw
+          :face     'consult-buffer
+          :history  'buffer-name-history
+          :state    #'consult--buffer-state
+          :items    (lambda ()
+                      (consult--buffer-query
+                       :mode ,mode
+                       :exclude (cl-set-difference consult-buffer-filter ,(intern (format "+consult-%s-filter" name)))
+                       :as #'buffer-name))))
+       (add-to-list 'consult-buffer-sources ',(intern (format "+consult-%s-filter" name)) 'append))))
 #+end_src
 
 Instances of the macro
@@ -1106,27 +1040,23 @@ From: https://github.com/minad/consult/wiki#hide-all-sources-except-normal-buffe
 ;;       (set src (plist-put (symbol-value src) :hidden t)))))
 #+end_src
 
-**** regex to ignore matching buffers
-
 *** consult-project-extra
 
 https://github.com/Qkessler/consult-project-extra
 
 #+begin_src emacs-lisp
 (use-package consult-project-extra
-  :bind
-  (("C-c p f" . consult-project-extra-find)
-   ("C-c p o" . consult-project-extra-find-other-window)))
+  :bind (("C-c p f" . consult-project-extra-find)
+         ("C-c p o" . consult-project-extra-find-other-window)))
 #+end_src
 
 ** corfu
 
 #+begin_src emacs-lisp
 (use-package corfu
-  :pin melpa
   :init
   (global-corfu-mode)
-  ;; Optional customizations
+
   :custom
   (corfu-cycle nil)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Automatically display popups wherever available
@@ -1135,25 +1065,18 @@ https://github.com/Qkessler/consult-project-extra
   ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
   (corfu-preselect 'directory) ;; Select the first candidate, except for directories
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
 
-  :bind
-  (:map corfu-map
-	("RET" . nil) ;; Free the RET key for less intrusive behavior.
-        ("C-<return>" . corfu-insert) ;;
-        ("M-_" . corfu-info-documentation) ;;
-        ;; ("C-SPC" . corfu-insert-separator) ;;
-	)
-  )
+  :bind (:map corfu-map
+              ;; ("C-SPC" . corfu-insert-separator)
+	      ("RET" . nil) ;; Free the RET key for less intrusive behavior.
+              ("C-<return>" . corfu-insert)
+              ("M-_" . corfu-info-documentation)))
 #+end_src
 
-** mareginalia
-
-adds marginalia to the minibuffer completions
+** marginalia
 
 #+begin_src emacs-lisp :result silent
 (use-package marginalia
-  :pin melpa
   :init
   (marginalia-mode)
   :bind (:map minibuffer-local-map
@@ -1167,7 +1090,6 @@ adds marginalia to the minibuffer completions
 
 #+begin_src emacs-lisp
 (use-package orderless
-  :pin melpa
   :custom
   (completion-styles '(orderless partial-completion basic))
   (completion-category-defaults nil)
@@ -1178,11 +1100,8 @@ adds marginalia to the minibuffer completions
 
 ** vertico
 
-vertico for minibuffer completions
-
 #+begin_src emacs-lisp
 (use-package vertico
-  :pin melpa
   :init
   (vertico-mode)
   ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
@@ -1193,31 +1112,30 @@ vertico for minibuffer completions
 
 ** embark
 
-#+begin_src emacs-lisp :result silent
+#+begin_src emacs-lisp
 (use-package embark
   :ensure t
 
-  :bind
-  (("C-c a" . embark-act)         ;; pick some comfortable binding
-   ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  :bind (("C-c a" . embark-act)         ;; pick some comfortable binding
+         ("C-;" . embark-dwim)        ;; good alternative: M-.
+         ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
-
   ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
 
   :config
-
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none)))))
+#+end_src
 
+#+begin_src emacs-lisp
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :ensure t ; only need to install it, embark loads it after consult if found
+  :ensure t ; only need to install, embark loads it after consult if found
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
@@ -1244,7 +1162,6 @@ maybe: https://github.com/casouri/eldoc-box
 
   :config
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
-
 
   :bind (("C-c l a" . eglot-code-actions)
          ("C-c l c" . eglot-reconnect)
@@ -1331,20 +1248,20 @@ for rust dev
 (add-to-list 'warning-suppress-types '(lsp-mode))
 
 (use-package lsp-mode
-  :pin melpa
   :commands (lsp lsp-deferred)
 
   :init
   (setq lsp-keymap-prefix "C-c l")
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(flex)))
-
-  (add-to-list 'lsp-disabled-clients 'ruff)
-  (add-to-list 'lsp-disabled-clients 'semgrep)
+  (defun lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(orderless)))
 
   :custom
   (lsp-eldoc-render-all t)
   (lsp-eldoc-enable-hover t)
+
+  (lsp-signature-mode t)
+  (lsp-signature-doc-lines 0)
+  (lsp-signature-auto-activate '(:on-server-request))
 
   (lsp-completion-provider :none)
 
@@ -1354,7 +1271,7 @@ for rust dev
   (lsp-treemacs-sync-mode 1)
   (lsp-keep-workspace-alive nil)
   (lsp-headerline-breadcrumb-enable nil)
-  (lsp-signature-render-documentation t)
+  (lsp-signature-render-documentation nil)
 
   ;; Rust things
   (lsp-rust-analyzer-cargo-watch-command "check")
@@ -1367,35 +1284,28 @@ for rust dev
 
   ;; python
 
-
   :custom-face
   (lsp-face-highlight-textual ((t (:foreground unspecified :background unspecified :bold t :italic t :underline t))))
   (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
   (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
   (lsp-inlay-hint-face ((t (:height 0.8))))
 
-  :hook (((rust-mode
-           rust-ts-mode
-           c++-mode
-           c++-ts-mode) . lsp-deferred)
-         ((rust-mode
-           rust-ts-mode
-           c++-mode
-           c++-ts-mode) . (lambda () (setq-local lsp-inlay-hint-enable t)))
+  :hook (((rust-ts-mode
+           c++-ts-mode
+           python-base-mode) . lsp-deferred)
+         ((rust-ts-mode
+           c++-ts-mode
+           python-base-mode) . (lambda () (setq-local lsp-inlay-hint-enable t)))
+
          (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-completion-mode . my/lsp-mode-setup-completion)
-         ;; Try to ensure flymake errors come before any other eldoc messages
-         (lsp-managed-mode . (lambda ()
-                               (setq eldoc-documentation-functions
-                                     (cons #'flymake-eldoc-function
-                                           (remove #'flymake-eldoc-function eldoc-documentation-functions)))))
-         )
+         (lsp-completion-mode . lsp-mode-setup-completion)         
+         (lsp-managed-mode . eldoc-promote-flymake))
 
-  :bind-keymap ("C-c l" . lsp-command-map)
-  ;; :bind (:map lsp-mode-map
-  ;;             ("C-c l r"  . lsp-rename))
+  :bind-keymap ("C-c l" . lsp-command-map))
 
-  )
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-disabled-clients 'ruff)
+  (add-to-list 'lsp-disabled-clients 'semgrep))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1448,7 +1358,6 @@ for rust dev
 
 #+begin_src emacs-lisp
 (use-package lsp-treemacs
-  :pin melpa
   :after lsp-mode
   (lsp-treemacs-sync-mode t))
 #+end_src
@@ -1456,13 +1365,13 @@ for rust dev
 - consult
 
 #+begin_src emacs-lisp
-;; (use-package consult-lsp
-;;   :after lsp-mode
-;;   :bind (:map lsp-consult-mode-map
-;;               ("C-c l c s"  . consult-lsp-symbols)
-;;               ("C-c l c f"  . consult-lsp-file-symbols)
-;;               ("C-c l c d"  . consult-lsp-diagnostics))
-;;   )
+(use-package consult-lsp
+  :after lsp-mode
+  :bind (:map lsp-consult-mode-map
+              ("C-c l c s"  . consult-lsp-symbols)
+              ("C-c l c f"  . consult-lsp-file-symbols)
+              ("C-c l c d"  . consult-lsp-diagnostics))
+  )
 #+end_src
 
 ** python
@@ -1470,11 +1379,10 @@ for rust dev
 #+begin_src emacs-lisp
 (use-package lsp-pyright
   :ensure t
+  :if (executable-find "basedpyright")
   :custom
   (lsp-pyright-langserver-command "basedpyright")
-  :hook ((python-mode python-ts-mode) . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))
+  :hook ((python-base-mode) . (lambda () (require 'lsp-pyright) (lsp))))
 #+end_src
 
 * treesit
@@ -1485,16 +1393,13 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 #+begin_src emacs-lisp
 (use-package treesit-auto
   :custom
-  (treesit-auto-install 'prompt)
-  ;; :config
-  ;; (treesit-auto-add-to-auto-mode-alist 'all)
-  ;; (global-treesit-auto-mode)
-  )
+  (treesit-auto-install 'prompt))
 
 (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
 (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
 (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+(add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 #+end_src
 
 * tempel
