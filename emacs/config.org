@@ -422,6 +422,10 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
                                                             (apheleia-formatters-mode-extension)
                                                             ".c")))
 
+  (push '(gersemi . ("gersemi" "-")) apheleia-formatters)
+
+  (setf (alist-get 'cmake-mode apheleia-mode-alist) '(gersemi))
+
   :bind (("C-c f a" . apheleia-format-buffer)))
 #+end_src
 
