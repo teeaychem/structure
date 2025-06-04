@@ -308,7 +308,12 @@ https://robbmann.io/emacsd/
   :custom
   (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-echo-area-use-multiline-p 1)
-  (eldoc-documentation-strategy #'eldoc-documentation-compose))
+  (eldoc-documentation-strategy #'eldoc-documentation-compose)
+
+  :bind
+  (("C-c d b" . #'eldoc-doc-buffer)
+  ("C-c d t" . #'eldoc-print-current-symbol-info))
+  )
 #+end_src
 
 ** skeletons
@@ -818,18 +823,19 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
 (use-package pet
-  :init
-  (defun python-local-setup ()
-    (setq-local python-shell-interpreter (pet-executable-find "python"))
-    (setq-local python-shell-virtualenv-root (pet-virtualenv-root)))
-
   :custom
   (python-shell-interpreter "python")
 
   :config
   (add-hook 'python-base-mode-hook 'pet-mode -10)
-  
-  :hook ((python-base-mode . 'python-local-setup)))
+
+  (defun python-local-setup ()
+    (message "Performing local python setup")
+    (setq-local python-shell-interpreter (pet-executable-find "python"))
+    (setq-local python-shell-virtualenv-root (pet-virtualenv-root))
+    (pet-eglot-setup)
+    (eglot-ensure))
+  (add-hook 'python-base-mode-hook 'python-local-setup))
 #+end_src
 
 ** rust
@@ -994,6 +1000,11 @@ These buffers can be seen by using space
    :preview-key '(:debounce 0.4 any))
 
   (setq consult-narrow-key "<"))
+#+end_src
+
+#+begin_src emacs-lisp
+(add-to-consult-hide-filter "\*EGLOT")
+(add-to-consult-hide-filter "\*Flymake")
 #+end_src
 
 *** macro
@@ -1163,13 +1174,13 @@ https://github.com/Qkessler/consult-project-extra
 (push ".DS_store" completion-ignored-extensions)
 #+end_src
 
-* COMMENT eglot
+* eglot
 
 maybe: https://github.com/casouri/eldoc-box
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :pin gnu-devel
+  ;; :pin gnu-devel
 
   :custom
   (eglot-report-progress nil)
@@ -1180,21 +1191,23 @@ maybe: https://github.com/casouri/eldoc-box
   :config
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
 
-  :bind (("C-c l a" . eglot-code-actions)
-         ("C-c l c" . eglot-reconnect)
-         ("C-c l d" . flymake-show-buffer-diagnostics)
-         ("C-c l e" . eldoc-doc-buffer)
-         ("C-c l f f" . eglot-format)
-         ("C-c l f b" . eglot-format-buffer)
-         ("C-c l i" . eglot-find-implementation)
-         ("C-c l l" . eglot)
-         ("C-c l r n" . eglot-rename)
-         ("C-c l s" . eglot-shutdown)
-         ("C-c l t" . #'eldoc-print-current-symbol-info))
+  :bind (("C-c l l" . eglot)
+         :map eglot-mode-map
+              :prefix-map eglot-prefix-map
+              :prefix "C-c l"
+              ("a" . #'eglot-code-actions)
+              ("c" . #'eglot-reconnect)
+              ("f f" . #'eglot-format)
+              ("f b" . #'eglot-format-buffer)
+              ("g d" . #'eglot-find-declaration)
+              ("g i" . #'eglot-find-implementation)
+              ("g t" . #'eglot-find-typeDefinition)
+              ("l" . #'eglot)
+              ("r" . #'eglot-rename)
+              ("s" . #'eglot-shutdown))
+
   :custom-face
-  (eglot-highlight-symbol-face ((t (:bold t
-                                    :italic t
-                                    :underline t))))
+  (eglot-highlight-symbol-face ((t (:bold t :italic t :underline t))))
   ;; :hook
   ;; ((…-mode) . eglot-ensure)
   ;; (eglot-managed-mode . #'my/eglot-capf)
@@ -1208,7 +1221,6 @@ maybe: https://github.com/casouri/eldoc-box
                      #'cape-file))))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
-(add-to-consult-hide-filter "\*EGLOT")
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1218,8 +1230,7 @@ maybe: https://github.com/casouri/eldoc-box
                                         ("rustup" "run" "stable" "rust-analyzer"
                                          :initializationOptions (:check (:command "clippy")))))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd")))
-  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
-  ;; (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
   )
 #+end_src
 
@@ -1258,7 +1269,14 @@ for rust dev
   (eglot-tempel-mode t))
 #+end_src
 
-* lsp-mode
+- consult
+
+#+begin_src emacs-lisp
+(use-package consult-eglot
+  :after eglot)
+#+end_src
+
+* COMMENT lsp-mode
 
 #+begin_src emacs-lisp
 (add-to-list 'warning-suppress-log-types '(lsp-mode))
@@ -1307,12 +1325,8 @@ for rust dev
   (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
   (lsp-inlay-hint-face ((t (:height 0.8))))
 
-  :hook (((rust-ts-mode
-           c++-ts-mode
-           python-base-mode) . lsp-deferred)
-         ((rust-ts-mode
-           c++-ts-mode
-           python-base-mode) . (lambda () (setq-local lsp-inlay-hint-enable t)))
+  :hook (;; ((rust-ts-mode c++-ts-mode python-base-mode) . lsp-deferred)
+         ;; ((rust-ts-mode c++-ts-mode python-base-mode) . (lambda () (setq-local lsp-inlay-hint-enable t)))
 
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-completion-mode . lsp-mode-setup-completion)         
