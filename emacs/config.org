@@ -417,7 +417,9 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-isort ruff))
   (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-isort ruff))
 
-  (setf (alist-get 'clang-format apheleia-formatters) '("clang-format" "-style=llvm" "-assume-filename"
+  (setf (alist-get 'clang-format apheleia-formatters) '("clang-format"
+                                                        "-style={BasedOnStyle: LLVM, ColumnLimit: 0}"
+                                                        "-assume-filename"
                                                         (or (apheleia-formatters-local-buffer-file-name)
                                                             (apheleia-formatters-mode-extension)
                                                             ".c")))
