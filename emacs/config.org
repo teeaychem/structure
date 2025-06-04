@@ -589,6 +589,17 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 )
 #+end_src
 
+** ws-butler
+
+#+begin_src emacs-lisp
+(use-package ws-butler
+  :custom
+  (ws-butler-keep-whitespace-before-point t)
+  :hook
+  ((prog-mode . ws-butler-mode)))
+#+end_src
+
+
 * git
 
 ** diff-hl
