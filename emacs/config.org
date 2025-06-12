@@ -294,15 +294,30 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
     (setq eldoc-documentation-functions
           (cons #'flymake-eldoc-function
                 (remove #'flymake-eldoc-function eldoc-documentation-functions))))
+
+  (defun quit-eldoc-buffer (args)
+    (interactive "P")
+    (when (get-buffer "*eldoc*")
+      (progn
+        (quit-restore-window (get-buffer-window "*eldoc*")))))
+
+  (add-to-list 'display-buffer-alist
+               '("\\*eldoc*"
+                 (display-buffer-at-bottom)
+                 (window-height . 8)))
   
   :custom
   (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-echo-area-use-multiline-p 1)
   (eldoc-documentation-strategy #'eldoc-documentation-compose)
 
-  :bind
-  (("C-c d b" . #'eldoc-doc-buffer)
-  ("C-c d t" . #'eldoc-print-current-symbol-info)))
+  :bind (:prefix-map eldoc-prefix-map
+                     :prefix "C-c d"
+                     ("d" . #'eldoc)
+                     ("b" . #'eldoc-doc-buffer)
+                     ("t" . #'eldoc-print-current-symbol-info)
+                     ("q" . #'quit-eldoc-buffer)
+                     ))
 #+end_src
 
 ** skeletons
