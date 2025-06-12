@@ -346,32 +346,34 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 ** flymake
 
 #+begin_src emacs-lisp :result silent
-(use-package flymake
-  :init
-  (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
-  (setq rust-ts-flymake-command '("cargo" "check" "-"))
+  (use-package flymake
+    :init
+    (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+    (setq rust-ts-flymake-command '("cargo" "check" "-"))
 
-  (defun flymake-next-error-error (&optional N INTERACTIVE)
-    (interactive (list 1 t))
-    (flymake-goto-next-error N '(error) INTERACTIVE))
+    (defun flymake-next-error-error (&optional N INTERACTIVE)
+      (interactive (list 1 t))
+      (flymake-goto-next-error N '(error) INTERACTIVE))
 
-  (defun flymake-prev-error-error (&optional N INTERACTIVE)
-    (interactive (list 1 t))
-    (flymake-goto-prev-error N '(error) INTERACTIVE))
+    (defun flymake-prev-error-error (&optional N INTERACTIVE)
+      (interactive (list 1 t))
+      (flymake-goto-prev-error N '(error) INTERACTIVE))
 
-  :bind (:map flymake-mode-map
-              ("C-c e e" . flymake-goto-next-error)
-              ("C-c e a" . flymake-goto-prev-error)
-              ("C-c e r e" . flymake-next-error-error)
-              ("C-c e r a" . flymake-prev-error-error))
-  :custom
-  (flymake-margin-indicator-position 'right-margin)
-  (flymake-fringe-indicator-position 'right-fringe)
-  (flymake-wrap-around t)
+    :bind (:map flymake-mode-map
+                :prefix-map flymake-prefix-map
+                :prefix "C-c e"
+                ("e" . flymake-goto-next-error)
+                ("a" . flymake-goto-prev-error)
+                ("r e" . flymake-next-error-error)
+                ("r a" . flymake-prev-error-error))
+    :custom
+    (flymake-margin-indicator-position 'right-margin)
+    (flymake-fringe-indicator-position 'right-fringe)
+    (flymake-wrap-around t)
 
-  ;; :hook
-  ;; (prog-mode . flymake-mode)
-  )
+    ;; :hook
+    ;; (prog-mode . flymake-mode)
+    )
 #+end_src
 
 ** which-key
@@ -395,6 +397,12 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 ** apheleia
 
 #+begin_src emacs-lisp
+(use-package emacs
+  :bind (:prefix-map format-prefix-map
+         :prefix "C-c f"))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package apheleia
   :init
   (setq-default apheleia-inhibit t)
@@ -415,10 +423,10 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
                                                             ".c")))
 
   (push '(gersemi . ("gersemi" "-")) apheleia-formatters)
-
   (setf (alist-get 'cmake-mode apheleia-mode-alist) '(gersemi))
-
-  :bind (("C-c f a" . apheleia-format-buffer)))
+  :bind (:map format-prefix-map
+              ("a" . apheleia-format-buffer))
+  )
 #+end_src
 
 ** browse kill ring
@@ -595,13 +603,15 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp :results silent
 (use-package magit
-  :bind (("C-c v s" . magit-status)
-         ("C-c v g" . magit-status)
-         ("C-c v S" . magit-status-here)
-         ("C-c v b" . magit-blame)
-         ("C-c v l" . magit-log)
-         ("C-c v d" . magit-diff)
-         ("C-c v r" . magit-refresh))
+  :bind (:prefix-map magit-prefix-map
+         :prefix "C-c v"
+         ("s" . magit-status)
+         ("g" . magit-status)
+         ("S" . magit-status-here)
+         ("b" . magit-blame)
+         ("l" . magit-log)
+         ("d" . magit-diff)
+         ("r" . magit-refresh))
   :custom
   (magit-log-arguments '("--graph" "--decorate" "--color")))
 #+end_src
