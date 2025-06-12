@@ -51,11 +51,13 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (defun crm-indicator (args) (cons (format "[CRM%s] %s" (replace-regexp-in-string "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" "" crm-separator) (car args)) (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers. Corfu commands are hidden, since they are not supposed to be used via M-x.
+  ;; Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
   (setq read-extended-command-predicate #'command-completion-default-include-p)
+
   (setq enable-recursive-minibuffers t)
-  (setq tab-always-indent 'complete) ;; Enable indentation+completion using the TAB key.
+  (setq tab-always-indent 't) ;; Enable indentation+completion using the TAB key.
 
   (global-auto-revert-mode t) ; for reloading bib files, etc.
   (desktop-save-mode)
@@ -81,11 +83,12 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 )
 #+end_src
 
-*** kill / delete
+*** kill / delete /navigation
 
 #+begin_src emacs-lisp
 (use-package emacs
   :init
+  (global-subword-mode)
   (delete-selection-mode t) ;; delete selected text by typing
   
   (defun foward-delete-word (arg) (interactive "p")
@@ -106,21 +109,19 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
          ("C-x K" . kill-buffer)))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package subword
-  :defer t
-  :diminish)
-#+end_src
-
 *** misc binds
 
 #+begin_src emacs-lisp
 (use-package emacs
   :bind
-  (("C-z" . ignore)   
+  (("C-z" . ignore)
+   ("C-<wheel-up>" . ignore)
+   ("C-<wheel-down>" . ignore)
    ("RET" . newline-and-indent)
    ("<mouse-2>" . ignore) ;; figure out what to do with middle button…
-   ("<mouse-3>" . context-menu-open)))
+   ("<mouse-3>" . context-menu-open))
+   ("C-<tab>" . completion-at-point)
+  )
 #+end_src
 
 *** saving & backups
