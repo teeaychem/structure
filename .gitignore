@@ -33,3 +33,6 @@
 /zsh/.zsh_history
 /zsh/.zsh_sessions/*
 /zsh/.zcompcache/
+/matplotlib/
+/zsh/.zhistory
+/MusicBrainz/
