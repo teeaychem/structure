@@ -686,6 +686,21 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :mode ("CMakeLists.txt" . cmake-mode))
 #+end_src
 
+** dotnet
+
+#+begin_src emacs-lisp
+(use-package fsharp-mode
+  :mode "\\.fsx\\'"
+  :defer t
+  :ensure t)
+
+(use-package eglot-fsharp
+  :ensure t
+  :after fsharp-mode
+  :config
+  (setq eglot-fsharp-server-install-dir nil))
+#+end_src
+
 ** LaTeX
 
 #+begin_src emacs-lisp
