@@ -65,8 +65,4 @@ Includes Homebrew GCC paths and CommandLineTools SDK libraries."
 (when (eq system-type 'darwin)
   (setup-macos-native-comp-library-paths))
 
-
-;; lsp-mode
-(setenv "LSP_USE_PLISTS" "true")
-
 (advice-add 'display-startup-echo-area-message :override #'ignore)

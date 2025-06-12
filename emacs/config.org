@@ -452,32 +452,11 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :init
   (setq exec-path-from-shell-arguments '("-l"))
   (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "DICPATH")
-  (add-to-list 'exec-path-from-shell-variables "LSP_USE_PLISTS"))
+  (exec-path-from-shell-copy-env "DICPATH"))
 #+end_src
 
 #+begin_src emacs-lisp
 ;; (getenv "PATH")
-#+end_src
-
-** COMMENT flycheck
-
-#+begin_src emacs-lisp :results silent
-(use-package flycheck
-  :disabled
-  :ensure
-  :bind (:map flycheck-mode-map
-              ("C-c e a" . flycheck-prev-error)
-              ("C-c e e" . flycheck-next-error))
-
-  :custom
-  (flycheck-indication-mode 'right-fringe)
-  (flycheck-display-errors-function #'flycheck-display-error-messages-unless-error-list))
-
-(use-package flycheck-rust
-  :after flycheck
-  :hook
-  (flycheck-mode . flycheck-rust-setup))
 #+end_src
 
 ** fzf
@@ -1274,146 +1253,6 @@ for rust dev
 #+begin_src emacs-lisp
 (use-package consult-eglot
   :after eglot)
-#+end_src
-
-* COMMENT lsp-mode
-
-#+begin_src emacs-lisp
-(add-to-list 'warning-suppress-log-types '(lsp-mode))
-(add-to-list 'warning-suppress-types '(lsp-mode))
-
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  (defun lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(orderless)))
-
-  :custom
-  (lsp-eldoc-render-all t)
-  (lsp-eldoc-enable-hover t)
-
-  (lsp-signature-mode t)
-  (lsp-signature-doc-lines 0)
-  (lsp-signature-auto-activate '(:on-server-request))
-
-  (lsp-completion-provider :none)
-
-  (lsp-modeline-diagnostics-scope :file)
-  (lsp-modeline-code-actions-enable nil)
-  (lsp-auto-execute-action nil)
-  (lsp-treemacs-sync-mode 1)
-  (lsp-keep-workspace-alive nil)
-  (lsp-headerline-breadcrumb-enable nil)
-  (lsp-signature-render-documentation nil)
-
-  ;; Rust things
-  (lsp-rust-analyzer-cargo-watch-command "check")
-  (lsp-rust-analyzer-diagnostics-disabled ["inactive-code"])
-  (lsp-rust-analyzer-server-display-inlay-hints t)
-  ;; (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (lsp-rust-analyzer-display-chaining-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t)
-  (lsp-rust-analyzer-display-closure-return-type-hints t)
-
-  ;; python
-
-  :custom-face
-  (lsp-face-highlight-textual ((t (:foreground unspecified :background unspecified :bold t :italic t :underline t))))
-  (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
-  (lsp-face-highlight-read ((t (:bold t :italic t :underline t))))
-  (lsp-inlay-hint-face ((t (:height 0.8))))
-
-  :hook (;; ((rust-ts-mode c++-ts-mode python-base-mode) . lsp-deferred)
-         ;; ((rust-ts-mode c++-ts-mode python-base-mode) . (lambda () (setq-local lsp-inlay-hint-enable t)))
-
-         (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-completion-mode . lsp-mode-setup-completion)         
-         (lsp-managed-mode . eldoc-promote-flymake))
-
-  :bind-keymap ("C-c l" . lsp-command-map))
-
-(with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-disabled-clients 'ruff)
-  (add-to-list 'lsp-disabled-clients 'semgrep))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package lsp-snippet-tempel
-  :vc (lsp-snippet-tempel :url "https://github.com/svaante/lsp-snippet"
-                          :rev :newest)
-  :after lsp-mode
-  :config
-  (when (featurep 'lsp-mode)
-    (lsp-snippet-tempel-lsp-mode-init))
-)
-#+end_src
-
-- booster
-
-#+begin_src emacs-lisp
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
-            (setcar orig-result command-from-exec-path))
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
-#+end_src
-
-- lsp-treemacs
-
-#+begin_src emacs-lisp
-(use-package lsp-treemacs
-  :after lsp-mode
-  (lsp-treemacs-sync-mode t))
-#+end_src
-
-- consult
-
-#+begin_src emacs-lisp
-(use-package consult-lsp
-  :after lsp-mode
-  :bind (:map lsp-consult-mode-map
-              ("C-c l c s"  . consult-lsp-symbols)
-              ("C-c l c f"  . consult-lsp-file-symbols)
-              ("C-c l c d"  . consult-lsp-diagnostics))
-  )
-#+end_src
-
-** python
-
-#+begin_src emacs-lisp
-(use-package lsp-pyright
-  :ensure t
-  :if (executable-find "basedpyright")
-  :custom
-  (lsp-pyright-langserver-command "basedpyright")
-  :hook ((python-base-mode) . (lambda () (require 'lsp-pyright) (lsp))))
 #+end_src
 
 * treesit
