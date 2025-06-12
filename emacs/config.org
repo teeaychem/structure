@@ -227,13 +227,12 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
   (setq-default mac-allow-anti-aliasing t)
 
   (global-font-lock-mode t)
-  (global-hi-lock-mode nil)
+  (global-hi-lock-mode t)
 
   :custom
   (ns-use-thin-smoothing t)
 
-  (font-lock-maximum-decoration t)
-  (jit-lock-stealth-verbose t))
+  (font-lock-maximum-decoration t))
 #+end_src
 
 ** themes
