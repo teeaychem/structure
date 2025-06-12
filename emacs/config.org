@@ -109,6 +109,11 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
          ("C-x K" . kill-buffer)))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package repeat
+  :init (repeat-mode t))
+#+end_src
+
 *** misc binds
 
 #+begin_src emacs-lisp
@@ -345,34 +350,35 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 ** flymake
 
 #+begin_src emacs-lisp :result silent
-  (use-package flymake
-    :init
-    (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
-    (setq rust-ts-flymake-command '("cargo" "check" "-"))
+(use-package flymake
+  :init
+  (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+  (setq rust-ts-flymake-command '("cargo" "check" "-"))
 
-    (defun flymake-next-error-error (&optional N INTERACTIVE)
-      (interactive (list 1 t))
-      (flymake-goto-next-error N '(error) INTERACTIVE))
+  (defun flymake-next-error-error (&optional N INTERACTIVE)
+    (interactive (list 1 t))
+    (flymake-goto-next-error N '(error) INTERACTIVE))
 
-    (defun flymake-prev-error-error (&optional N INTERACTIVE)
-      (interactive (list 1 t))
-      (flymake-goto-prev-error N '(error) INTERACTIVE))
+  (defun flymake-prev-error-error (&optional N INTERACTIVE)
+    (interactive (list 1 t))
+    (flymake-goto-prev-error N '(error) INTERACTIVE))
 
-    :bind (:map flymake-mode-map
-                :prefix-map flymake-prefix-map
-                :prefix "C-c e"
-                ("e" . flymake-goto-next-error)
-                ("a" . flymake-goto-prev-error)
-                ("r e" . flymake-next-error-error)
-                ("r a" . flymake-prev-error-error))
-    :custom
-    (flymake-margin-indicator-position 'right-margin)
-    (flymake-fringe-indicator-position 'right-fringe)
-    (flymake-wrap-around t)
 
-    ;; :hook
-    ;; (prog-mode . flymake-mode)
-    )
+  :bind (:map flymake-mode-map
+              :prefix "C-c e"
+              :prefix-map flymake-mode-prefix-map)
+
+  :bind (:repeat-map flymake-mode-prefix-map
+                     :exit
+                     :continue
+                     ("e" . flymake-goto-next-error)
+                     ("E" . flymake-next-error-error)
+                     ("a" . flymake-goto-prev-error)
+                     ("A" . flymake-prev-error-error))
+  :custom
+  (flymake-margin-indicator-position 'right-margin)
+  (flymake-fringe-indicator-position 'right-fringe)
+  (flymake-wrap-around t))
 #+end_src
 
 ** which-key
