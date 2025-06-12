@@ -13,6 +13,12 @@ fi
 # docker
 export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
 
+# dotnet
+if [[ $(uname) == "Darwin" ]]; then
+    export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
+    export PATH="$PATH:/Users/sparkes/.dotnet/tools"
+fi
+
 # hammerspoon
 # defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua"
 
