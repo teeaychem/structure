@@ -140,7 +140,7 @@ latex-mode
 c++-mode
 
 (dr "->")
-(cout "cout << " p " << endl;")
+(cout "std::cout << " p " << "\\n";")
 (amain "
 #include <vector>
 
