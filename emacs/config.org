@@ -1177,13 +1177,16 @@ maybe: https://github.com/casouri/eldoc-box
               ("g t" . #'eglot-find-typeDefinition)
               ("l" . #'eglot)
               ("r" . #'eglot-rename)
-              ("s" . #'eglot-shutdown))
+              ("s" . #'eglot-shutdown)
+              :map format-prefix-map
+              ("e" . #'eglot-format-buffer))
 
   :custom-face
-  (eglot-highlight-symbol-face ((t (:bold t :italic t :underline t))))
-  ;; :hook
+  (eglot-highlight-symbol-face ((t (:bold t :underline (:style dots :position nil)))))
+  (eglot-diagnostic-tag-unnecessary-face ((t (:inherit f :underline (:color "#7cb6cb" :style wave :position nil)))))
+  :hook
   ;; ((…-mode) . eglot-ensure)
-  ;; (eglot-managed-mode . #'my/eglot-capf)
+  ((eglot-managed-mode . eldoc-promote-flymake))
   )
 
 (defun my/eglot-capf ()
