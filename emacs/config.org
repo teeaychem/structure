@@ -38,6 +38,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (mac-right-option-modifier 'left)
   (mac-control-modifier 'control)
   (mac-pass-command-to-system t)
+  (menu-bar-mode t)
   (setq-default trash-directory "~/.Trash/emacs"))
 #+end_src
 
