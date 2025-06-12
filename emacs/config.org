@@ -63,8 +63,6 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
   (setq-default indent-tabs-mode nil)
 
-
-
   (setq native-comp-async-report-warnings-errors nil)
   (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
 
@@ -75,7 +73,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (echo-keystrokes 0.1) ;; turn down time to echo keystrokes so no waiting for things to happen.
   (sentence-end-double-space nil)
 
-  (auto-save-interval 200) ;; autosave often
+  (auto-save-interval 200)
 
   (minibuffer-prompt-properties '(read-only t
                                   cursor-intangible t
@@ -133,6 +131,8 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 (use-package emacs
   :init
   (savehist-mode t)
+  (recentf-mode t)
+  
   (setq-default delete-by-moving-to-trash t)
 
   :custom
@@ -168,20 +168,6 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 (setq locale-coding-system 'utf-8)
 #+end_src
 
-*** recent files
-
-https://robbmann.io/emacsd/
-
-#+begin_src emacs-lisp
-(recentf-mode t)
-(defun sparkes/find-recent-file ()
-  "Find a file that was recently visted using completing-read."
-  (interactive)
-  (find-file (completing-read "Find recent file: " recentf-list nil t)))
-
-(global-set-key (kbd "C-c g f") #'sparkes/find-recent-file)
-#+end_src
-
 * visual
 
 ** display
@@ -208,9 +194,7 @@ https://robbmann.io/emacsd/
   (horizontal-scroll-bar-mode nil)
 
   (menu-bar-mode nil)
-
   (tool-bar-mode nil)
-
   (tooltip-mode nil)
   (use-dialog-box nil)
 
@@ -313,8 +297,7 @@ https://robbmann.io/emacsd/
 
   :bind
   (("C-c d b" . #'eldoc-doc-buffer)
-  ("C-c d t" . #'eldoc-print-current-symbol-info))
-  )
+  ("C-c d t" . #'eldoc-print-current-symbol-info)))
 #+end_src
 
 ** skeletons
@@ -583,7 +566,6 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :hook
   ((prog-mode . ws-butler-mode)))
 #+end_src
-
 
 * git
 
@@ -1282,15 +1264,10 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
   :init
   (defun tempel-setup-capf () ;; Setup completion at point
     ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches.
-    ;; Alternatively use `tempel-complete' if you want to see all matches, but then you should also configure `tempel-trigger-prefix', such that Tempel does not trigger too often when you don't expect it.
-    ;; NOTE: We add `tempel-expand' *before* the main programming mode Capf, such that it will be tried first.
     (setq-local completion-at-point-functions
                 (cons #'tempel-expand
                       completion-at-point-functions)))
-  ;; Optionally make the Tempel templates available to Abbrev, either locally or globally. `expand-abbrev' is bound to C-x '.
-  ;; (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-  ;; (global-tempel-abbrev-mode)
+
   :custom
   (tempel-path (concat user-emacs-directory "tempel/templates.eld"))
   ;; (tempel-trigger-prefix "<") ;; Require trigger prefix before template name when completing.
