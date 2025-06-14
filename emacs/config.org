@@ -602,18 +602,21 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
 (use-package diff-hl
-  :init
-  (setq diff-hl-draw-borders t)
+  :custom
+  (diff-hl-draw-borders nil)
+  (diff-hl-side 'left)
+  (diff-hl-bmp-max-width 10)
+  
   :config
-  (face-spec-set 'diff-hl-insert `((((background light)) :background ,(face-attribute 'default :background))
-                                   (t :background ,(face-attribute 'default :background))))
-  (face-spec-set 'diff-hl-delete `((((background light)) :background ,(face-attribute 'default :background))
-                                   (t :background ,(face-attribute 'default :background))))
-  (face-spec-set 'diff-hl-change `((((background light)) :background ,(face-attribute 'default :background))
-                                   (t :background ,(face-attribute 'default :background))))
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
   (diff-hl-show-hunk-mouse-mode)
+  
+  :custom-face
+  ;; (diff-hl-change ((t (:background ,(face-attribute 'default :background)))))
+  ;; (diff-hl-insert ((t (:background ,(face-attribute 'default :background)))))
+  ;; (diff-hl-delete ((t (:background ,(face-attribute 'default :background)))))
+    
   :hook
   ((magit-pre-refresh . diff-hl-magit-pre-refresh)
    (magit-post-refresh . diff-hl-magit-post-refresh)))
