@@ -715,11 +715,11 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :defer t
   :ensure t)
 
-(use-package eglot-fsharp
-  :ensure t
-  :after fsharp-mode
-  :config
-  (setq eglot-fsharp-server-install-dir nil))
+;; (use-package eglot-fsharp
+;;   :ensure t
+;;   :after fsharp-mode
+;;   :config
+;;   (setq eglot-fsharp-server-install-dir nil))
 #+end_src
 
 ** LaTeX
@@ -1242,6 +1242,7 @@ maybe: https://github.com/casouri/eldoc-box
                                          :initializationOptions (:check (:command "clippy")))))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd")))
   (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs `(fsharp-mode . ("fsautocomplete" "--adaptive-lsp-server-enabled")))
   )
 #+end_src
 
