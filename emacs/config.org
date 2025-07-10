@@ -413,6 +413,15 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   (flymake-wrap-around t))
 #+end_src
 
+** project
+
+#+begin_src emacs-lisp
+(use-package project
+  :config
+  (add-to-list 'project-vc-extra-root-markers "INSTALL_RECEIPT.json") ;; brewed libraries, etc.
+  )
+#+end_src
+
 ** which-key
 
 #+begin_src emacs-lisp
