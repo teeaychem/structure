@@ -40,25 +40,6 @@ bindkey "^[[1;5D" backward-word # | ctl + <-
 bindkey "\e\e[C" forward-word   # | option + ->
 bindkey "^[[1;5C" forward-word  # | ctl + ->
 
-# # # aliases # # #
-
-# misc
-alias dir='ls -aFhl'
-
-# cmake
-alias cmakec='cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
-
-# git
-alias gdiff='git diff'
-alias glog='git log'
-alias glogl='git log --pretty="oneline"'
-alias grem='git remote'
-alias grems='git remote show'
-alias gstatus='git status'
-alias groot='git rev-parse --show-toplevel'
-
-# # # aliases end # # #
-
 # # # python
 # https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/python/python.plugin.zsh
 alias py='python3'
