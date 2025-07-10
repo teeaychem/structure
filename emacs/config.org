@@ -248,19 +248,34 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+begin_src emacs-lisp :results silent
   (use-package doom-themes
+    :disabled
     :init
-    (setq doom-themes-enable-bold t)
+    (setq doom-themes-enable-bold nil)
     (setq doom-themes-enable-italic t)
     
     :config
     (load-theme 'doom-molokai t)
+    ;; (load-theme 'doom-one t)    
 
     (doom-themes-visual-bell-config) ;; enable flashing mode-line on errors
     (doom-themes-org-config) ;; corrects (and improves) org-mode's native fontification.
 
     :custom
     (doom-molokai-brighter-comments t)
-    (doom-molokai-brighter-modeline t))
+    (doom-molokai-brighter-modeline t)
+    (doom-one-brighter-comments t)
+    (doom-one-brighter-modeline nil))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package catppuccin-theme
+  :config
+  (load-theme 'catppuccin t)
+  (catppuccin-set-color 'text "#ffffff")
+  :custom
+  (catppuccin-flavor 'mocha)
+  (catppuccin-highlight-matches t)
+  (catppuccin-italic-variables t))
 #+end_src
 
 ** frames
