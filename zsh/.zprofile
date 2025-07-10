@@ -16,7 +16,9 @@ export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
 # dotnet
 if [[ $(uname) == "Darwin" ]]; then
     export DOTNET_ROOT="/opt/homebrew/opt/dotnet/libexec"
-    export PATH="$PATH:/Users/sparkes/.dotnet/tools"
+    export PATH="$PATH:$HOME/.dotnet/tools"
+
+    export NUGET_PACKAGES="$XDG_CACHE_HOME"/NuGetPackages
 fi
 
 # hammerspoon
@@ -62,8 +64,8 @@ export KERAS_HOME=$XDG_DATA_HOME/keras
 # export RACKET=/Applications/Racket\ v8.9/bin
 
 # rust
-export CARGO_HOME=$HOME/.cargo
-export RUSTUP_HOME=$HOME/.rustup
+export CARGO_HOME=$XDG_DATA_HOME/cargo
+export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export RUSTBIN="$CARGO_HOME/bin"
 export PATH="$PATH:$RUSTBIN"
 
