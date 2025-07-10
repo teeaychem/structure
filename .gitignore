@@ -6,6 +6,7 @@
 /emacs/.org-id-locations
 /emacs/config.el
 /emacs/custom.el
+/emacs/eln-cache/**
 /emacs/elpa/*
 /emacs/etc/*
 /emacs/etc/*
@@ -13,11 +14,17 @@
 /emacs/places*
 /emacs/recentf
 /emacs/savehist
+/emacs/srecode-map.el
 /emacs/tree-sitter/*
 /emacs/undo-tree/*
 /emacs/var/*
-/emacs/eln-cache/**
-/emacs/srecode-map.el
+
+/fish/functions
+/fist/conf.d/rustup.fish
+
+/matplotlib/
+
+/MusicBrainz/
 
 /navidrome.toml
 
@@ -25,14 +32,18 @@
 
 /swi-prolog/dir-history/
 
+/tmux/plugins/
+
 /tree-sitter/
 
 /zellij/config.kdl.bak
 
+/zsh/.zcompcache/
 /zsh/.zcompdump
+/zsh/.zhistory
 /zsh/.zsh_history
 /zsh/.zsh_sessions/*
-/zsh/.zcompcache/
-/matplotlib/
-/zsh/.zhistory
-/MusicBrainz/
+
+
+
+
