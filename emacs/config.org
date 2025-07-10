@@ -768,6 +768,14 @@ Either override is sufficient at time of writing, though I expect fixing the las
     nil))
 #+end_src
 
+** fish
+
+#+begin_src emacs-lisp
+(use-package fish-mode
+  :mode "\\.fish\\'"
+  :defer t)
+#+end_src
+
 ** LaTeX
 
 #+begin_src emacs-lisp
