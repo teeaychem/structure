@@ -1245,6 +1245,7 @@ maybe: https://github.com/casouri/eldoc-box
   ;; :pin gnu-devel
 
   :custom
+  ;; (eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
   (eglot-report-progress nil)
   (eglot-extend-to-xref t)
   (corfu-preview-current nil)
@@ -1294,7 +1295,7 @@ maybe: https://github.com/casouri/eldoc-box
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rust-analyzer"
                                          :initializationOptions (:check (:command "clippy")))))
-  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd")))
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd" "--fallback-style=None")))
   (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))  )
 #+end_src
 
