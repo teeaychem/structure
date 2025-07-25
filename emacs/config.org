@@ -1079,6 +1079,10 @@ https://github.com/radian-software/apheleia/issues/278
   )
 #+end_src
 
+#+begin_src emacs-lisp
+;; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+#+end_src
+
 ** consult
 
 *** local macros
@@ -1370,42 +1374,35 @@ maybe: https://github.com/casouri/eldoc-box
   (corfu-preview-current nil)
   ;; (eglot-confirm-server-edits t)
 
+  (fset #'jsonrpc--log-event #'ignore)
+
   :config
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
 
   :bind (("C-c l l" . eglot)
          :map eglot-mode-map
-              :prefix-map eglot-prefix-map
-              :prefix "C-c l"
-              ("a" . #'eglot-code-actions)
-              ("c" . #'eglot-reconnect)
-              ("f f" . #'eglot-format)
-              ("f b" . #'eglot-format-buffer)
-              ("g d" . #'eglot-find-declaration)
-              ("g i" . #'eglot-find-implementation)
-              ("g t" . #'eglot-find-typeDefinition)
-              ("l" . #'eglot)
-              ("r" . #'eglot-rename)
-              ("s" . #'eglot-shutdown)
-              :map format-prefix-map
-              ("e" . #'eglot-format-buffer))
+         :prefix-map eglot-prefix-map
+         :prefix "C-c l"
+         ("a" . #'eglot-code-actions)
+         ("c" . #'eglot-reconnect)
+         ("f f" . #'eglot-format)
+         ("f b" . #'eglot-format-buffer)
+         ("g d" . #'eglot-find-declaration)
+         ("g i" . #'eglot-find-implementation)
+         ("g t" . #'eglot-find-typeDefinition)
+         ("l" . #'eglot)
+         ("r" . #'eglot-rename)
+         ("s" . #'eglot-shutdown)
+         :map format-prefix-map
+         ("e" . #'eglot-format-buffer))
 
   :custom-face
-  (eglot-highlight-symbol-face ((t (:bold t :underline (:style dots :position nil)))))
-  (eglot-diagnostic-tag-unnecessary-face ((t (:inherit f :underline (:color "#7cb6cb" :style wave :position nil)))))
+  (eglot-highlight-symbol-face ((t (:bold nil  :underline (:style dots :position nil)))))
+  (eglot-diagnostic-tag-unnecessary-face ((t (:inherit f  :underline (:color "#7cb6cb" :style wave :position nil)))))
   :hook
   ;; ((…-mode) . eglot-ensure)
   ((eglot-managed-mode . eldoc-promote-flymake))
   )
-
-(defun my/eglot-capf ()
-  (setq-local completion-at-point-functions
-              (list (cape-capf-super
-                     #'eglot-completion-at-point
-                     #'tempel-expand
-                     #'cape-file))))
-
-(add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 #+end_src
 
 #+begin_src emacs-lisp
