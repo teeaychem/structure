@@ -40,6 +40,9 @@ if command -v clingo >/dev/null 2>&1
     set -gx LD_LIBRARY_PATH "$LD_LIBRARY_PATH:$CLINGO_LIBRARY_PATH"
 end
 
+# conan // https://docs.conan.io/2/reference/environment.html#environment-variables
+set -gx CONAN_HOME "$XDG_CONFIG_HOME/conan2"
+
 # docker
 set -gx DOCKER_CONFIG "$XDG_CONFIG_HOME/docker"
 
