@@ -1,20 +1,20 @@
 -*- mode: org -*-
-# #+startup: overview content
+#+startup: content
 #+PROPERTY: header-args :results silent
 
 * to investigate
 
-https://wilkesley.org/~ian/xah/emacs/emacs.html
 https://www.reddit.com/r/emacs/comments/1ai00g5/more_totally_evident_but_super_useful_emacs/
 
-https://github.com/wilfred/helpful
 https://github.com/alexander-miller/treemacs
 https://github.com/editorconfig/editorconfig-emacs?tab=readme-ov-file https://editorconfig.org
 
 * temp
 
 #+begin_src emacs-lisp
-
+(use-package emacs
+  :custom
+  (comint-scroll-to-bottom-on-output t))
 #+end_src
 
 * startup
@@ -59,13 +59,14 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (setq read-extended-command-predicate #'command-completion-default-include-p)
 
   (setq enable-recursive-minibuffers t)
-  (setq tab-always-indent 't) ;; Enable indentation+completion using the TAB key.
+
+  (setq-default indent-tabs-mode nil)
+  
+  (setq tab-always-indent 't)
 
   (global-auto-revert-mode t) ; for reloading bib files, etc.
   (desktop-save-mode)
   (save-place-mode t)
-
-  (setq-default indent-tabs-mode nil)
 
   (setq native-comp-async-report-warnings-errors nil)
   (setopt package-install-upgrade-built-in t) ;; show updates to built in packages
@@ -692,7 +693,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 #+begin_src emacs-lisp
 (use-package ws-butler
   :custom
-  (ws-butler-keep-whitespace-before-point t)
+  (ws-butler-keep-whitespace-before-point nil)
   :hook
   ((prog-mode . ws-butler-mode)))
 #+end_src
@@ -1317,10 +1318,13 @@ https://github.com/Qkessler/consult-project-extra
 (use-package vertico
   :init
   (vertico-mode)
+  (vertico-multiform-mode)
   ;; (setq vertico-scroll-margin 0) ;; Different scroll margin
-  (setq vertico-count 40) ;; Show more candidates
+  (setq vertico-count 20) ;; Show more candidates
   (setq vertico-resize t) ;; Grow and shrink the Vertico minibuffer
-  (setq vertico-cycle t)) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-cycle t) ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  (setq vertico-multiform-commands
+      '((find-file (vertico-sort-function . vertico-sort-alpha)))))
 #+end_src
 
 ** embark
