@@ -139,9 +139,6 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 #+begin_src emacs-lisp
 (use-package emacs
   :init
-  (savehist-mode t)
-  (recentf-mode t)
-  
   (setq-default delete-by-moving-to-trash t)
 
   :custom
@@ -161,6 +158,38 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
                           version-control t         ; number backups
                           vc-make-backup-files nil) ; backup version controlled files
   )
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package savehist
+  :ensure nil
+  :commands (savehist-mode savehist-save)
+  :hook
+  (after-init . savehist-mode)
+  :custom
+  (savehist-autosave-interval 600)
+  (savehist-additional-variables
+   '(kill-ring                        ; clipboard
+     register-alist                   ; macros
+     mark-ring global-mark-ring       ; marks
+     search-ring regexp-search-ring)))
+
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package recentf
+  :ensure nil
+  :commands (recentf-mode recentf-cleanup)
+  :hook
+  (after-init . recentf-mode)
+
+  :custom
+  (recentf-auto-cleanup (if (daemonp) 300 'never))
+  (recentf-exclude '("COMMIT_EDITMSG\\'"))
+
+  :config
+  ;; to ensure `recentf-cleanup` runs before `recentf-save-list`
+  (add-hook 'kill-emacs-hook #'recentf-cleanup -90))
 #+end_src
 
 *** locale
@@ -298,6 +327,21 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 (add-hook 'prog-mode-hook #'context-menu-mode)
 (add-hook 'prog-mode-hook #'electric-pair-mode)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+#+end_src
+
+** dired
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :init
+  (setq dired-omit-files (concat "\\`[.]\\'"                                
+                                 "\\|\\.\\(?:elc|a\\|o\\|pyc\\|pyo\\|swp\\|class\\)\\'"
+                                 "\\|^\\.DS_Store\\'"
+                                 "\\|^\\.\\(?:svn\\|git\\)\\'"                               
+                                 "\\|^__pycache__\\'"                              
+                                 "\\|^flycheck_.*"
+                                 "\\|^flymake_.*"))
+  (add-hook 'dired-mode-hook #'dired-omit-mode))
 #+end_src
 
 ** eldoc
@@ -593,6 +637,27 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
         fzf/window-height 15))
 #+end_src
 
+** helpful
+
+#+begin_src emacs-lisp
+(use-package helpful
+  :ensure t
+  :commands (helpful-callable
+             helpful-variable
+             helpful-key
+             helpful-command
+             helpful-at-point
+             helpful-function)
+  :bind
+  ([remap describe-command] . helpful-command)
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-key] . helpful-key)
+  ([remap describe-symbol] . helpful-symbol)
+  ([remap describe-variable] . helpful-variable)
+  :custom
+  (helpful-max-buffers 7))
+#+end_src
+
 ** highlight indentation
 
 - To highlight indentations
@@ -667,6 +732,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 (use-package undo-fu-session
   :config
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+  :commands undo-fu-session-global-mode
   :hook (after-init . undo-fu-session-global-mode))
 #+end_src
 
