@@ -40,7 +40,6 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (mac-pass-command-to-system t)
   (menu-bar-mode t)
   (setq-default trash-directory "~/.Trash/emacs")
-  (insert-directory-program "gls") ;; (g)ls --dired
   )
 #+end_src
 
@@ -213,7 +212,6 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 #+begin_src emacs-lisp
 (use-package emacs
   :init
-  (defalias 'yes-or-no-p 'y-or-n-p)
 
   (setq-default fill-column 1024)
   (setq-default indicate-empty-lines t)
@@ -221,6 +219,7 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
   (set-frame-parameter nil 'internal-border-width 4)
 
   :custom
+  (use-short-answers t)
   (uniquify-buffer-name-style 'forward) ; unique buffer names
 
   (line-number-mode t) ; show line-number in the mode line
@@ -269,12 +268,20 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
   :custom
   (ns-use-thin-smoothing t)
 
-  (font-lock-maximum-decoration t))
+  (font-lock-maximum-decoration t)
+  (treesit-font-lock-level 4)
+  )
 #+end_src
 
 ** themes
 
 *** doom
+
+#+begin_src emacs-lisp
+(use-package emacs
+  :config
+  (setq ring-bell-function #'doom-themes-visual-bell-fn visible-bell t))
+#+end_src
 
 #+begin_src emacs-lisp :results silent
   (use-package doom-themes
@@ -341,7 +348,11 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
                                  "\\|^__pycache__\\'"                              
                                  "\\|^flycheck_.*"
                                  "\\|^flymake_.*"))
-  (add-hook 'dired-mode-hook #'dired-omit-mode))
+  (add-hook 'dired-mode-hook #'dired-omit-mode)
+  :custom
+  (dired-kill-when-opening-new-dired-buffer t)
+  (insert-directory-program "gls") ;; (g)ls --dired
+  )
 #+end_src
 
 ** eldoc
@@ -422,6 +433,18 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   ;; :hook
   ;; (prog-mode . flyspell-mode)
   )
+#+end_src
+
+** isearch
+
+#+begin_src emacs-lisp
+(use-package isearch
+  :ensure nil
+  :config
+  (setq isearch-lazy-count t)
+  (setq lazy-count-prefix-format "(%s/%s) ")
+  (setq lazy-count-suffix-format nil)
+  (setq search-whitespace-regexp ".*?"))
 #+end_src
 
 ** flymake
@@ -774,10 +797,16 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   (diff-hl-draw-borders nil)
   (diff-hl-side 'left)
   (diff-hl-bmp-max-width 10)
+  (diff-hl-margin-symbols-alist '((insert . "+")
+                                  (delete . "-")
+                                  (change . "/")
+                                  (unknown . "?")
+                                  (ignored . "i")))
   
   :config
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
+  (diff-hl-margin-mode)
   (diff-hl-show-hunk-mouse-mode)
   
   :custom-face
