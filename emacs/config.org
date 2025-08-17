@@ -723,10 +723,10 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 (use-package multiple-cursors
   :pin melpa-stable
   :bind (("C->" . mc/mark-next-like-this)
-	 ("C-<" . mc/mark-previous-like-this)
-	 ("C-c C->" . mc/mark-all-like-this)
-	 ("C-c C-SPC" . mc/edit-lines)
-	 ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C->" . mc/mark-all-like-this)
+         ("C-c C-SPC" . mc/edit-lines)
+         ("M-<M-down-mouse-1>" . mc/add-cursor-on-click)))
 #+end_src
 
 ** no-littering
@@ -978,7 +978,7 @@ Either override is sufficient at time of writing, though I expect fixing the las
   (LaTeX-mode . turn-on-reftex)
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . flyspell-mode)
-  (LaTeX-mode .	(lambda () (set (make-variable-buffer-local 'TeX-electric-math) (cons "\\(" "\\)"))))
+  (LaTeX-mode . (lambda () (set (make-variable-buffer-local 'TeX-electric-math) (cons "\\(" "\\)"))))
   :custom
   (TeX-master nil) ; All master files called "master".
   (TeX-auto-save t)
@@ -1396,7 +1396,7 @@ https://github.com/Qkessler/consult-project-extra
 
   :bind (:map corfu-map
               ;; ("C-SPC" . corfu-insert-separator)
-	      ("RET" . nil) ;; Free the RET key for less intrusive behavior.
+              ("RET" . nil) ;; Free the RET key for less intrusive behavior.
               ("C-<return>" . corfu-insert)
               ("M-_" . corfu-info-documentation)))
 #+end_src
@@ -1539,9 +1539,9 @@ maybe: https://github.com/casouri/eldoc-box
 (use-package eglot-booster
     :vc (eglot-booster :url "https://github.com/jdtsmith/eglot-booster"
                        :rev :newest)
-	:after eglot
-	:config
-	(eglot-booster-mode))
+        :after eglot
+        :config
+        (eglot-booster-mode))
 #+end_src
 
 - eglot-x
