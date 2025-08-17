@@ -1,8 +1,11 @@
 ;;; early-init.el -*- lexical-binding: t; -*-
 
-(setq package-enable-at-startup nil) ;; don't make installed packages available before loading the init.el file.
+(setq package-enable-at-startup nil) ;; don't make installed packages available before loading init.el.
 
 (setq load-prefer-newer t)
+(setq native-comp-jit-compilation t) ;; native-compile .elc files asynchronously.
+(setq native-comp-async-query-on-exit t)
+(setq package-native-compile t)
 
 (setq gc-cons-threshold (* 32 1024 1024))
 (run-with-idle-timer 2.0 t 'garbage-collect)
