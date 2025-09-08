@@ -497,7 +497,6 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :demand t
   :custom
   (which-key-sort-order 'which-key-prefix-then-key-order)
-  :custom
   (which-key-idle-delay 1.0)
   (which-key-max-display-columns nil)
   :config
@@ -932,7 +931,22 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :mode ("CMakeLists.txt" . cmake-mode))
 #+end_src
 
-** dotnet
+** cobol
+
+#+begin_src emacs-lisp
+(use-package cobol-superbol-mode
+  :defer t
+  :mode (("\\.cob\\'" . cobol-superbol-mode)
+         ("\\.cbl\\'" . cobol-superbol-mode)
+         ("\\.cpy\\'" . cobol-superbol-mode))
+  :vc (cobol-superbol-mode :url "https://github.com/OCamlPro/superbol-studio-oss/"
+                           :lisp-dir "emacs/"
+                           :rev :newest)
+  :custom
+  (cobol-tab-width 3))
+#+end_src
+
+** COMMENT fsharp
 
 #+begin_src emacs-lisp
 (use-package fsharp-mode
