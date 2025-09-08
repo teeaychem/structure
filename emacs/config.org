@@ -60,7 +60,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (setq enable-recursive-minibuffers t)
 
   (setq-default indent-tabs-mode nil)
-  
+
   (setq tab-always-indent 't)
 
   (global-auto-revert-mode t) ; for reloading bib files, etc.
@@ -92,10 +92,10 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   :init
   (global-subword-mode)
   (delete-selection-mode t) ;; delete selected text by typing
-  
+
   (defun foward-delete-word (arg) (interactive "p")
     (delete-region (point) (progn (forward-word arg) (point))))
-  
+
   (defun backward-delete-word (arg) (interactive "p")
     (delete-region (point) (progn (backward-word arg) (point))))
 
@@ -289,10 +289,10 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
     :init
     (setq doom-themes-enable-bold nil)
     (setq doom-themes-enable-italic t)
-    
+
     :config
     (load-theme 'doom-molokai t)
-    ;; (load-theme 'doom-one t)    
+    ;; (load-theme 'doom-one t)
 
     (doom-themes-visual-bell-config) ;; enable flashing mode-line on errors
     (doom-themes-org-config) ;; corrects (and improves) org-mode's native fontification.
@@ -341,11 +341,11 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 #+begin_src emacs-lisp
 (use-package emacs
   :init
-  (setq dired-omit-files (concat "\\`[.]\\'"                                
+  (setq dired-omit-files (concat "\\`[.]\\'"
                                  "\\|\\.\\(?:elc|a\\|o\\|pyc\\|pyo\\|swp\\|class\\)\\'"
                                  "\\|^\\.DS_Store\\'"
-                                 "\\|^\\.\\(?:svn\\|git\\)\\'"                               
-                                 "\\|^__pycache__\\'"                              
+                                 "\\|^\\.\\(?:svn\\|git\\)\\'"
+                                 "\\|^__pycache__\\'"
                                  "\\|^flycheck_.*"
                                  "\\|^flymake_.*"))
   (add-hook 'dired-mode-hook #'dired-omit-mode)
@@ -378,7 +378,7 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
                '("\\*eldoc*"
                  (display-buffer-at-bottom)
                  (window-height . 8)))
-  
+
   :custom
   (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-echo-area-use-multiline-p 1)
@@ -821,18 +821,18 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
                                   (change . "/")
                                   (unknown . "?")
                                   (ignored . "i")))
-  
+
   :config
   (global-diff-hl-mode)
   (diff-hl-flydiff-mode)
   (diff-hl-margin-mode)
   (diff-hl-show-hunk-mouse-mode)
-  
+
   :custom-face
   ;; (diff-hl-change ((t (:background ,(face-attribute 'default :background)))))
   ;; (diff-hl-insert ((t (:background ,(face-attribute 'default :background)))))
   ;; (diff-hl-delete ((t (:background ,(face-attribute 'default :background)))))
-    
+
   :hook
   ((magit-pre-refresh . diff-hl-magit-pre-refresh)
    (magit-post-refresh . diff-hl-magit-post-refresh)))
@@ -901,7 +901,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
   :config
   (org-babel-do-load-languages 'org-babel-load-languages
-                               '((emacs-lisp . t)                                 
+                               '((emacs-lisp . t)
                                  (org . t)
                                  (scheme . t))))
 #+end_src
