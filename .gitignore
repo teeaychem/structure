@@ -2,6 +2,7 @@
 
 /cache/
 
+/emacs/**.elc
 /emacs/.emacs.desktop
 /emacs/.org-id-locations
 /emacs/config.el
