@@ -95,6 +95,14 @@ set -x MANPAGER "nvim +Man!"
 set -gx NPM_CONFIG_USERCONFIG "$XDG_CONFIG_HOME/npm/npmrc"
 fish_add_path "./node_modules/.bin"
 
+# OCaml
+
+set -gx OPAMROOT "$XDG_DATA_HOME/opam"
+
+# This adds: the correct directories to the PATH, auto-completion for the opam binary
+test -r '/Users/sparkes/.share/opam/opam-init/init.fish' && source '/Users/sparkes/.share/opam/opam-init/init.fish' > /dev/null 2> /dev/null; or true
+
+
 # python
 set -gx PYTHONPYCACHEPREFIX "$XDG_CACHE_HOME/python_cache"
 set -gx PYTHON_HISTORY "$XDG_CACHE_HOME/python/history"
@@ -128,3 +136,5 @@ fzf --fish | source
 
 # zoxide
 zoxide init fish | source
+
+
