@@ -561,8 +561,8 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
 (use-package compile-angel
-  :ensure t
   :demand t
+  :delight compile-angel-on-load-mode
   :config
   ;; Set `compile-angel-verbose' to nil to disable compile-angel messages.
   ;; (When set to nil, compile-angel won't show which file is being compiled.)
@@ -574,6 +574,12 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   ;; A global mode that compiles .el files before they are loaded
   ;; using `load' or `require'.
   (compile-angel-on-load-mode 1))
+#+end_src
+
+** diminish
+
+#+begin_src emacs-lisp
+(use-package delight)
 #+end_src
 
 ** dirvish
@@ -1091,7 +1097,7 @@ https://robert.kra.hn/posts/rust-emacs-setup/
 
 #+begin_src emacs-lisp
 (use-package cargo
-  :diminish cargo-minor-mode
+  :delight cargo-minor-mode
   :hook (rust-mode . cargo-minor-mode))
 #+end_src
 
