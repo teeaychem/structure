@@ -21,12 +21,7 @@
   "Return GCC library paths from Homebrew installations.
 Detects paths for gcc and libgccjit packages to be used in LIBRARY_PATH."
   (let* ((paths '())
-         (brew-bin (or (executable-find "brew")
-                       (let ((arm-path "/opt/homebrew/bin/brew")
-                             (intel-path "/usr/local/bin/brew"))
-                         (cond
-                          ((file-exists-p arm-path) arm-path)
-                          ((file-exists-p intel-path) intel-path))))))
+         (brew-bin (executable-find "brew")))
 
     (when brew-bin
       ;; Get gcc paths.

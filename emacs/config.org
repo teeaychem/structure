@@ -278,7 +278,7 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 *** doom
 
 #+begin_src emacs-lisp
-(use-package emacs
+(use-package doom-themes
   :config
   (setq ring-bell-function #'doom-themes-visual-bell-fn visible-bell t))
 #+end_src
@@ -389,8 +389,7 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
                      ("d" . #'eldoc)
                      ("b" . #'eldoc-doc-buffer)
                      ("t" . #'eldoc-print-current-symbol-info)
-                     ("q" . #'quit-eldoc-buffer)
-                     ))
+                     ("q" . #'quit-eldoc-buffer)))
 #+end_src
 
 ** skeletons
@@ -438,8 +437,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 ** isearch
 
 #+begin_src emacs-lisp
-(use-package isearch
-  :ensure nil
+(use-package emacs
   :config
   (setq isearch-lazy-count t)
   (setq lazy-count-prefix-format "(%s/%s) ")
@@ -507,6 +505,25 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 * external, etc.
 
+** COMMENT compile-angel
+
+#+begin_src emacs-lisp
+(use-package compile-angel
+  :demand t
+  :delight compile-angel-on-load-mode
+  :config
+  ;; Set `compile-angel-verbose' to nil to disable compile-angel messages.
+  ;; (When set to nil, compile-angel won't show which file is being compiled.)
+  (setq compile-angel-verbose t)
+
+  ;; Uncomment the line below to compile automatically when an Elisp file is saved
+  ;; (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode)
+
+  ;; A global mode that compiles .el files before they are loaded
+  ;; using `load' or `require'.
+  (compile-angel-on-load-mode 1))
+#+end_src
+
 ** apheleia
 
 #+begin_src emacs-lisp
@@ -554,25 +571,6 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 
 #+begin_src emacs-lisp
 (use-package browse-kill-ring)
-#+end_src
-
-** compile-angel
-
-#+begin_src emacs-lisp
-(use-package compile-angel
-  :demand t
-  :delight compile-angel-on-load-mode
-  :config
-  ;; Set `compile-angel-verbose' to nil to disable compile-angel messages.
-  ;; (When set to nil, compile-angel won't show which file is being compiled.)
-  (setq compile-angel-verbose t)
-
-  ;; Uncomment the line below to compile automatically when an Elisp file is saved
-  ;; (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode)
-
-  ;; A global mode that compiles .el files before they are loaded
-  ;; using `load' or `require'.
-  (compile-angel-on-load-mode 1))
 #+end_src
 
 ** diminish
@@ -931,7 +929,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
   :mode ("CMakeLists.txt" . cmake-mode))
 #+end_src
 
-** cobol
+** COMMENT COBOL
 
 #+begin_src emacs-lisp
 (use-package cobol-superbol-mode
@@ -1637,5 +1635,48 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
   :hook
   ((prog-mode
     text-mode) . tempel-setup-capf)
-)
+  )
+#+end_src
+
+* dap
+
+#+begin_src emacs-lisp
+(use-package dape
+  :preface
+  ;; By default dape shares the same keybinding prefix as `gud'
+  ;; If you do not want to use any prefix, set it to nil.
+  (setq dape-key-prefix "\C-c\C-d")
+
+  ;; :hook
+  ;; Save breakpoints on quit
+  ;; (kill-emacs . dape-breakpoint-save)
+  ;; Load breakpoints on startup
+  ;; (after-init . dape-breakpoint-load)
+
+  :config
+  ;; Turn on global bindings for setting breakpoints with mouse
+  ;; (dape-breakpoint-global-mode)
+
+  ;; Info buffers to the right
+  ;; (setq dape-buffer-window-arrangement 'right)
+
+  ;; Info buffers like gud (gdb-mi)
+  ;; (setq dape-buffer-window-arrangement 'gud)
+  ;; (setq dape-info-hide-mode-line nil)
+
+  ;; Pulse source line (performance hit)
+  ;; (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
+
+  ;; Showing inlay hints
+  ;; (setq dape-inlay-hints t)
+
+  ;; Save buffers on startup, useful for interpreted languages
+  ;; (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
+
+  ;; Kill compile buffer on build success
+  ;; (add-hook 'dape-compile-hook 'kill-buffer)
+
+  ;; Projectile users
+  ;; (setq dape-cwd-function 'projectile-project-root)
+  )
 #+end_src
