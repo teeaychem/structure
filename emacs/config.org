@@ -31,7 +31,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
 
 #+begin_src emacs-lisp
 (use-package emacs
-  :if (memq system-type '(mac ns darwin))
+  :if (memq system-type '(darwin))
   :custom
   (mac-command-modifier 'meta)
   (mac-option-modifier 'option)
@@ -254,7 +254,7 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 #+begin_src emacs-lisp :results silent
 (use-package emacs
-  :if (memq system-type '(mac ns darwin))
+  :if (memq system-type '(darwin))
   :init
   (set-face-attribute 'default nil
                       :family "M+1Code Nerd Font Mono"; "Maple Mono NF" "JuliaMono"
@@ -651,7 +651,7 @@ maybe for jit: https://github.com/minad/jinx?tab=readme-ov-file
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :pin melpa-stable
-  :if (memq window-system '(mac ns x darwin))
+  :if (memq system-type '(darwin))
   :demand
   :init
   (setq exec-path-from-shell-arguments '("-l"))
@@ -1555,6 +1555,7 @@ maybe: https://github.com/casouri/eldoc-box
 
 #+begin_src emacs-lisp
 (use-package eglot-booster
+    :if (memq system-type '(darwin))
     :vc (eglot-booster :url "https://github.com/jdtsmith/eglot-booster"
                        :rev :newest)
         :after eglot
@@ -1569,6 +1570,7 @@ for rust dev
 
 #+begin_src emacs-lisp
 (use-package eglot-x
+  :if (memq system-type '(darwin))
   :vc (eglot-x :url "https://github.com/nemethf/eglot-x"
                :rev :newest)
   :after eglot
@@ -1655,7 +1657,7 @@ https://archive.casouri.cc/note/2023/tree-sitter-in-emacs-29/index.html
 
   :config
   ;; Turn on global bindings for setting breakpoints with mouse
-  ;; (dape-breakpoint-global-mode)
+  (dape-breakpoint-global-mode)
 
   ;; Info buffers to the right
   ;; (setq dape-buffer-window-arrangement 'right)
