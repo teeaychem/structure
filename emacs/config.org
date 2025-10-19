@@ -1548,7 +1548,9 @@ maybe: https://github.com/casouri/eldoc-box
                                         ("rust-analyzer"
                                          :initializationOptions (:check (:command "clippy")))))
   (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd" "--fallback-style=None")))
-  (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))  )
+  (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "*.sln" "-lsp")))
+)
 #+end_src
 
 - eglot-booster
@@ -1593,6 +1595,88 @@ for rust dev
 #+begin_src emacs-lisp
 (use-package consult-eglot
   :after eglot)
+#+end_src
+
+* COMMENT lsp-mode
+
+#+begin_src emacs-lisp
+(advice-add #'lsp! :override #'ignore)
+
+(use-package lsp-mode
+  :init
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "C-c l")
+  (defun lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(orderless)))
+
+  :custom
+  
+  (lsp-auto-execute-action nil)
+
+  (lsp-eldoc-enable-hover t)
+  (lsp-eldoc-render-all t)
+
+  (lsp-enable-folding nil)
+  (lsp-enable-indentation nil)
+  (lsp-enable-on-type-formatting nil)
+  (lsp-enable-suggest-server-download nil)
+  (lsp-enable-xref t)
+
+  (lsp-headerline-breadcrumb-enable nil)
+
+  (lsp-keep-workspace-alive nil)
+
+  (lsp-modeline-code-actions-enable nil)
+  (lsp-modeline-diagnostics-scope :file)
+
+  (lsp-signature-auto-activate '(:on-server-request))
+  (lsp-signature-doc-lines 0)
+  (lsp-signature-mode t)
+  (lsp-signature-render-documentation nil)
+
+  (lsp-treemacs-sync-mode 1)
+
+  :hook (;;(c++-ts-mode . lsp)
+         (prog-mode . lsp-deferred)
+         ;; if you want which-key integration
+         (lsp-mode . lsp-enable-which-key-integration))
+
+  :commands (lsp lsp-deferred))
+
+;; optionally if you want to use debugger
+;; (use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
+#+end_src
+
+- helm
+
+#+begin_src emacs-lisp
+(use-package helm-lsp
+  :commands helm-lsp-workspace-symbol)
+#+end_src
+
+
+
+- tempel
+
+#+begin_src emacs-lisp
+(use-package lsp-snippet-tempel
+  :vc (lsp-snippet-tempel :url "https://github.com/svaante/lsp-snippet"
+                          :rev :newest)
+  :after lsp-mode
+
+  :config
+  (when (featurep 'lsp-mode)
+    (lsp-snippet-tempel-lsp-mode-init))
+)
+#+end_src
+
+- consult
+
+  #+begin_src emacs-lisp
+(use-package consult-lsp
+  :after lsp-modea)
 #+end_src
 
 * treesit
