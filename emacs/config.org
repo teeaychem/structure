@@ -1048,7 +1048,7 @@ Either override is sufficient at time of writing, though I expect fixing the las
   (lua-indent-level 4))
 #+end_src
 
-** OCaml
+** COMMENT OCaml
 
 #+begin_src emacs-lisp
 (use-package tuareg
