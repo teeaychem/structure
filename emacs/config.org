@@ -1597,7 +1597,7 @@ for rust dev
   :after eglot)
 #+end_src
 
-* COMMENT lsp-mode
+* lsp-mode
 
 #+begin_src emacs-lisp
 (advice-add #'lsp! :override #'ignore)
@@ -1605,12 +1605,11 @@ for rust dev
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-keymap-prefix "C-c l m")
   (defun lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults)) '(orderless)))
 
   :custom
-  
   (lsp-auto-execute-action nil)
 
   (lsp-eldoc-enable-hover t)
@@ -1636,9 +1635,9 @@ for rust dev
 
   (lsp-treemacs-sync-mode 1)
 
-  :hook (;;(c++-ts-mode . lsp)
-         (prog-mode . lsp-deferred)
-         ;; if you want which-key integration
+  :hook ((prog-mode . (lambda () ;; if the file is part of a workspace, start lsp
+                        (interactive "D")
+                        (if (lsp-workspace-root default-directory) (lsp))))
          (lsp-mode . lsp-enable-which-key-integration))
 
   :commands (lsp lsp-deferred))
