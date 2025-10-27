@@ -1508,6 +1508,7 @@ maybe: https://github.com/casouri/eldoc-box
   (eglot-report-progress nil)
   (eglot-extend-to-xref t)
   (corfu-preview-current nil)
+  (eglot-code-action-indicator nil)
   ;; (eglot-confirm-server-edits t)
 
   (fset #'jsonrpc--log-event #'ignore)
