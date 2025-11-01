@@ -1548,7 +1548,11 @@ maybe: https://github.com/casouri/eldoc-box
   (add-to-list 'eglot-server-programs '((rust-ts-mode rust-mode) .
                                         ("rust-analyzer"
                                          :initializationOptions (:check (:command "clippy")))))
-  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd" "--fallback-style=None")))
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("clangd"
+                                                             "--background-index"
+                                                             "--clang-tidy"
+                                                             "--completion-style=detailed"
+                                                             "--fallback-style=None")))
   (add-to-list 'eglot-server-programs '(python-mode . ("basedpyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs '(csharp-mode . ("omnisharp" "*.sln" "-lsp")))
 )
