@@ -39,8 +39,7 @@ from https://github.com/howardabrams/dot-files/blob/master/emacs.org
   (mac-control-modifier 'control)
   (mac-pass-command-to-system t)
   (menu-bar-mode t)
-  (setq-default trash-directory "~/.Trash/emacs")
-  )
+  (setq-default trash-directory "~/.Trash/emacs"))
 #+end_src
 
 ** emacs
@@ -212,11 +211,10 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 #+begin_src emacs-lisp
 (use-package emacs
   :init
-
   (setq-default fill-column 1024)
   (setq-default indicate-empty-lines t)
 
-  (set-frame-parameter nil 'internal-border-width 4)
+  (set-frame-parameter nil 'internal-border-width 2)
 
   :custom
   (use-short-answers t)
@@ -252,25 +250,29 @@ Parts from http://pragmaticemacs.com/emacs/auto-save-and-backup-every-save/
 
 ** font
 
-#+begin_src emacs-lisp :results silent
+#+begin_src emacs-lisp
+(use-package emacs
+  :init
+  (setq-default line-spacing 1)
+  (global-font-lock-mode t)
+  (global-hi-lock-mode t)
+
+  :custom
+  (font-lock-maximum-decoration t)
+  (treesit-font-lock-level 4))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package emacs
   :if (memq system-type '(darwin))
   :init
   (set-face-attribute 'default nil
                       :family "M+1Code Nerd Font Mono"; "Maple Mono NF" "JuliaMono"
                       :height 150)
-  (setq-default line-spacing 1)
-  (setq-default mac-allow-anti-aliasing t)
-
-  (global-font-lock-mode t)
-  (global-hi-lock-mode t)
 
   :custom
   (ns-use-thin-smoothing t)
-
-  (font-lock-maximum-decoration t)
-  (treesit-font-lock-level 4)
-  )
+  (mac-allow-anti-aliasing t))
 #+end_src
 
 ** themes
@@ -1501,8 +1503,6 @@ maybe: https://github.com/casouri/eldoc-box
 
 #+begin_src emacs-lisp
 (use-package eglot
-  ;; :pin gnu-devel
-
   :custom
   ;; (eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider))
   (eglot-report-progress nil)
@@ -1601,8 +1601,6 @@ for rust dev
 * lsp-mode
 
 #+begin_src emacs-lisp
-(advice-add #'lsp! :override #'ignore)
-
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
@@ -1676,7 +1674,7 @@ for rust dev
 
   #+begin_src emacs-lisp
 (use-package consult-lsp
-  :after lsp-modea)
+  :after lsp-mode)
 #+end_src
 
 * treesit
