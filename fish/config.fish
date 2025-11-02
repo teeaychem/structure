@@ -29,10 +29,10 @@ end
 
 # bison
 
-if brew_ok
-    fish_add_path /opt/homebrew/opt/bison/bin
-    set -gx LDFLAGS -L/opt/homebrew/opt/bison/lib
-end
+# if brew_ok
+#     fish_add_path /opt/homebrew/opt/bison/bin
+#     set -gx LDFLAGS -L/opt/homebrew/opt/bison/lib
+# end
 
 # clingo
 if command -v clingo >/dev/null 2>&1
@@ -41,27 +41,27 @@ if command -v clingo >/dev/null 2>&1
 end
 
 # conan // https://docs.conan.io/2/reference/environment.html#environment-variables
-set -gx CONAN_HOME "$XDG_CONFIG_HOME/conan2"
+# set -gx CONAN_HOME "$XDG_CONFIG_HOME/conan2"
 
 # docker
 set -gx DOCKER_CONFIG "$XDG_CONFIG_HOME/docker"
 
 # dotnet
-fish_add_path "$HOME/.dotnet/tools"
-set -gx NUGET_PACKAGES "$XDG_CACHE_HOME/NuGetPackages"
+# fish_add_path "$HOME/.dotnet/tools"
+# set -gx NUGET_PACKAGES "$XDG_CACHE_HOME/NuGetPackages"
 
-if brew_ok
-    set -gx DOTNET_ROOT "$HOMEBREW_PREFIX/opt/dotnet/libexec"
-end
+# if brew_ok
+#     set -gx DOTNET_ROOT "$HOMEBREW_PREFIX/opt/dotnet/libexec"
+# end
 
 # flex
 
-if brew_ok
-    fish_add_path /opt/homebrew/opt/flex/bin
+# if brew_ok
+#     fish_add_path /opt/homebrew/opt/flex/bin
 
-    set -gx LDFLAGS -L/opt/homebrew/opt/flex/lib
-    set -gx CPPFLAGS -I/opt/homebrew/opt/flex/include
-end
+#     set -gx LDFLAGS -L/opt/homebrew/opt/flex/lib
+#     set -gx CPPFLAGS -I/opt/homebrew/opt/flex/include
+# end
 
 # hammerspoon
 # defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua"
@@ -113,9 +113,9 @@ set -gx MPLCONFIGDIR "$XDG_CACHE_HOME/matplotlib"
 source "$HOME/.cargo/env.fish"
 
 # vcpkg
-set -gx VCPKG_ROOT "$XDG_DATA_HOME/vcpkg"
-fish_add_path "$VCPKG_ROOT"
-set -gx VCPKG_FORCE_SYSTEM_BINARIES 1
+# set -gx VCPKG_ROOT "$XDG_DATA_HOME/vcpkg"
+# fish_add_path "$VCPKG_ROOT"
+# set -gx VCPKG_FORCE_SYSTEM_BINARIES 1
 
 # fzf
 set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
