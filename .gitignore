@@ -2,6 +2,8 @@
 
 /cache/
 
+/docker/
+
 /emacs/**.elc
 /emacs/.emacs.desktop
 /emacs/.org-id-locations
