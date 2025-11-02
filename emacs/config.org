@@ -1232,7 +1232,9 @@ These buffers can be seen by using space
        (add-to-list 'recentf-exclude ,(format "%s" regex))
        (add-to-list 'consult-buffer-filter ,(format "%s" regex)))))
 
+(add-to-consult-hide-filter "clangd")
 (add-to-consult-hide-filter "magit")
+(add-to-consult-hide-filter "lsp")
 #+end_src
 
 *** main
@@ -1636,14 +1638,20 @@ for rust dev
   (lsp-signature-mode t)
   (lsp-signature-render-documentation nil)
 
-  (lsp-treemacs-sync-mode 1)
+  (lsp-treemacs-sync-mode nil)
 
-  :hook ((prog-mode . (lambda () ;; if the file is part of a workspace, start lsp
-                        (interactive "D")
-                        (if (lsp-workspace-root default-directory) (lsp))))
+  :hook ((c-ts-mode . lsp-deferred)
          (lsp-mode . lsp-enable-which-key-integration))
 
-  :commands (lsp lsp-deferred))
+  :commands (lsp lsp-deferred)
+)
+
+(defun lsp-if-in-workspace ()
+  (interactive "D")
+  (if (lsp-workspace-root default-directory) (lsp)))
+
+(when (featurep 'lsp-mode)
+  (add-hook 'prog-mode-hook 'lsp-if-in-workspace))
 
 ;; optionally if you want to use debugger
 ;; (use-package dap-mode)
@@ -1651,14 +1659,24 @@ for rust dev
 
 #+end_src
 
-- helm
-
 #+begin_src emacs-lisp
-(use-package helm-lsp
-  :commands helm-lsp-workspace-symbol)
+(defun all-buffers-disable-mode (mode-toggle)
+  (interactive "a")
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (funcall mode-toggle -1))))
+
+(defun lsp-tmp ()
+  (interactive)
+  (mapcar
+   (lambda (buffer) (with-current-buffer buffer
+                      (if (and (eq lsp-mode t) (not (lsp-workspace-root default-directory)))
+                          (funcall lsp-disconnect)
+                          (funcall lsp-mode -1)
+                          (message "Disabled lsp-mode for " (buffer-name buffer)))))
+   (buffer-list)))
+
 #+end_src
-
-
 
 - tempel
 
